@@ -9,8 +9,9 @@
     <packaging>pom</packaging>
     <properties>
         <commit.message>New post.</commit.message>
-        <github.repository.name>georgecao</github.repository.name>
-        <github.repository.owner>georgecao.github.io</github.repository.owner>
+        <github.repository.name>georgecao.github.io</github.repository.name>
+        <github.repository.owner>georgecao</github.repository.owner>
+        <github.global.server>github</github.global.server>
     </properties>
     <build>
         <finalName>georgecao.github.io</finalName>
