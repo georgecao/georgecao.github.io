@@ -7,6 +7,11 @@
     <artifactId>whitepaper</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
+    <properties>
+        <commit.message>New post.</commit.message>
+        <github.repository.name>georgecao</github.repository.name>
+        <github.repository.owner>georgecao.github.io</github.repository.owner>
+    </properties>
     <build>
         <finalName>georgecao.github.io</finalName>
 
@@ -24,7 +29,7 @@
             <plugin>
                 <groupId>br.com.ingenieux</groupId>
                 <artifactId>jbake-maven-plugin</artifactId>
-                <version>0.2.0</version>
+                <version>0.0.9</version>
                 <executions>
                     <execution>
                         <id>default-generate</id>
