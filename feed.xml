@@ -2,16 +2,16 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>JBake</title>
-    <link>http://whitepaper.org</link>
-    <atom:link href="http://whitepaper.org/feed.xml" rel="self" type="application/rss+xml" />
+    <link>http://jbake.org</link>
+    <atom:link href="http://jbake.org/feed.xml" rel="self" type="application/rss+xml" />
     <description>JBake Bootstrap Template</description>
     <language>en-gb</language>
-    <pubDate>星期二, 16 八月 2016 12:48:57 +0800</pubDate>
-    <lastBuildDate>星期二, 16 八月 2016 12:48:57 +0800</lastBuildDate>
+    <pubDate>星期五, 19 八月 2016 22:31:22 +0800</pubDate>
+    <lastBuildDate>星期五, 19 八月 2016 22:31:22 +0800</lastBuildDate>
 
     <item>
       <title>Fourth Post</title>
-      <link>http://whitepaper.org/blog/2013/fourth-post.html</link>
+      <link>http://jbake.org/blog/2013/fourth-post.html</link>
       <pubDate>星期四, 17 十月 2013 00:00:00 +0800</pubDate>
       <guid isPermaLink="false">blog/2013/fourth-post.html</guid>
       	<description>
@@ -41,7 +41,7 @@ libero, ut vehicula lectus nunc ut lorem. Aliquam erat volutpat.&lt;/p&gt;
     </item>
     <item>
       <title>Third Post</title>
-      <link>http://whitepaper.org/blog/2013/third-post.html</link>
+      <link>http://jbake.org/blog/2013/third-post.html</link>
       <pubDate>星期四, 26 九月 2013 00:00:00 +0800</pubDate>
       <guid isPermaLink="false">blog/2013/third-post.html</guid>
       	<description>
@@ -71,7 +71,7 @@ libero, ut vehicula lectus nunc ut lorem. Aliquam erat volutpat.&lt;/p&gt;
     </item>
     <item>
       <title>Second Post</title>
-      <link>http://whitepaper.org/blog/2013/second-post.html</link>
+      <link>http://jbake.org/blog/2013/second-post.html</link>
       <pubDate>星期日, 25 八月 2013 00:00:00 +0800</pubDate>
       <guid isPermaLink="false">blog/2013/second-post.html</guid>
       	<description>
@@ -84,7 +84,7 @@ libero, ut vehicula lectus nunc ut lorem. Aliquam erat volutpat.&lt;/p&gt;
     </item>
     <item>
       <title>First Post</title>
-      <link>http://whitepaper.org/blog/2013/first-post.html</link>
+      <link>http://jbake.org/blog/2013/first-post.html</link>
       <pubDate>星期三, 24 七月 2013 00:00:00 +0800</pubDate>
       <guid isPermaLink="false">blog/2013/first-post.html</guid>
       	<description>
