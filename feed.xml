@@ -6,16 +6,16 @@
     <atom:link href="http://whitepaper.io/feed.xml" rel="self" type="application/rss+xml" />
     <description>JBake Bootstrap Template</description>
     <language>en-gb</language>
-    <pubDate>星期五, 19 八月 2016 23:11:12 +0800</pubDate>
-    <lastBuildDate>星期五, 19 八月 2016 23:11:12 +0800</lastBuildDate>
+    <pubDate>星期五, 19 八月 2016 23:20:12 +0800</pubDate>
+    <lastBuildDate>星期五, 19 八月 2016 23:20:12 +0800</lastBuildDate>
 
     <item>
-      <title>�²�һ��Thrift�Ĳ۵�</title>
+      <title>吐槽一下Thrift的槽点</title>
       <link>http://whitepaper.io/blog/2016/the-bad-things-about-thrift.html</link>
       <pubDate>星期五, 19 八月 2016 00:00:00 +0800</pubDate>
       <guid isPermaLink="false">blog/2016/the-bad-things-about-thrift.html</guid>
       	<description>
-	&lt;p&gt;Thrift�Ĳ۵����ǲ���.&lt;/p&gt;
+	&lt;p&gt;Thrift的槽点真是不少.&lt;/p&gt;
 	</description>
     </item>
     <item>
