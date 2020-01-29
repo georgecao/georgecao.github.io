@@ -1,27 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
     <url>
-        <loc>http://whitepaper.io/about.html</loc>
-        <lastmod>2013-09-24</lastmod>
+        <loc>http://reploop.org/about.html</loc>
+        <lastmod>2020-01-20</lastmod>
     </url>
     <url>
-        <loc>http://whitepaper.io/blog/2016/the-bad-things-about-thrift.html</loc>
-        <lastmod>2016-08-19</lastmod>
+        <loc>http://reploop.org/blog/2020/01/bank-account-in-hk.html</loc>
+        <lastmod>2018-05-06</lastmod>
     </url>
     <url>
-        <loc>http://whitepaper.io/blog/2013/fourth-post.html</loc>
-        <lastmod>2013-10-17</lastmod>
-    </url>
-    <url>
-        <loc>http://whitepaper.io/blog/2013/third-post.html</loc>
-        <lastmod>2013-09-26</lastmod>
-    </url>
-    <url>
-        <loc>http://whitepaper.io/blog/2013/second-post.html</loc>
-        <lastmod>2013-08-25</lastmod>
-    </url>
-    <url>
-        <loc>http://whitepaper.io/blog/2013/first-post.html</loc>
-        <lastmod>2013-07-24</lastmod>
+        <loc>http://reploop.org/blog/2020/01/the-bad-of-thrift.html</loc>
+        <lastmod>2017-06-03</lastmod>
     </url>
 </urlset>
