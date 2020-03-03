@@ -6,8 +6,8 @@
     <atom:link href="http://reploop.org/feed.xml" rel="self" type="application/rss+xml" />
     <description>JBake Bootstrap Template</description>
     <language>en-gb</language>
-    <pubDate>Tue, 3 Mar 2020 11:39:46 +0800</pubDate>
-    <lastBuildDate>Tue, 3 Mar 2020 11:39:46 +0800</lastBuildDate>
+    <pubDate>Tue, 3 Mar 2020 11:45:27 +0800</pubDate>
+    <lastBuildDate>Tue, 3 Mar 2020 11:45:27 +0800</lastBuildDate>
 
     <item>
       <title>理解内存重排序以及为什写无锁多线程代码时很重要。</title>
@@ -362,9 +362,6 @@ thread_D:
       	<description>
 	&lt;div id=&quot;preamble&quot;&gt;
 &lt;div class=&quot;sectionbody&quot;&gt;
-&lt;div class=&quot;paragraph&quot;&gt;
-&lt;p&gt;:idprefix&lt;/p&gt;
-&lt;/div&gt;
 &lt;div class=&quot;ulist&quot;&gt;
 &lt;div class=&quot;title&quot;&gt;本系列中的其他文章&lt;/div&gt;
 &lt;ul&gt;
@@ -413,7 +410,7 @@ thread_D:
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;div class=&quot;sect1&quot;&gt;
-&lt;h2 id=&quot;_无锁编程来救场&quot;&gt;无锁编程来救场&lt;/h2&gt;
+&lt;h2 id=&quot;无锁编程来救场&quot;&gt;无锁编程来救场&lt;/h2&gt;
 &lt;div class=&quot;sectionbody&quot;&gt;
 &lt;div class=&quot;paragraph&quot;&gt;
 &lt;p&gt;好消息：还有另一种控制多线程应用中并发任务的方法，为了避免上面提到的1）,2）和3）点问题，称之为 &lt;strong&gt;无锁编程&lt;/strong&gt;，这是一种不用加锁和解锁就可以安全的在多线程之间共享变化的数据的技术。&lt;/p&gt;
@@ -427,7 +424,7 @@ thread_D:
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;div class=&quot;sect1&quot;&gt;
-&lt;h2 id=&quot;_什么是原子指令&quot;&gt;什么是原子指令？&lt;/h2&gt;
+&lt;h2 id=&quot;什么是原子指令&quot;&gt;什么是原子指令？&lt;/h2&gt;
 &lt;div class=&quot;sectionbody&quot;&gt;
 &lt;div class=&quot;paragraph&quot;&gt;
 &lt;p&gt;思考计算中执行的任何操作，比如在屏幕上展示一张图片。这个操作是由许多更小的操作构成的：将文件读入内存，解压缩图片，点亮屏幕上的像素等等。如果你不停的细分这些更小的操作，也就是分为更小更小的操作，你最终会不能在分了。此时得到的处理器执行的肉眼可见的最小操作称之为机器指令，也就是硬件可直接执行的命令。&lt;/p&gt;
@@ -444,7 +441,7 @@ thread_D:
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;div class=&quot;sect1&quot;&gt;
-&lt;h2 id=&quot;_存储与加载原子指令&quot;&gt;存储与加载原子指令&lt;/h2&gt;
+&lt;h2 id=&quot;存储与加载原子指令&quot;&gt;存储与加载原子指令&lt;/h2&gt;
 &lt;div class=&quot;sectionbody&quot;&gt;
 &lt;div class=&quot;paragraph&quot;&gt;
 &lt;p&gt;存储和加载是处理器都要操作的：用来写入（存储）和读取（加载）内存数据。在某些情况下，许多CPU架构保证这些操作是天然原子的。例如，实现了 &lt;a href=&quot;https://en.wikipedia.org/wiki/X86&quot;&gt;x86架构&lt;/a&gt;的处理器使用 &lt;strong&gt;MOV&lt;/strong&gt; 指令从内存中读取数据并交给CPU。这个操作如果处理的是 &lt;a href=&quot;https://www.ibm.com/support/knowledgecenter/en/SSUFAU_1.0.0/com.ibm.ent.pl1.zos.doc/lr/alnmnt.html&quot;&gt;对齐&lt;/a&gt;的数据就能保证是原子的，对齐的数据是指能让CPU一次性读取出来的方式存储的数据。&lt;/p&gt;
@@ -452,7 +449,7 @@ thread_D:
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;div class=&quot;sect1&quot;&gt;
-&lt;h2 id=&quot;_读取_修改_写入rmw原子指令&quot;&gt;读取-修改-写入(RMW)原子指令&lt;/h2&gt;
+&lt;h2 id=&quot;读取_修改_写入rmw原子指令&quot;&gt;读取-修改-写入(RMW)原子指令&lt;/h2&gt;
 &lt;div class=&quot;sectionbody&quot;&gt;
 &lt;div class=&quot;paragraph&quot;&gt;
 &lt;p&gt;一些更复杂的操作不能够单独用一些简单存储和加载指令来完成。例如，增加存储中的数值需要至少3个原子的加载和存储指令，这就使的增加内存中数值这个操作不是原子的。读取-修改-写入（RMW）指令可以做到这个，也就有了通过一个原子操作完成多个操作的能力。除了RMW，还有非常多此类的指令。一些CPU架构全部提供，一些则提供一部分，下面列举一些：&lt;/p&gt;
@@ -476,7 +473,7 @@ thread_D:
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;div class=&quot;sect1&quot;&gt;
-&lt;h2 id=&quot;_原子指令的三个层次&quot;&gt;原子指令的三个层次&lt;/h2&gt;
+&lt;h2 id=&quot;原子指令的三个层次&quot;&gt;原子指令的三个层次&lt;/h2&gt;
 &lt;div class=&quot;sectionbody&quot;&gt;
 &lt;div class=&quot;paragraph&quot;&gt;
 &lt;p&gt;以上所有得这些指令都属于硬件层面的：他们直接和CPU交互。这要工作使非常困难并且不可移植，因为一些指令可能在不同得架构下叫不同得名字，一些指令在不同的处理器模型上则根本不存在！因此，你也不太可能用到这些，除非你在针对特定得机器写非常底层得代码。&lt;/p&gt;
@@ -499,7 +496,7 @@ thread_D:
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;div class=&quot;sect1&quot;&gt;
-&lt;h2 id=&quot;_在多线程中使用原子操作&quot;&gt;在多线程中使用原子操作&lt;/h2&gt;
+&lt;h2 id=&quot;在多线程中使用原子操作&quot;&gt;在多线程中使用原子操作&lt;/h2&gt;
 &lt;div class=&quot;sectionbody&quot;&gt;
 &lt;div class=&quot;paragraph&quot;&gt;
 &lt;p&gt;我们现在看看原子操作是如何使用的。 考虑增加一个简单的变量，这是本来就不是原子操作，因为此操作由3个不同的步骤构成：读取数值，给数值加1，将结果写回。 一般来说，你可能会使用互斥锁来正确实现这个操作（伪代码）：&lt;/p&gt;
@@ -543,7 +540,7 @@ writer_thread()
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;div class=&quot;sect1&quot;&gt;
-&lt;h2 id=&quot;_现实世界中的原子操作&quot;&gt;现实世界中的原子操作&lt;/h2&gt;
+&lt;h2 id=&quot;现实世界中的原子操作&quot;&gt;现实世界中的原子操作&lt;/h2&gt;
 &lt;div class=&quot;sectionbody&quot;&gt;
 &lt;div class=&quot;paragraph&quot;&gt;
 &lt;p&gt;现在，上面这个例子显示了原子操作的一个重要特性：他们仅针对原子类型，如boolean型，字符串，整数等。但是真的程序是需要使用同步技术来实现更负责的数据，比如数组，向量，对象，数据向量，对象里包含数据等等。如何用基于原子类型的简单操作来保证负责数据的原子性？&lt;/p&gt;
@@ -560,7 +557,7 @@ writer_thread()
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;div class=&quot;sect1&quot;&gt;
-&lt;h2 id=&quot;_比较并交换cas循环&quot;&gt;比较并交换(CAS)循环&lt;/h2&gt;
+&lt;h2 id=&quot;比较并交换cas循环&quot;&gt;比较并交换(CAS)循环&lt;/h2&gt;
 &lt;div class=&quot;sectionbody&quot;&gt;
 &lt;div class=&quot;paragraph&quot;&gt;
 &lt;p&gt;具体到实际应用，比较并交换循环(CAS loop)可能是无锁编程中最常用的技巧，无论你是使用现成的数据结构或者从头开始实现算法。这是基于对应的 &lt;strong&gt;比较并交换&lt;/strong&gt; 原子操作（CAS）而且有一个很好的特点：他能支持多个写线程。这是用到复杂系统中的并发算法的一个重要特征。&lt;/p&gt;
@@ -571,7 +568,7 @@ writer_thread()
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;div class=&quot;sect1&quot;&gt;
-&lt;h2 id=&quot;_cas循环实现&quot;&gt;CAS循环实现&lt;/h2&gt;
+&lt;h2 id=&quot;cas循环实现&quot;&gt;CAS循环实现&lt;/h2&gt;
 &lt;div class=&quot;sectionbody&quot;&gt;
 &lt;div class=&quot;paragraph&quot;&gt;
 &lt;p&gt;操作系统或者编程语言提供的CAS函数可能张这个样子：&lt;/p&gt;
@@ -616,7 +613,7 @@ writer_thread()
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;div class=&quot;sect1&quot;&gt;
-&lt;h2 id=&quot;_交换范式&quot;&gt;交换范式&lt;/h2&gt;
+&lt;h2 id=&quot;交换范式&quot;&gt;交换范式&lt;/h2&gt;
 &lt;div class=&quot;sectionbody&quot;&gt;
 &lt;div class=&quot;paragraph&quot;&gt;
 &lt;p&gt;正如前面说的，CAS循环在许多无锁算法中引入了重复模式:&lt;/p&gt;
@@ -643,7 +640,7 @@ writer_thread()
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;div class=&quot;sect1&quot;&gt;
-&lt;h2 id=&quot;_一种轻量级加锁形式&quot;&gt;一种轻量级加锁形式&lt;/h2&gt;
+&lt;h2 id=&quot;一种轻量级加锁形式&quot;&gt;一种轻量级加锁形式&lt;/h2&gt;
 &lt;div class=&quot;sectionbody&quot;&gt;
 &lt;div class=&quot;paragraph&quot;&gt;
 &lt;p&gt;上面看到的循环直到成功的的策略再许多无锁算法中用到了，被称之为自旋锁(spinlock)：一个简单的循环，线程不停的尝试执行操作直到成功。这是一种经量级的加锁形式，此时线程实时活跃运行的，不会被操作系统休眠。尽管这个循环成功之前工作不会有进展。相比之下，互斥锁或者信号量中用到的常规锁代价非常高，因为一个挂起/唤醒周期需要大量的底层工作。&lt;/p&gt;
@@ -651,7 +648,7 @@ writer_thread()
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;div class=&quot;sect1&quot;&gt;
-&lt;h2 id=&quot;_aba问题&quot;&gt;ABA问题&lt;/h2&gt;
+&lt;h2 id=&quot;aba问题&quot;&gt;ABA问题&lt;/h2&gt;
 &lt;div class=&quot;sectionbody&quot;&gt;
 &lt;div class=&quot;paragraph&quot;&gt;
 &lt;p&gt;行（1）和（2）所示指令虽然有所不同，但不是连续的。另一个线程可能插入中间，再（1）读取完成之后修改共享数据。更确切的说，另一个线程可以将初始数据，假设为A，修改为B，然后在（2）所示的比较并交换操作执行之前再修改回A。执行CAS操作的线程不会发现数据的变化而成功执行交换操作。这就是所谓的ABA问题：有时候你可以简单的直接忽略，如果你的算法就像上面那个一样简单，而有时候你就需要避免此问题，因为这会给你的应用程序引入非常难以发现的问题。信用的是有 &lt;a href=&quot;https://en.wikipedia.org/wiki/Compare-and-swap#ABA_problem&quot;&gt;几种方式&lt;/a&gt; 可以绕过这个问题。&lt;/p&gt;
@@ -659,7 +656,7 @@ writer_thread()
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;div class=&quot;sect1&quot;&gt;
-&lt;h2 id=&quot;_cas循环可以交换任意的事情&quot;&gt;CAS循环可以交换任意的事情&lt;/h2&gt;
+&lt;h2 id=&quot;cas循环可以交换任意的事情&quot;&gt;CAS循环可以交换任意的事情&lt;/h2&gt;
 &lt;div class=&quot;sectionbody&quot;&gt;
 &lt;div class=&quot;paragraph&quot;&gt;
 &lt;p&gt;CAS循环经常用来交换指针，这也是比较并交换操作支持的类型之一。当你需要修改复杂的诸如对象或者数组的数据集的时候非常有用：创建本地数据副本，按需修改这个副本，合适的时候交换本地副本数据和全局共享数据的指针。这样的话全局共享数据就指向了本地副本数据在内存中指针，其他线程就会看到更新后的最新数据。&lt;/p&gt;
@@ -670,7 +667,7 @@ writer_thread()
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;div class=&quot;sect1&quot;&gt;
-&lt;h2 id=&quot;_无锁和无等待&quot;&gt;无锁和无等待&lt;/h2&gt;
+&lt;h2 id=&quot;无锁和无等待&quot;&gt;无锁和无等待&lt;/h2&gt;
 &lt;div class=&quot;sectionbody&quot;&gt;
 &lt;div class=&quot;paragraph&quot;&gt;
 &lt;p&gt;每个基于原子操作的算法或者数据结构可以归为2类：无锁的或者无等待的。当你要评估基于原子操作的类库对你应用程序性能的影响时，这是一个非常重要的不同点。&lt;/p&gt;
@@ -693,7 +690,7 @@ writer_thread()
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;div class=&quot;sect1&quot;&gt;
-&lt;h2 id=&quot;_写到最后&quot;&gt;写到最后&lt;/h2&gt;
+&lt;h2 id=&quot;写到最后&quot;&gt;写到最后&lt;/h2&gt;
 &lt;div class=&quot;sectionbody&quot;&gt;
 &lt;div class=&quot;paragraph&quot;&gt;
 &lt;p&gt;原子操作是无锁编码的必要组成，甚至是在单处理器的机器上也是。没有原子性，一个线程可能在事务中途被中断，可能会导致不一致的数据状态。本文中，我仅仅是浅尝辄止：一旦你把多核/多线程考虑进去，就打开了新世界。顺序一致性和内存屏障是非常关键的部分，如果要充分利用无锁算法，就不应该被忽视。我将在下一文章中讨论这些主题。&lt;/p&gt;
@@ -701,7 +698,7 @@ writer_thread()
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;div class=&quot;sect1&quot;&gt;
-&lt;h2 id=&quot;_参考&quot;&gt;参考&lt;/h2&gt;
+&lt;h2 id=&quot;参考&quot;&gt;参考&lt;/h2&gt;
 &lt;div class=&quot;sectionbody&quot;&gt;
 &lt;div class=&quot;ulist&quot;&gt;
 &lt;ul&gt;
