@@ -54,100 +54,98 @@
     <div class="container">
   			<a href="blog/2020/02/understanding-memory-reordering.html"><h1>理解内存重排序以及为什写无锁多线程代码时很重要。</h1></a>
   			<p>29 February 2020</p>
-  			<p><div id="preamble">
-<div class="sectionbody">
-<div class="ulist">
-<div class="title">本系列中的其他文章</div>
-<ul>
-<li>
-<p><a href="a-gentle-introduction-to-multithreading.html">多线程简介</a> - 一步一步走进并发的世界</p>
-</li>
-<li>
-<p><a href="introduction-to-thread-synchronization.html">线程同步简介</a> - 多线程应用中最常见的的并发控制方法之一</p>
-</li>
-<li>
-<p><a href="lock-free-multithreading-with-atomic-operations.html">用原子操作实现无锁多线程</a> - 底层线程同步</p>
-</li>
-</ul>
-</div>
-<div class="paragraph">
-<p>此系列前一篇文章中，<a href="lock-free-multithreading-with-atomic-operations.html">用原子操作实现无锁多线程</a> ，我介绍了无锁多线程：并发软件中线程同步的底层机制。</p>
-</div>
-<div class="paragraph">
-<p>基于原子操作，也就是CPU直接执行不能细分为更小步骤的机器指令，相比传统的同步原语如<a href="introduction-to-thread-synchronization.html">互斥锁和信号量</a>，无锁多线程提供了更快和能够更细粒度控制的同步机制。</p>
-</div>
-<div class="paragraph">
-<p>一如既往的，能力越大，责任越大。无锁编码中你更接近本质，因此理解机器是如何工作的以及机器的特性是个非常有益的。</p>
-</div>
-<div class="paragraph">
-<p>本文中我会介绍一些硬件（和软件）对无锁代码产生的非常重要的副作用。这也是惊叹计算机内部小型世界的复杂性的机会。</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="内存重排序或者不愉快的惊喜">内存重排序或者不愉快的惊喜</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>现有编程课程首先要教你的是计算机如何顺序执行用源代码写出的指令。一段程序就是文本文件中的一系列操作，处理器会从上到下执行这些操作。</p>
-</div>
-<div class="paragraph">
-<p>意外的，这常常是一个谎言：你的机器有能力按需调整以下底层指令的执行顺序，尤其是内存的读取的时候。这个诡异的修改，叫做内存重排序，会发生在硬件和软件层面，且经常是因为性能的原因。</p>
-</div>
-<div class="paragraph">
-<p>内存重排序开发出来旨在利用那些原本要浪费掉的指令周期。这个技巧能大幅度提升你程序的执行速度；另一方面，它可能对无锁多线程造成严重破坏。我们马上能看到为啥。</p>
-</div>
-<div class="paragraph">
-<p>我们先来仔细看一下内存重排序这种不可预知的行为存在的原因。</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="内存重排序总结">内存重排序总结</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>程序想要执行，必须加载进主内存。CPU的任务就是执行存储在那的指令，同时在必要的时候读数据或者写数据。</p>
-</div>
-<div class="paragraph">
-<p>随着时间的推移，这种类型的内存和处理器比起来变得非常慢。例如，一个现代的CPU一个纳秒内能够执行10个指令，但是需要纳秒的许多倍时间从此内存中读取数据！工程师们不喜欢时间就这样浪费了，所以他们给CPU配上了容量很小但是速度非常考快的特殊内存，我们称之为缓存。</p>
-</div>
-<div class="paragraph">
-<p>缓存是处理为了避免和慢速主内存交互，用来存储CPU最常用的数据的。如果CPU需要从主内存读取或者写入主内存，它首先检测缓存看是不是有所需数据的副本。如果有，处理器就直接重缓存读取或者写入缓存而不会等待相比较慢的主内存的响应。</p>
-</div>
-<div class="paragraph">
-<p>现代CPU有多个核心组成的，核心（core）是真正执行计算的组件。每个核心拥有自己的独立缓存，如下图所示：</p>
-</div>
-<div class="imageblock">
-<div class="content">
-<img src="/images/cpu-cache-main-memory.png" alt="CPU" width="cache and main memory">
-</div>
-<div class="title">Figure 1. 多个核心通过缓存和主内存交互的简化模型。这也叫做共享内存系统，因为主内存被多个实体访问。</div>
-</div>
-<div class="paragraph">
-<p>总而言之，缓存能让计算机运行更快。更准确的说，缓存通过让处理器总是繁忙和高效来帮助处理器不要因为等待主内存响应而浪费宝贵的时间。</p>
-</div>
-<div class="sect2">
-<h3 id="内存重排序作为优化技巧">内存重排序作为优化技巧</h3>
-<div class="paragraph">
-<p>很明显缓存机制增加了多核场景下系统的复杂性。现在你需要详细的规则来决定数据如何在不同的缓存间流动，来保证每个核心有最新版本的数据，称之为缓存一致性协议，他可能触发非常大的性能下降。所以工程师们就设想用内存重排序来充分发挥每个核心的作用。</p>
-</div>
-<div class="paragraph">
-<p>内存重排序为什么会产生，比如，考虑2个核心同时访问同样的内存块。核心A从内从读取数据，核心B写入数据到内存。内存一致性协议可能会强制核心A等待核心B将本地修改的数据写回到主内存，这样核心A就能读到最新的数据。等待的核心可以选择提前执行其他内存指令，而不是浪费珍贵的的指令周期啥也不做。即使这个和你在程序中明确的代码顺序不一样。</p>
-</div>
-<div class="paragraph">
-<p>当特定的优化是开启了，编译器和虚拟机也会自用重排序指令。这些变化发生在编译时，可以通过汇编码或者字节码很容易的看到。软件内存重排序是充分利用底层硬件可能提供的特性来让你的代码运行的更快。</p>
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="硬件内存重排序的具体样例">硬件内存重排序的具体样例</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>考虑下面用硬件伪代码写的样例。程序的每一个步骤都对应一个处理器指令：</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="prettyprint highlight"><code class="language-c" data-lang="c">x = 0
+  			<p><div id="preamble"> 
+ <div class="sectionbody"> 
+  <div class="ulist"> 
+   <div class="title">
+    本系列中的其他文章
+   </div> 
+   <ul> 
+    <li> <p><a href="a-gentle-introduction-to-multithreading.html">多线程简介</a> - 一步一步走进并发的世界</p> </li> 
+    <li> <p><a href="introduction-to-thread-synchronization.html">线程同步简介</a> - 多线程应用中最常见的的并发控制方法之一</p> </li> 
+    <li> <p><a href="lock-free-multithreading-with-atomic-operations.html">用原子操作实现无锁多线程</a> - 底层线程同步</p> </li> 
+   </ul> 
+  </div> 
+  <div class="paragraph"> 
+   <p>此系列前一篇文章中，<a href="lock-free-multithreading-with-atomic-operations.html">用原子操作实现无锁多线程</a> ，我介绍了无锁多线程：并发软件中线程同步的底层机制。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>基于原子操作，也就是CPU直接执行不能细分为更小步骤的机器指令，相比传统的同步原语如<a href="introduction-to-thread-synchronization.html">互斥锁和信号量</a>，无锁多线程提供了更快和能够更细粒度控制的同步机制。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>一如既往的，能力越大，责任越大。无锁编码中你更接近本质，因此理解机器是如何工作的以及机器的特性是个非常有益的。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>本文中我会介绍一些硬件（和软件）对无锁代码产生的非常重要的副作用。这也是惊叹计算机内部小型世界的复杂性的机会。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="内存重排序或者不愉快的惊喜">内存重排序或者不愉快的惊喜</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>现有编程课程首先要教你的是计算机如何顺序执行用源代码写出的指令。一段程序就是文本文件中的一系列操作，处理器会从上到下执行这些操作。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>意外的，这常常是一个谎言：你的机器有能力按需调整以下底层指令的执行顺序，尤其是内存的读取的时候。这个诡异的修改，叫做内存重排序，会发生在硬件和软件层面，且经常是因为性能的原因。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>内存重排序开发出来旨在利用那些原本要浪费掉的指令周期。这个技巧能大幅度提升你程序的执行速度；另一方面，它可能对无锁多线程造成严重破坏。我们马上能看到为啥。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>我们先来仔细看一下内存重排序这种不可预知的行为存在的原因。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="内存重排序总结">内存重排序总结</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>程序想要执行，必须加载进主内存。CPU的任务就是执行存储在那的指令，同时在必要的时候读数据或者写数据。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>随着时间的推移，这种类型的内存和处理器比起来变得非常慢。例如，一个现代的CPU一个纳秒内能够执行10个指令，但是需要纳秒的许多倍时间从此内存中读取数据！工程师们不喜欢时间就这样浪费了，所以他们给CPU配上了容量很小但是速度非常考快的特殊内存，我们称之为缓存。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>缓存是处理为了避免和慢速主内存交互，用来存储CPU最常用的数据的。如果CPU需要从主内存读取或者写入主内存，它首先检测缓存看是不是有所需数据的副本。如果有，处理器就直接重缓存读取或者写入缓存而不会等待相比较慢的主内存的响应。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>现代CPU有多个核心组成的，核心（core）是真正执行计算的组件。每个核心拥有自己的独立缓存，如下图所示：</p> 
+  </div> 
+  <div class="imageblock"> 
+   <div class="content"> 
+    <img src="http://reploop.org/blog/2020/02/images/cpu-cache-main-memory.png" alt="CPU" width="cache and main memory"> 
+   </div> 
+   <div class="title">
+    Figure 1. 多个核心通过缓存和主内存交互的简化模型。这也叫做共享内存系统，因为主内存被多个实体访问。
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>总而言之，缓存能让计算机运行更快。更准确的说，缓存通过让处理器总是繁忙和高效来帮助处理器不要因为等待主内存响应而浪费宝贵的时间。</p> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="内存重排序作为优化技巧">内存重排序作为优化技巧</h3> 
+   <div class="paragraph"> 
+    <p>很明显缓存机制增加了多核场景下系统的复杂性。现在你需要详细的规则来决定数据如何在不同的缓存间流动，来保证每个核心有最新版本的数据，称之为缓存一致性协议，他可能触发非常大的性能下降。所以工程师们就设想用内存重排序来充分发挥每个核心的作用。</p> 
+   </div> 
+   <div class="paragraph"> 
+    <p>内存重排序为什么会产生，比如，考虑2个核心同时访问同样的内存块。核心A从内从读取数据，核心B写入数据到内存。内存一致性协议可能会强制核心A等待核心B将本地修改的数据写回到主内存，这样核心A就能读到最新的数据。等待的核心可以选择提前执行其他内存指令，而不是浪费珍贵的的指令周期啥也不做。即使这个和你在程序中明确的代码顺序不一样。</p> 
+   </div> 
+   <div class="paragraph"> 
+    <p>当特定的优化是开启了，编译器和虚拟机也会自用重排序指令。这些变化发生在编译时，可以通过汇编码或者字节码很容易的看到。软件内存重排序是充分利用底层硬件可能提供的特性来让你的代码运行的更快。</p> 
+   </div> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="硬件内存重排序的具体样例">硬件内存重排序的具体样例</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>考虑下面用硬件伪代码写的样例。程序的每一个步骤都对应一个处理器指令：</p> 
+  </div> 
+  <div class="listingblock"> 
+   <div class="content"> 
+    <pre class="prettyprint highlight"><code class="language-c" data-lang="c">x = 0
 v = false
 
 thread_one():
@@ -157,88 +155,88 @@ thread_one():
 
 thread_two():
     store(x, 1)
-    store(v, true)</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>上面的代码片段中2个线程并发运行在2个不同的核心上。第1个线程等待第2个线程讲v设置未true。让我们假设 <strong>store()</strong> 和 <strong>load()</strong> 都是读取内存的原子的CPU指令。</p>
-</div>
-<div class="paragraph">
-<p>你预计第1个线程在屏幕上打印出什么？如果他在线程2之前启动（ <a href="https://internalpointers.com/post/gentle-introduction-multithreading#race-conditions">并不总是这样的</a>），就没有正确的答案了。如果没有重排序发生，你可能会看到1。尽管如此，如果第2个线程中的存储指令发生重排序，v的更新也可能发生在x之前，打印语句可能打印出0。相似的，内存重排序也可能发生在第1个线程中，也就是x的加载可能发生在v的检测之前。</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="内存重排序对多线程的影响">内存重排序对多线程的影响</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>硬件内存重排序在单核计算机上没有问题，因为线程操作系统控制的软件是软件结构。CPU就是收到连续的内存指令流。指令还是可以被重新排序，不过要符合一个基本规则：给定内核的内存访问看上去就像和代码写的一样。所以，内存重排序可能会发生，但是只在不影响最终结果的前提下。</p>
-</div>
-<div class="paragraph">
-<p>这个规则也适用于多核场景下的每个单核，但不适用于不同操作同时跑在独立的硬件上的情况（ <a href="https://internalpointers.com/post/gentle-introduction-multithreading#what-threads-are-used-for">真并行(true parallelism)</a>）。让你的线程跑在两个物理内核上，你就会碰到上面样例中的各种诡异问题，更不用说让编译器和虚拟机执行重排序了。</p>
-</div>
-<div class="paragraph">
-<p>常规的如互斥锁和信号量等<a href="introduction-to-thread-synchronization.html">锁同步机制</a>是设计用来处理硬件和软件层面的内存重排序的。毕竟他们是上层技术。</p>
-</div>
-<div class="paragraph">
-<p>不过，应用无锁方案的多线程程序更接近底层：就像<a href="lock-free-multithreading-with-atomic-operations.html">上一篇文章</a>看到的，它利用存储和加载原子指令来同步线程。 搞笑的是这些操作可能被重排序，从而破坏了你的严谨计划。</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="如何解决内存重排序的问题">如何解决内存重排序的问题</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>你肯定不会基于一些随机变化的东西构建你的同步机制。这个问题可以通过引入内存屏障的方式来解决。内存屏障是强制处理器按照可预知的方式访问内存的CPU指令。内存屏障的工作方式类似路障：内存屏障之前的指令保证先于内存屏障之后的指令执行。</p>
-</div>
-<div class="paragraph">
-<p>内存屏障是硬件层面的：你得直接和CPU交互。这是一个底层的解决方案，且不利用程序的可移植性。解决这个问题最好的方式是软件层次上走，利用操作系统，编译器或虚拟机提供的工具。</p>
-</div>
-<div class="paragraph">
-<p>尽管如此，软件工具也仅仅是中间阶段。为了构建一个此问题的清晰的全景图，我们首先全局看一下所有可能在硬件或者软件系统中的内存场景。所谓的内存模型在这个过程中发挥作用。</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="内存模型">内存模型</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>内存模型是抽象的方式描述系统中涉及到访问和重排序内存可能或者不可能发生的事情。处理器和编程语言会实现一个，尤其是利用多线程技术的时候：内存模型同时适用于硬件和软件层面。</p>
-</div>
-<div class="paragraph">
-<p>当系统对改变内存操作顺序非常谨慎，我们说系统遵循强内存模型。相反的，弱内存模型中你可能碰到各种各样的重排序。比如，x86系列的处理器属于前一类，而ARM和PowerPC处理器则属于后一类。软件层面又是怎么样的呢？</p>
-</div>
-<div class="sect2">
-<h3 id="软件内存模型的好处">软件内存模型的好处</h3>
-<div class="paragraph">
-<p>硬件内存模型存在的原因很明显，而对应的软件内存模型让你能够按需重排内存访问顺序。这个特性在你写无锁多线程代码的代码能帮很大的忙。</p>
-</div>
-<div class="paragraph">
-<p>例如，为了避免同步机制中不受欢迎的原子操作的重排序，编译器可以编译出遵循强内存模型的机器码。当底层硬件实现的是弱内存模型的时候，编译器会通过加入正确的内存屏障指令来最大限度的提供你需要的内存模型。编译器也负责软件层面的内存重排序指令。使用软件内存模型可以解耦硬件细节。</p>
-</div>
-<div class="paragraph">
-<p>基本上，所有的编程语言都会实现一种内存模型，某种意义上说，他们都遵循特定的规则来处理内存。一些编程语言也就到此为止了，因为他们不直接处理多线程。其他的比如 <a href="https://docs.oracle.com/javase/9/docs/api/java/lang/invoke/VarHandle.html">Java</a>， <a href="https://doc.rust-lang.org/nomicon/atomics.html">Rust</a>和 <a href="https://en.cppreference.com/w/cpp/atomic/memory_order">C++</a>等也会提供上述的控制内存重排序行为的工具。</p>
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="细粒度内存模型">细粒度内存模型</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>强和弱内存模型是对内存操作如何重排序的理论上的分类。具体到真实的编码，大多数支持原子操作的编程语言会提供3种控制内存重排序的方式。我们仔细看一下。</p>
-</div>
-<div class="sect2">
-<h3 id="1顺序一致">1）顺序一致</h3>
-<div class="paragraph">
-<p>较少干扰的内存重排序方式就是根本不重排序。这是强内存模型的一种形式，称之为顺序一致：这正是解决上面提到的所有无锁多线程问题所需要的。禁用重排序能让你的多线程程序容易理解：源代码是按照书写顺序执行的。</p>
-</div>
-<div class="paragraph">
-<p>顺序一致给并行代码执行加了另外一个重要特性：它强制了所有线程中的所有内存原子操作的整体顺序。为了更好理解这句话，考虑如下的硬件伪代码样例：</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="prettyprint highlight"><code class="language-c" data-lang="c">x = 0
+    store(v, true)</code></pre> 
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>上面的代码片段中2个线程并发运行在2个不同的核心上。第1个线程等待第2个线程讲v设置未true。让我们假设 <strong>store()</strong> 和 <strong>load()</strong> 都是读取内存的原子的CPU指令。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>你预计第1个线程在屏幕上打印出什么？如果他在线程2之前启动（ <a href="https://internalpointers.com/post/gentle-introduction-multithreading#race-conditions">并不总是这样的</a>），就没有正确的答案了。如果没有重排序发生，你可能会看到1。尽管如此，如果第2个线程中的存储指令发生重排序，v的更新也可能发生在x之前，打印语句可能打印出0。相似的，内存重排序也可能发生在第1个线程中，也就是x的加载可能发生在v的检测之前。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="内存重排序对多线程的影响">内存重排序对多线程的影响</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>硬件内存重排序在单核计算机上没有问题，因为线程操作系统控制的软件是软件结构。CPU就是收到连续的内存指令流。指令还是可以被重新排序，不过要符合一个基本规则：给定内核的内存访问看上去就像和代码写的一样。所以，内存重排序可能会发生，但是只在不影响最终结果的前提下。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>这个规则也适用于多核场景下的每个单核，但不适用于不同操作同时跑在独立的硬件上的情况（ <a href="https://internalpointers.com/post/gentle-introduction-multithreading#what-threads-are-used-for">真并行(true parallelism)</a>）。让你的线程跑在两个物理内核上，你就会碰到上面样例中的各种诡异问题，更不用说让编译器和虚拟机执行重排序了。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>常规的如互斥锁和信号量等<a href="introduction-to-thread-synchronization.html">锁同步机制</a>是设计用来处理硬件和软件层面的内存重排序的。毕竟他们是上层技术。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>不过，应用无锁方案的多线程程序更接近底层：就像<a href="lock-free-multithreading-with-atomic-operations.html">上一篇文章</a>看到的，它利用存储和加载原子指令来同步线程。 搞笑的是这些操作可能被重排序，从而破坏了你的严谨计划。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="如何解决内存重排序的问题">如何解决内存重排序的问题</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>你肯定不会基于一些随机变化的东西构建你的同步机制。这个问题可以通过引入内存屏障的方式来解决。内存屏障是强制处理器按照可预知的方式访问内存的CPU指令。内存屏障的工作方式类似路障：内存屏障之前的指令保证先于内存屏障之后的指令执行。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>内存屏障是硬件层面的：你得直接和CPU交互。这是一个底层的解决方案，且不利用程序的可移植性。解决这个问题最好的方式是软件层次上走，利用操作系统，编译器或虚拟机提供的工具。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>尽管如此，软件工具也仅仅是中间阶段。为了构建一个此问题的清晰的全景图，我们首先全局看一下所有可能在硬件或者软件系统中的内存场景。所谓的内存模型在这个过程中发挥作用。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="内存模型">内存模型</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>内存模型是抽象的方式描述系统中涉及到访问和重排序内存可能或者不可能发生的事情。处理器和编程语言会实现一个，尤其是利用多线程技术的时候：内存模型同时适用于硬件和软件层面。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>当系统对改变内存操作顺序非常谨慎，我们说系统遵循强内存模型。相反的，弱内存模型中你可能碰到各种各样的重排序。比如，x86系列的处理器属于前一类，而ARM和PowerPC处理器则属于后一类。软件层面又是怎么样的呢？</p> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="软件内存模型的好处">软件内存模型的好处</h3> 
+   <div class="paragraph"> 
+    <p>硬件内存模型存在的原因很明显，而对应的软件内存模型让你能够按需重排内存访问顺序。这个特性在你写无锁多线程代码的代码能帮很大的忙。</p> 
+   </div> 
+   <div class="paragraph"> 
+    <p>例如，为了避免同步机制中不受欢迎的原子操作的重排序，编译器可以编译出遵循强内存模型的机器码。当底层硬件实现的是弱内存模型的时候，编译器会通过加入正确的内存屏障指令来最大限度的提供你需要的内存模型。编译器也负责软件层面的内存重排序指令。使用软件内存模型可以解耦硬件细节。</p> 
+   </div> 
+   <div class="paragraph"> 
+    <p>基本上，所有的编程语言都会实现一种内存模型，某种意义上说，他们都遵循特定的规则来处理内存。一些编程语言也就到此为止了，因为他们不直接处理多线程。其他的比如 <a href="https://docs.oracle.com/javase/9/docs/api/java/lang/invoke/VarHandle.html">Java</a>， <a href="https://doc.rust-lang.org/nomicon/atomics.html">Rust</a>和 <a href="https://en.cppreference.com/w/cpp/atomic/memory_order">C++</a>等也会提供上述的控制内存重排序行为的工具。</p> 
+   </div> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="细粒度内存模型">细粒度内存模型</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>强和弱内存模型是对内存操作如何重排序的理论上的分类。具体到真实的编码，大多数支持原子操作的编程语言会提供3种控制内存重排序的方式。我们仔细看一下。</p> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="1顺序一致">1）顺序一致</h3> 
+   <div class="paragraph"> 
+    <p>较少干扰的内存重排序方式就是根本不重排序。这是强内存模型的一种形式，称之为顺序一致：这正是解决上面提到的所有无锁多线程问题所需要的。禁用重排序能让你的多线程程序容易理解：源代码是按照书写顺序执行的。</p> 
+   </div> 
+   <div class="paragraph"> 
+    <p>顺序一致给并行代码执行加了另外一个重要特性：它强制了所有线程中的所有内存原子操作的整体顺序。为了更好理解这句话，考虑如下的硬件伪代码样例：</p> 
+   </div> 
+   <div class="listingblock"> 
+    <div class="content"> 
+     <pre class="prettyprint highlight"><code class="language-c" data-lang="c">x = 0
 y = 0
 
 thread_A:
@@ -251,292 +249,226 @@ thread_C:
     assert(load(x) == 1 &amp;&amp; load(y) == 0)
 
 thread_D:
-    assert(load(x) == 0 &amp;&amp; load(y) == 1)</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>我们暂时不考虑单个线程内的内存重排序，看一下全局情况。如果线程按照A-C-B-D的顺序运行，线程C能看到 x == 1 和 y == 0，这是因为线程C是在线程A和线程B之间运行的，因此线程C的断言不会失败。但是这也是问题所在：顺序一致强加的全局顺序迫使线程D看到与线程C一样的事件，因此线程D的断言会失败。线程D不可能看到和线程C不一样的存储顺序。换句话说，线性一致下，所有的线程都看到同样的东西。</p>
-</div>
-<div class="paragraph">
-<p>就像前面说过的，这是一个非常直观和自然的思考多线程执行的方式。尽管如此，顺序一致也取消了内存重排序带来的任何硬件或者软件优化：这通常会引起严重性能瓶颈。顺序一致有些时候是必要的，比如多生产者-多消费者情况下消费者必须按照生产者的生产顺序消费。</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="2获取_释放顺序">2）获取-释放顺序</h3>
-<div class="paragraph">
-<p>获取-释放是强和弱内存模型的中间状态。首先，获取-释放和顺序一致工作方式相似，除了没有全局执行顺序。我们在看一下上面的那个例子：在获取-释放情况下，线程D是允许看到不同于线程C的事件，因此线程D的断言有可能会通过。</p>
-</div>
-<div class="paragraph">
-<p>全局顺序的缺失其实是个副作用。获取-释放是针对特定共享原子变量在多个线程之间同步的。也就是说，你在线程A和线程C之间同步共享变量 x，使得线程C只能在线程A完成写入之后才读取。这种情况下，y 并没有考虑进去，所以你可碰到任何针对它的重排序。</p>
-</div>
-<div class="paragraph">
-<p>具体来说，支持这种有序性的编程语言允许你将内存访问标记为获取或者释放。当线程B触发某共享变量上标记为获取的原子加载操作，线程A中的同一个共享变量上标记为释放的原子存储可确保线程B将看到线程A执行的完整且不是重新排序的内存事件序列。我知道这比较烧脑，不过这是互斥锁的基础：关键区和它保护的区域就是用这个构建的（获取-释放名字来源于互斥锁术语，也就是获取和释放互斥锁）。</p>
-</div>
-<div class="paragraph">
-<p>获取-释放允许更多的优化机会，因为仅有部分内存重排序不被允许。换句话说，你的程序更不容易推理分析了。</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="3松散顺序">3）松散顺序</h3>
-<div class="paragraph">
-<p>还有一种弱内存模型的形式。松散顺序的情况下，你写程序的的时候根本不关心内存重排序。编译器和处理器可以尽可能的优化程序执行。当然了内存操作的原子特性是保留下来了：这在增加共享计数器的时候非常有用，这种情况下操作必须是原子的才能让其他线程不能看到未完成的中间状态。</p>
-</div>
-<div class="paragraph">
-<p>松散有序性不保证任何特定的内存重排序，所以这不是可以安全使用的线程同步工具。另一方面，这也允许使用任何内存技巧来提升你的多线程程序的性能。</p>
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="下一步">下一步？</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>这篇文章中，我想对内存重排序问题以及其存在的原因和它对无所多线程的影响有一个全面的了解。接下来我会写一些使用原子操作的C++代码来实践一下。</p>
-</div>
-<div class="paragraph">
-<p>为什么是C&#43;&#43; ？因为C&#43;&#43;语言近期引入了 <a href="https://en.cppreference.com/w/cpp/language/memormodel">非常详细的内存模型</a>，使得你能够细粒度的控制C&#43;&#43;原子对象的内存重排序操作。我相信这是一个很好的方式去看顺序一致，获取-释放和松散有序在真实的场景下是如何一起工作的。祝我好运吧:)。</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="参考">参考</h2>
-<div class="sectionbody">
-<div class="ulist">
-<ul>
-<li>
-<p>AA.VV. - <a href="https://www.morganclaypool.com/doi/abs/10.2200/S00346ED1V01Y201104CAC016">A Primer on Memory Consistency and Cache Coherence</a></p>
-</li>
-<li>
-<p>AA. VV. - <a href="https://books.google.it/books?id=MMNiDwAAQBAJ">C++ Reactive Programming</a></p>
-</li>
-<li>
-<p>Paul E. McKenney - <a href="http://www.puppetmastertrading.com/images/hwViewForSwHackers.pdf">Memory Barriers: a Hardware View for Software Hackers</a></p>
-</li>
-<li>
-<p>cppreference.com - <a href="https://en.cppreference.com/w/cpp/atomic/memory_order">std::memory_order</a></p>
-</li>
-<li>
-<p>GCC Wiki - <a href="https://gcc.gnu.org/wiki/Atomic/GCCMM/AtomicSync">Memory model synchronization modes</a></p>
-</li>
-<li>
-<p>doc.rust-lang.org - <a href="https://doc.rust-lang.org/nomicon/atomics.html">Atomics</a></p>
-</li>
-<li>
-<p>Herb Sutter - <a href="https://youtu.be/A8eCGOqgvH4?t=3419">Atomic Weapons 1 of 2</a></p>
-</li>
-<li>
-<p>The ryg blog - <a href="https://fgiesen.wordpress.com/2014/07/07/cache-coherency/">Cache coherency primer</a></p>
-</li>
-<li>
-<p>The ryg blog - <a href="https://fgiesen.wordpress.com/2014/08/18/atomics-and-contention/">Atomic operations and contention</a></p>
-</li>
-<li>
-<p>Bartosz Milewski - <a href="https://bartoszmilewski.com/2008/12/01/c-atomics-and-memory-ordering/">C++ atomics and memory ordering</a></p>
-</li>
-<li>
-<p>Bartosz Milewski - <a href="https://bartoszmilewski.com/2008/11/11/who-ordered-sequential-consistency/">Who ordered sequential consistency?</a></p>
-</li>
-<li>
-<p>StackOverflow - <a href="https://stackoverflow.com/questions/30958375/memory-barriers-force-cache-coherency">Memory barriers force cache coherency?</a></p>
-</li>
-<li>
-<p>StackOverflow - <a href="https://stackoverflow.com/questions/25345440/how-does-the-cache-coherency-protocol-enforce-atomicity">How does the cache coherency protocol enforce atomicity?</a></p>
-</li>
-<li>
-<p>StackOverflow - <a href="https://stackoverflow.com/questions/42746793/does-a-memory-barrier-ensure-that-the-cache-coherence-has-been-completed">Does a memory barrier ensure that the cache coherence has been completed?</a></p>
-</li>
-<li>
-<p>StackOverflow - <a href="https://stackoverflow.com/questions/6319146/c11-introduced-a-standardized-memory-model-what-does-it-mean-and-how-is-it-g">C11 introduced a standardized memory model. What does it mean? And how is it going to affect C programming?</a></p>
-</li>
-<li>
-<p>StackOverflow - <a href="https://stackoverflow.com/questions/12340773/how-do-memory-order-seq-cst-and-memory-order-acq-rel-differ">How do memory_order_seq_cst and memory_order_acq_rel differ?</a></p>
-</li>
-<li>
-<p>StackOverflow - <a href="https://stackoverflow.com/questions/12346487/what-do-each-memory-order-mean">What do each memory_order mean?</a></p>
-</li>
-<li>
-<p>Just Software Solutions - <a href="https://www.justsoftwaresolutions.co.uk/threading/memory_models_and_synchronization.html">Memory Models and Synchronization</a></p>
-</li>
-<li>
-<p>Wikipedia - <a href="https://en.wikipedia.org/wiki/CPU_cache">CPU cache</a></p>
-</li>
-<li>
-<p>Wikipedia - <a href="https://en.wikipedia.org/wiki/Cache_coherence">Cache coherence</a></p>
-</li>
-<li>
-<p>Wikipedia - <a href="https://en.wikipedia.org/wiki/Memory_barrier">Memory barrier</a></p>
-</li>
-<li>
-<p>Wikipedia - <a href="https://en.wikipedia.org/wiki/Memory_ordering">Memory ordering</a></p>
-</li>
-<li>
-<p>James Bornholt - <a href="https://www.cs.utexas.edu/~bornholt/post/memory-models.html">Memory Consistency Models: A Tutorial</a></p>
-</li>
-<li>
-<p>Preshing on Programming - <a href="https://preshing.com/20120625/memory-ordering-at-compile-time/">Memory Ordering at Compile Time</a></p>
-</li>
-<li>
-<p>Preshing on Programming - <a href="https://preshing.com/20120710/memory-barriers-are-like-source-control-operations/">Memory Barriers Are Like Source Control Operations</a></p>
-</li>
-<li>
-<p>Linux Journal - <a href="https://www.linuxjournal.com/article/8211">Memory Ordering in Modern Microprocessors, Part I</a></p>
-</li>
-<li>
-<p>Doug Lea - <a href="http://gee.cs.oswego.edu/dl/html/j9mm.html">Using JDK 9 Memory Order Modes</a></p>
-</li>
-</ul>
-</div>
-<div class="paragraph">
-<p>本文译自https://www.internalpointers.com/post/understanding-memory-ordering，英文读者可直接阅读原文。</p>
-</div>
-</div>
+    assert(load(x) == 0 &amp;&amp; load(y) == 1)</code></pre> 
+    </div> 
+   </div> 
+   <div class="paragraph"> 
+    <p>我们暂时不考虑单个线程内的内存重排序，看一下全局情况。如果线程按照A-C-B-D的顺序运行，线程C能看到 x == 1 和 y == 0，这是因为线程C是在线程A和线程B之间运行的，因此线程C的断言不会失败。但是这也是问题所在：顺序一致强加的全局顺序迫使线程D看到与线程C一样的事件，因此线程D的断言会失败。线程D不可能看到和线程C不一样的存储顺序。换句话说，线性一致下，所有的线程都看到同样的东西。</p> 
+   </div> 
+   <div class="paragraph"> 
+    <p>就像前面说过的，这是一个非常直观和自然的思考多线程执行的方式。尽管如此，顺序一致也取消了内存重排序带来的任何硬件或者软件优化：这通常会引起严重性能瓶颈。顺序一致有些时候是必要的，比如多生产者-多消费者情况下消费者必须按照生产者的生产顺序消费。</p> 
+   </div> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="2获取_释放顺序">2）获取-释放顺序</h3> 
+   <div class="paragraph"> 
+    <p>获取-释放是强和弱内存模型的中间状态。首先，获取-释放和顺序一致工作方式相似，除了没有全局执行顺序。我们在看一下上面的那个例子：在获取-释放情况下，线程D是允许看到不同于线程C的事件，因此线程D的断言有可能会通过。</p> 
+   </div> 
+   <div class="paragraph"> 
+    <p>全局顺序的缺失其实是个副作用。获取-释放是针对特定共享原子变量在多个线程之间同步的。也就是说，你在线程A和线程C之间同步共享变量 x，使得线程C只能在线程A完成写入之后才读取。这种情况下，y 并没有考虑进去，所以你可碰到任何针对它的重排序。</p> 
+   </div> 
+   <div class="paragraph"> 
+    <p>具体来说，支持这种有序性的编程语言允许你将内存访问标记为获取或者释放。当线程B触发某共享变量上标记为获取的原子加载操作，线程A中的同一个共享变量上标记为释放的原子存储可确保线程B将看到线程A执行的完整且不是重新排序的内存事件序列。我知道这比较烧脑，不过这是互斥锁的基础：关键区和它保护的区域就是用这个构建的（获取-释放名字来源于互斥锁术语，也就是获取和释放互斥锁）。</p> 
+   </div> 
+   <div class="paragraph"> 
+    <p>获取-释放允许更多的优化机会，因为仅有部分内存重排序不被允许。换句话说，你的程序更不容易推理分析了。</p> 
+   </div> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="3松散顺序">3）松散顺序</h3> 
+   <div class="paragraph"> 
+    <p>还有一种弱内存模型的形式。松散顺序的情况下，你写程序的的时候根本不关心内存重排序。编译器和处理器可以尽可能的优化程序执行。当然了内存操作的原子特性是保留下来了：这在增加共享计数器的时候非常有用，这种情况下操作必须是原子的才能让其他线程不能看到未完成的中间状态。</p> 
+   </div> 
+   <div class="paragraph"> 
+    <p>松散有序性不保证任何特定的内存重排序，所以这不是可以安全使用的线程同步工具。另一方面，这也允许使用任何内存技巧来提升你的多线程程序的性能。</p> 
+   </div> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="下一步">下一步？</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>这篇文章中，我想对内存重排序问题以及其存在的原因和它对无所多线程的影响有一个全面的了解。接下来我会写一些使用原子操作的C++代码来实践一下。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>为什么是C++ ？因为C++语言近期引入了 <a href="https://en.cppreference.com/w/cpp/language/memormodel">非常详细的内存模型</a>，使得你能够细粒度的控制C++原子对象的内存重排序操作。我相信这是一个很好的方式去看顺序一致，获取-释放和松散有序在真实的场景下是如何一起工作的。祝我好运吧:)。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="参考">参考</h2> 
+ <div class="sectionbody"> 
+  <div class="ulist"> 
+   <ul> 
+    <li> <p>AA.VV. - <a href="https://www.morganclaypool.com/doi/abs/10.2200/S00346ED1V01Y201104CAC016">A Primer on Memory Consistency and Cache Coherence</a></p> </li> 
+    <li> <p>AA. VV. - <a href="https://books.google.it/books?id=MMNiDwAAQBAJ">C++ Reactive Programming</a></p> </li> 
+    <li> <p>Paul E. McKenney - <a href="http://www.puppetmastertrading.com/images/hwViewForSwHackers.pdf">Memory Barriers: a Hardware View for Software Hackers</a></p> </li> 
+    <li> <p>cppreference.com - <a href="https://en.cppreference.com/w/cpp/atomic/memory_order">std::memory_order</a></p> </li> 
+    <li> <p>GCC Wiki - <a href="https://gcc.gnu.org/wiki/Atomic/GCCMM/AtomicSync">Memory model synchronization modes</a></p> </li> 
+    <li> <p>doc.rust-lang.org - <a href="https://doc.rust-lang.org/nomicon/atomics.html">Atomics</a></p> </li> 
+    <li> <p>Herb Sutter - <a href="https://youtu.be/A8eCGOqgvH4?t=3419">Atomic Weapons 1 of 2</a></p> </li> 
+    <li> <p>The ryg blog - <a href="https://fgiesen.wordpress.com/2014/07/07/cache-coherency/">Cache coherency primer</a></p> </li> 
+    <li> <p>The ryg blog - <a href="https://fgiesen.wordpress.com/2014/08/18/atomics-and-contention/">Atomic operations and contention</a></p> </li> 
+    <li> <p>Bartosz Milewski - <a href="https://bartoszmilewski.com/2008/12/01/c-atomics-and-memory-ordering/">C++ atomics and memory ordering</a></p> </li> 
+    <li> <p>Bartosz Milewski - <a href="https://bartoszmilewski.com/2008/11/11/who-ordered-sequential-consistency/">Who ordered sequential consistency?</a></p> </li> 
+    <li> <p>StackOverflow - <a href="https://stackoverflow.com/questions/30958375/memory-barriers-force-cache-coherency">Memory barriers force cache coherency?</a></p> </li> 
+    <li> <p>StackOverflow - <a href="https://stackoverflow.com/questions/25345440/how-does-the-cache-coherency-protocol-enforce-atomicity">How does the cache coherency protocol enforce atomicity?</a></p> </li> 
+    <li> <p>StackOverflow - <a href="https://stackoverflow.com/questions/42746793/does-a-memory-barrier-ensure-that-the-cache-coherence-has-been-completed">Does a memory barrier ensure that the cache coherence has been completed?</a></p> </li> 
+    <li> <p>StackOverflow - <a href="https://stackoverflow.com/questions/6319146/c11-introduced-a-standardized-memory-model-what-does-it-mean-and-how-is-it-g">C11 introduced a standardized memory model. What does it mean? And how is it going to affect C programming?</a></p> </li> 
+    <li> <p>StackOverflow - <a href="https://stackoverflow.com/questions/12340773/how-do-memory-order-seq-cst-and-memory-order-acq-rel-differ">How do memory_order_seq_cst and memory_order_acq_rel differ?</a></p> </li> 
+    <li> <p>StackOverflow - <a href="https://stackoverflow.com/questions/12346487/what-do-each-memory-order-mean">What do each memory_order mean?</a></p> </li> 
+    <li> <p>Just Software Solutions - <a href="https://www.justsoftwaresolutions.co.uk/threading/memory_models_and_synchronization.html">Memory Models and Synchronization</a></p> </li> 
+    <li> <p>Wikipedia - <a href="https://en.wikipedia.org/wiki/CPU_cache">CPU cache</a></p> </li> 
+    <li> <p>Wikipedia - <a href="https://en.wikipedia.org/wiki/Cache_coherence">Cache coherence</a></p> </li> 
+    <li> <p>Wikipedia - <a href="https://en.wikipedia.org/wiki/Memory_barrier">Memory barrier</a></p> </li> 
+    <li> <p>Wikipedia - <a href="https://en.wikipedia.org/wiki/Memory_ordering">Memory ordering</a></p> </li> 
+    <li> <p>James Bornholt - <a href="https://www.cs.utexas.edu/~bornholt/post/memory-models.html">Memory Consistency Models: A Tutorial</a></p> </li> 
+    <li> <p>Preshing on Programming - <a href="https://preshing.com/20120625/memory-ordering-at-compile-time/">Memory Ordering at Compile Time</a></p> </li> 
+    <li> <p>Preshing on Programming - <a href="https://preshing.com/20120710/memory-barriers-are-like-source-control-operations/">Memory Barriers Are Like Source Control Operations</a></p> </li> 
+    <li> <p>Linux Journal - <a href="https://www.linuxjournal.com/article/8211">Memory Ordering in Modern Microprocessors, Part I</a></p> </li> 
+    <li> <p>Doug Lea - <a href="http://gee.cs.oswego.edu/dl/html/j9mm.html">Using JDK 9 Memory Order Modes</a></p> </li> 
+   </ul> 
+  </div> 
+  <div class="paragraph"> 
+   <p>本文译自https://www.internalpointers.com/post/understanding-memory-ordering，英文读者可直接阅读原文。</p> 
+  </div> 
+ </div> 
 </div></p>
   			<a href="blog/2020/02/lock-free-multithreading-with-atomic-operations.html"><h1>用原子操作实现无锁多线程：底层线程同步</h1></a>
   			<p>27 February 2020</p>
-  			<p><div id="preamble">
-<div class="sectionbody">
-<div class="ulist">
-<div class="title">本系列中的其他文章</div>
-<ul>
-<li>
-<p><a href="a-gentle-introduction-to-multithreading.html">多线程简介</a> - 一步一步走进并发的世界</p>
-</li>
-<li>
-<p><a href="introduction-to-thread-synchronization.html">线程同步简介</a> - 多线程应用中最常见的的并发控制方法之一</p>
-</li>
-<li>
-<p><a href="understanding-memory-reordering.html">理解内存重排序</a> - 为什写无锁多线程代码时它很重要</p>
-</li>
-</ul>
-</div>
-<div class="paragraph">
-<p>本文经Federica Rinaldi仔细审阅过，谢谢。</p>
-</div>
-<div class="paragraph">
-<p>"atom"在希腊语中拾不可再分割的意思。在计算机中一个任务被称为原子的是指他不能再细分了：它不能再拆分为更小的执行步骤了。</p>
-</div>
-<div class="paragraph">
-<p>原子操作是多线程操作的一个重要特征：因为原子操作操作拾不可在细分的，所以一个线程是不可能干扰另一个正在并发执行原子操作的线程的。例如，当一个线程原子写入共享数据，其他线程是没有办法读取到未完成的数据。相反的，当一个线程原子读取共享数据，这个数据就像是单个时间点上的数据。换句话说，就是没有<a href="a-gentle-introduction-to-multithreading.html">数据竞争</a>的风险。</p>
-</div>
-<div class="paragraph">
-<p>在<a href="introduction-to-thread-synchronization.html">上一篇文章</a>中，我介绍了所谓的同步原语，也就是最常用的线程同步工具。他们是用来为多线程间处理共享数据的操作提供原子性的。怎么保证的？其实就是直接让单个线程执行并发任务，同时操作系统阻塞了其他线程直到第一个线程完成它的工作。这么做的原因是一个被阻塞的线程对其他线程是无害的。考虑到阻塞线程的能力，同步原语也称为阻塞机制。</p>
-</div>
-<div class="paragraph">
-<p>上一篇文章中的任意一种阻塞机制对大多数应用来说能够很好的工作。如果能够正确的使用，他们也是快速的和可靠的。尽管如此，他们还是有一些你可能需要考虑的缺点：</p>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>他们会阻塞其他线程 - 休眠的线程什么也不做，单纯的等待唤醒信号：这可能会浪费宝贵的时间；</p>
-</li>
-<li>
-<p>他们会卡死你的应用 - 如果一个持有同步原语锁的线程不管什么原因崩溃了，这个锁就永远不会释放了，等待这个锁的线程就永远卡住了；</p>
-</li>
-<li>
-<p>你对休眠哪个线程没什么控制 - 通常是操作系统选择阻塞哪个线程。这会引发一个被称之为优先级反转的不幸结果： 一个执行非常重要任务的高优先级线程被一个低优先级线程阻塞了。</p>
-</li>
-</ol>
-</div>
-<div class="paragraph">
-<p>大多数时候你不会关注这些问题，因为他们不影响你应用程序的正确性。另一方面，有时候使线程一直运行是需要的，特别是你想发挥多处理器/多核硬件的能力。或者你就是不能容忍系统被一个崩溃的线程拖死，或者优先级反转的问题不容忽视。</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="无锁编程来救场">无锁编程来救场</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>好消息：还有另一种控制多线程应用中并发任务的方法，为了避免上面提到的1）,2）和3）点问题，称之为 <strong>无锁编程</strong>，这是一种不用加锁和解锁就可以安全的在多线程之间共享变化的数据的技术。</p>
-</div>
-<div class="paragraph">
-<p>坏消息：这是非常底层的东西。比传统的同步原语比如互斥锁和信号量还底层多了：这次我们会更接近真相。尽管如此，我发现无锁编程是一个很好的思想挑战，也是一个非常好的更好理解计算机如何工作的机会。</p>
-</div>
-<div class="paragraph">
-<p>无锁编程依赖 <strong>原子指令</strong>，这是CPU直接执行的原子操作。原子指令作为无锁编程的基础，我将在本文剩下的部分首先介绍，然后展示如何利用它做并发控制。</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="什么是原子指令">什么是原子指令？</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>思考计算中执行的任何操作，比如在屏幕上展示一张图片。这个操作是由许多更小的操作构成的：将文件读入内存，解压缩图片，点亮屏幕上的像素等等。如果你不停的细分这些更小的操作，也就是分为更小更小的操作，你最终会不能在分了。此时得到的处理器执行的肉眼可见的最小操作称之为机器指令，也就是硬件可直接执行的命令。</p>
-</div>
-<div class="imageblock">
-<div class="content">
-<img src="/images/software-hardware-layers.png" alt="Software - hardware layers">
-</div>
-<div class="title">Figure 1. 计算机程序的不同层次。虚线代表软件层次，实线代表硬件层次。</div>
-</div>
-<div class="paragraph">
-<p>取决于不同的CPU架构，一些机器指令是原子的，也就是单个的，不能切分的，不会被中断的。一些其他的指令则不是原子的：处理器私底下以更小的操作的方式做了更多的工作，这些操作称之为微指令。让我们给出更正式的分类：原子指令是不能在细分的CPU指令。更确切的说，原子指令可以被归为2个主要类型：存储与加载和读取-修改-写入（RMW）。</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="存储与加载原子指令">存储与加载原子指令</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>存储和加载是处理器都要操作的：用来写入（存储）和读取（加载）内存数据。在某些情况下，许多CPU架构保证这些操作是天然原子的。例如，实现了 <a href="https://en.wikipedia.org/wiki/X86">x86架构</a>的处理器使用 <strong>MOV</strong> 指令从内存中读取数据并交给CPU。这个操作如果处理的是 <a href="https://www.ibm.com/support/knowledgecenter/en/SSUFAU_1.0.0/com.ibm.ent.pl1.zos.doc/lr/alnmnt.html">对齐</a>的数据就能保证是原子的，对齐的数据是指能让CPU一次性读取出来的方式存储的数据。</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="读取_修改_写入rmw原子指令">读取-修改-写入(RMW)原子指令</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>一些更复杂的操作不能够单独用一些简单存储和加载指令来完成。例如，增加存储中的数值需要至少3个原子的加载和存储指令，这就使的增加内存中数值这个操作不是原子的。读取-修改-写入（RMW）指令可以做到这个，也就有了通过一个原子操作完成多个操作的能力。除了RMW，还有非常多此类的指令。一些CPU架构全部提供，一些则提供一部分，下面列举一些：</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p><a href="https://en.wikipedia.org/wiki/Test-and-set">测试并设置</a> - 一个原子操作完成往内存中写入1并且返回赋值之前的值；</p>
-</li>
-<li>
-<p><a href="https://en.wikipedia.org/wiki/Fetch-and-add">获取并增加</a> - 一个原子操作完成增加内存中的数值并且返回增加之前的值；</p>
-</li>
-<li>
-<p><a href="https://en.wikipedia.org/wiki/Compare-and-swap">比较并交互（CAS）</a> - 比较内存中的数据和提供的数据，如果他们是相同的，将提供的数据写入该内存中。</p>
-</li>
-</ul>
-</div>
-<div class="paragraph">
-<p>以上这些操作都是一个原子操作完成多个操作。这是一个非常重要的特性，使得读取-修改-写入指令适合无锁多线程操作。我们很快就会看到为什么适合了。</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="原子指令的三个层次">原子指令的三个层次</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>以上所有得这些指令都属于硬件层面的：他们直接和CPU交互。这要工作使非常困难并且不可移植，因为一些指令可能在不同得架构下叫不同得名字，一些指令在不同的处理器模型上则根本不存在！因此，你也不太可能用到这些，除非你在针对特定得机器写非常底层得代码。</p>
-</div>
-<div class="paragraph">
-<p>上到软件层面，许多操作系统提供了各自的原子指令。姑且称之为原子操作(atomic operations)，因为我们将抽象出物理机器指令对应得原子操作。 例如， Windows系统上可能会用到 <a href="https://docs.microsoft.com/en-us/windows/desktop/sync/interlocked-variable-access">Interlocked API</a>，这是一组原子方式处理变量得函数。 MacOS则用 <a href="https://developer.apple.com/documentation/kernel/osatomic_h?language=objc">OSAtomc.h</a>头文件提供的函数做同样的事情。他们肯定是使隐藏了硬件的实现，但是你还是受限于一个特定的环境。</p>
-</div>
-<div class="paragraph">
-<p>实现可移植原子操作的最好办法是使用你所选择的编程语言提供的原子操作。比如Java语言中有 <strong>java.util.concurrent.atomic</strong> 包；C++提供了 <strong>std::atomic</strong> 头文件； Haskell有 <strong>Data.Atomics</strong> 包等等。一般来讲，如果一个编程语言能处理多线程，那就很有可能会提供原子操作的支持。这样的话就是编译器（如果是编译语言）或者虚拟机（如果是解析语言）负责从底层操作系统API或者硬件中找到最合适的指令来实现原子操作。</p>
-</div>
-<div class="imageblock">
-<div class="content">
-<img src="/images/atomics-levels.png" alt="Three levels of atomic instructions">
-</div>
-<div class="title">Figure 2. 原子指令和操作的层级。虚线代表软件层次，实线代表硬件层次。</div>
-</div>
-<div class="paragraph">
-<p>例如，C 的编译器GCC通常是直接将 C 语言的原子操作和对象对应到机器指令。如果不能直接映射到硬件上，它也会利用其他可用的原子操作来实现特定操作。最坏情况下，在一个不提供原子操作的平台上，它可能利用其他阻塞策略了，当然了这肯定不是无锁的实现。</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="在多线程中使用原子操作">在多线程中使用原子操作</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>我们现在看看原子操作是如何使用的。 考虑增加一个简单的变量，这是本来就不是原子操作，因为此操作由3个不同的步骤构成：读取数值，给数值加1，将结果写回。 一般来说，你可能会使用互斥锁来正确实现这个操作（伪代码）：</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="prettyprint highlight"><code class="language-c" data-lang="c">mutex = initialize_mutex()
+  			<p><div id="preamble"> 
+ <div class="sectionbody"> 
+  <div class="ulist"> 
+   <div class="title">
+    本系列中的其他文章
+   </div> 
+   <ul> 
+    <li> <p><a href="a-gentle-introduction-to-multithreading.html">多线程简介</a> - 一步一步走进并发的世界</p> </li> 
+    <li> <p><a href="introduction-to-thread-synchronization.html">线程同步简介</a> - 多线程应用中最常见的的并发控制方法之一</p> </li> 
+    <li> <p><a href="understanding-memory-reordering.html">理解内存重排序</a> - 为什写无锁多线程代码时它很重要</p> </li> 
+   </ul> 
+  </div> 
+  <div class="paragraph"> 
+   <p>本文经Federica Rinaldi仔细审阅过，谢谢。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>"atom"在希腊语中拾不可再分割的意思。在计算机中一个任务被称为原子的是指他不能再细分了：它不能再拆分为更小的执行步骤了。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>原子操作是多线程操作的一个重要特征：因为原子操作操作拾不可在细分的，所以一个线程是不可能干扰另一个正在并发执行原子操作的线程的。例如，当一个线程原子写入共享数据，其他线程是没有办法读取到未完成的数据。相反的，当一个线程原子读取共享数据，这个数据就像是单个时间点上的数据。换句话说，就是没有<a href="a-gentle-introduction-to-multithreading.html">数据竞争</a>的风险。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>在<a href="introduction-to-thread-synchronization.html">上一篇文章</a>中，我介绍了所谓的同步原语，也就是最常用的线程同步工具。他们是用来为多线程间处理共享数据的操作提供原子性的。怎么保证的？其实就是直接让单个线程执行并发任务，同时操作系统阻塞了其他线程直到第一个线程完成它的工作。这么做的原因是一个被阻塞的线程对其他线程是无害的。考虑到阻塞线程的能力，同步原语也称为阻塞机制。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>上一篇文章中的任意一种阻塞机制对大多数应用来说能够很好的工作。如果能够正确的使用，他们也是快速的和可靠的。尽管如此，他们还是有一些你可能需要考虑的缺点：</p> 
+  </div> 
+  <div class="olist arabic"> 
+   <ol class="arabic"> 
+    <li> <p>他们会阻塞其他线程 - 休眠的线程什么也不做，单纯的等待唤醒信号：这可能会浪费宝贵的时间；</p> </li> 
+    <li> <p>他们会卡死你的应用 - 如果一个持有同步原语锁的线程不管什么原因崩溃了，这个锁就永远不会释放了，等待这个锁的线程就永远卡住了；</p> </li> 
+    <li> <p>你对休眠哪个线程没什么控制 - 通常是操作系统选择阻塞哪个线程。这会引发一个被称之为优先级反转的不幸结果： 一个执行非常重要任务的高优先级线程被一个低优先级线程阻塞了。</p> </li> 
+   </ol> 
+  </div> 
+  <div class="paragraph"> 
+   <p>大多数时候你不会关注这些问题，因为他们不影响你应用程序的正确性。另一方面，有时候使线程一直运行是需要的，特别是你想发挥多处理器/多核硬件的能力。或者你就是不能容忍系统被一个崩溃的线程拖死，或者优先级反转的问题不容忽视。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="无锁编程来救场">无锁编程来救场</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>好消息：还有另一种控制多线程应用中并发任务的方法，为了避免上面提到的1）,2）和3）点问题，称之为 <strong>无锁编程</strong>，这是一种不用加锁和解锁就可以安全的在多线程之间共享变化的数据的技术。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>坏消息：这是非常底层的东西。比传统的同步原语比如互斥锁和信号量还底层多了：这次我们会更接近真相。尽管如此，我发现无锁编程是一个很好的思想挑战，也是一个非常好的更好理解计算机如何工作的机会。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>无锁编程依赖 <strong>原子指令</strong>，这是CPU直接执行的原子操作。原子指令作为无锁编程的基础，我将在本文剩下的部分首先介绍，然后展示如何利用它做并发控制。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="什么是原子指令">什么是原子指令？</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>思考计算中执行的任何操作，比如在屏幕上展示一张图片。这个操作是由许多更小的操作构成的：将文件读入内存，解压缩图片，点亮屏幕上的像素等等。如果你不停的细分这些更小的操作，也就是分为更小更小的操作，你最终会不能在分了。此时得到的处理器执行的肉眼可见的最小操作称之为机器指令，也就是硬件可直接执行的命令。</p> 
+  </div> 
+  <div class="imageblock"> 
+   <div class="content"> 
+    <img src="http://reploop.org/blog/2020/02/images/software-hardware-layers.png" alt="Software - hardware layers"> 
+   </div> 
+   <div class="title">
+    Figure 1. 计算机程序的不同层次。虚线代表软件层次，实线代表硬件层次。
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>取决于不同的CPU架构，一些机器指令是原子的，也就是单个的，不能切分的，不会被中断的。一些其他的指令则不是原子的：处理器私底下以更小的操作的方式做了更多的工作，这些操作称之为微指令。让我们给出更正式的分类：原子指令是不能在细分的CPU指令。更确切的说，原子指令可以被归为2个主要类型：存储与加载和读取-修改-写入（RMW）。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="存储与加载原子指令">存储与加载原子指令</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>存储和加载是处理器都要操作的：用来写入（存储）和读取（加载）内存数据。在某些情况下，许多CPU架构保证这些操作是天然原子的。例如，实现了 <a href="https://en.wikipedia.org/wiki/X86">x86架构</a>的处理器使用 <strong>MOV</strong> 指令从内存中读取数据并交给CPU。这个操作如果处理的是 <a href="https://www.ibm.com/support/knowledgecenter/en/SSUFAU_1.0.0/com.ibm.ent.pl1.zos.doc/lr/alnmnt.html">对齐</a>的数据就能保证是原子的，对齐的数据是指能让CPU一次性读取出来的方式存储的数据。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="读取_修改_写入rmw原子指令">读取-修改-写入(RMW)原子指令</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>一些更复杂的操作不能够单独用一些简单存储和加载指令来完成。例如，增加存储中的数值需要至少3个原子的加载和存储指令，这就使的增加内存中数值这个操作不是原子的。读取-修改-写入（RMW）指令可以做到这个，也就有了通过一个原子操作完成多个操作的能力。除了RMW，还有非常多此类的指令。一些CPU架构全部提供，一些则提供一部分，下面列举一些：</p> 
+  </div> 
+  <div class="ulist"> 
+   <ul> 
+    <li> <p><a href="https://en.wikipedia.org/wiki/Test-and-set">测试并设置</a> - 一个原子操作完成往内存中写入1并且返回赋值之前的值；</p> </li> 
+    <li> <p><a href="https://en.wikipedia.org/wiki/Fetch-and-add">获取并增加</a> - 一个原子操作完成增加内存中的数值并且返回增加之前的值；</p> </li> 
+    <li> <p><a href="https://en.wikipedia.org/wiki/Compare-and-swap">比较并交互（CAS）</a> - 比较内存中的数据和提供的数据，如果他们是相同的，将提供的数据写入该内存中。</p> </li> 
+   </ul> 
+  </div> 
+  <div class="paragraph"> 
+   <p>以上这些操作都是一个原子操作完成多个操作。这是一个非常重要的特性，使得读取-修改-写入指令适合无锁多线程操作。我们很快就会看到为什么适合了。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="原子指令的三个层次">原子指令的三个层次</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>以上所有得这些指令都属于硬件层面的：他们直接和CPU交互。这要工作使非常困难并且不可移植，因为一些指令可能在不同得架构下叫不同得名字，一些指令在不同的处理器模型上则根本不存在！因此，你也不太可能用到这些，除非你在针对特定得机器写非常底层得代码。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>上到软件层面，许多操作系统提供了各自的原子指令。姑且称之为原子操作(atomic operations)，因为我们将抽象出物理机器指令对应得原子操作。 例如， Windows系统上可能会用到 <a href="https://docs.microsoft.com/en-us/windows/desktop/sync/interlocked-variable-access">Interlocked API</a>，这是一组原子方式处理变量得函数。 MacOS则用 <a href="https://developer.apple.com/documentation/kernel/osatomic_h?language=objc">OSAtomc.h</a>头文件提供的函数做同样的事情。他们肯定是使隐藏了硬件的实现，但是你还是受限于一个特定的环境。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>实现可移植原子操作的最好办法是使用你所选择的编程语言提供的原子操作。比如Java语言中有 <strong>java.util.concurrent.atomic</strong> 包；C++提供了 <strong>std::atomic</strong> 头文件； Haskell有 <strong>Data.Atomics</strong> 包等等。一般来讲，如果一个编程语言能处理多线程，那就很有可能会提供原子操作的支持。这样的话就是编译器（如果是编译语言）或者虚拟机（如果是解析语言）负责从底层操作系统API或者硬件中找到最合适的指令来实现原子操作。</p> 
+  </div> 
+  <div class="imageblock"> 
+   <div class="content"> 
+    <img src="http://reploop.org/blog/2020/02/images/atomics-levels.png" alt="Three levels of atomic instructions"> 
+   </div> 
+   <div class="title">
+    Figure 2. 原子指令和操作的层级。虚线代表软件层次，实线代表硬件层次。
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>例如，C 的编译器GCC通常是直接将 C 语言的原子操作和对象对应到机器指令。如果不能直接映射到硬件上，它也会利用其他可用的原子操作来实现特定操作。最坏情况下，在一个不提供原子操作的平台上，它可能利用其他阻塞策略了，当然了这肯定不是无锁的实现。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="在多线程中使用原子操作">在多线程中使用原子操作</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>我们现在看看原子操作是如何使用的。 考虑增加一个简单的变量，这是本来就不是原子操作，因为此操作由3个不同的步骤构成：读取数值，给数值加1，将结果写回。 一般来说，你可能会使用互斥锁来正确实现这个操作（伪代码）：</p> 
+  </div> 
+  <div class="listingblock"> 
+   <div class="content"> 
+    <pre class="prettyprint highlight"><code class="language-c" data-lang="c">mutex = initialize_mutex()
 x     = 0
 
 reader_thread()
@@ -547,1105 +479,887 @@ reader_thread()
 writer_thread()
     mutex.lock()
     x++
-    mutex.unlock()</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>首先获得互斥锁的线程会继续执行，而其他线程则等待第一个线程执行完毕。</p>
-</div>
-<div class="paragraph">
-<p>相反的，无锁方案使用了不同的模式：通过原子操作，线程可以随意执行而不用阻塞，例如：</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="prettyprint highlight"><code class="language-c" data-lang="c">x = 0
+    mutex.unlock()</code></pre> 
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>首先获得互斥锁的线程会继续执行，而其他线程则等待第一个线程执行完毕。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>相反的，无锁方案使用了不同的模式：通过原子操作，线程可以随意执行而不用阻塞，例如：</p> 
+  </div> 
+  <div class="listingblock"> 
+   <div class="content"> 
+    <pre class="prettyprint highlight"><code class="language-c" data-lang="c">x = 0
 
 reader_thread()
     print(load(x))
 
 writer_thread()
-    fetch_and_add(x, 1)</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>我假设了 <strong>fetch_and_add()</strong> 和 <strong>load()</strong> 是基于相应的硬件指令的原子操作。 你可能已经发现了，这里并没有使用锁。 并发调用这些函数的多个线程都可以继续执行。<strong>load()</strong> 函数的原子性将保证不会有读线程读取到未完成修改的数据，同时因为 <strong>fetch_and_add()</strong> 的原子性，也不会有写线程能够部分修改数据。</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="现实世界中的原子操作">现实世界中的原子操作</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>现在，上面这个例子显示了原子操作的一个重要特性：他们仅针对原子类型，如boolean型，字符串，整数等。但是真的程序是需要使用同步技术来实现更负责的数据，比如数组，向量，对象，数据向量，对象里包含数据等等。如何用基于原子类型的简单操作来保证负责数据的原子性？</p>
-</div>
-<div class="paragraph">
-<p>无锁编程迫使你跳出常规的同步原语来思考问题。你不用直接用原子操作保护共享资源，而是用互斥锁或者信号量。同样的，你会基于原子操作构建无锁算法或者无锁数据结构来确定多个线程如何访问你的数据。</p>
-</div>
-<div class="paragraph">
-<p>例如，上面看到的 <strong>fetch-and-add</strong> 操作可以用来实现一个基本的信号量，而这个信号量就可以用来协调多个线程。毫无意外，所有传统的阻塞同步工具都是基于原子操作的实现的。</p>
-</div>
-<div class="paragraph">
-<p>人们写了很多个无锁数据结构，比如Folly的 <a href="https://github.com/facebook/folly/blob/master/folly/AtomicHashMap.h">AtomicHashMap</a>， <a href="https://www.boost.org/doc/libs/1_70_0/doc/html/lockfree.html">Boost.Lockfree类库</a>，多生产者/多消费者 <a href="https://github.com/cameron314/concurrentqueue">先进先出队列</a>(FIFO)，或者诸如 <a href="https://www.youtube.com/watch?v=rxQ5K9lo034">读取-复制-更新（RCU）</a>和 <a href="https://en.wikipedia.org/wiki/Shadow_paging">影子分页</a>(Shadow Paging)等一些算法。从头开始写这些原子工具很困难，更不用说让他们正确工作。这也是大多数时候你可能会使用已经存在的，实战检验过得算法与数据结构，而不是使用自习实现的。</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="比较并交换cas循环">比较并交换(CAS)循环</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>具体到实际应用，比较并交换循环(CAS loop)可能是无锁编程中最常用的技巧，无论你是使用现成的数据结构或者从头开始实现算法。这是基于对应的 <strong>比较并交换</strong> 原子操作（CAS）而且有一个很好的特点：他能支持多个写线程。这是用到复杂系统中的并发算法的一个重要特征。</p>
-</div>
-<div class="paragraph">
-<p>CAS循环非常有趣是因为他在无锁代码中引入了重复模式，同时引入了用于推理的理论概念。我们进一步看一下。</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="cas循环实现">CAS循环实现</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>操作系统或者编程语言提供的CAS函数可能张这个样子：</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="prettyprint highlight"><code class="language-c" data-lang="c">boolean compare_and_swap(shared_data, expected_value, new_value);</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>他的入参有共享数据的引用/指针，预期共享数据当前的值以及将要赋值的新值。这个函数只有在</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="prettyprint highlight"><code class="language-c" data-lang="c">shared_date.value == expected_value</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>的情况下才会使用新数据替换原始数据，并且只用数据改变的情况下才返回true。</p>
-</div>
-<div class="paragraph">
-<p>CAS循环的思路是不停的尝试比较和交换，直到操作成功。每一次尝试都需要给CAS函数传递共享数据的引用/指针，预期的数据和将要赋值的数据。这是和其他并发写线程配合的必要条件：如果其他线程在同步修改数据，也就是共享数据和预期数据不再匹配了，CAS函数就会失败。这样就支持了多个写线程。</p>
-</div>
-<div class="paragraph">
-<p>假设我们用CAS来实现前面代码片段实现的 <strong>fetch-and-add</strong> 算法，实现起来可能是这样的（伪代码）：</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="prettyprint highlight"><code class="language-c" data-lang="c">x = 0
+    fetch_and_add(x, 1)</code></pre> 
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>我假设了 <strong>fetch_and_add()</strong> 和 <strong>load()</strong> 是基于相应的硬件指令的原子操作。 你可能已经发现了，这里并没有使用锁。 并发调用这些函数的多个线程都可以继续执行。<strong>load()</strong> 函数的原子性将保证不会有读线程读取到未完成修改的数据，同时因为 <strong>fetch_and_add()</strong> 的原子性，也不会有写线程能够部分修改数据。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="现实世界中的原子操作">现实世界中的原子操作</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>现在，上面这个例子显示了原子操作的一个重要特性：他们仅针对原子类型，如boolean型，字符串，整数等。但是真的程序是需要使用同步技术来实现更负责的数据，比如数组，向量，对象，数据向量，对象里包含数据等等。如何用基于原子类型的简单操作来保证负责数据的原子性？</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>无锁编程迫使你跳出常规的同步原语来思考问题。你不用直接用原子操作保护共享资源，而是用互斥锁或者信号量。同样的，你会基于原子操作构建无锁算法或者无锁数据结构来确定多个线程如何访问你的数据。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>例如，上面看到的 <strong>fetch-and-add</strong> 操作可以用来实现一个基本的信号量，而这个信号量就可以用来协调多个线程。毫无意外，所有传统的阻塞同步工具都是基于原子操作的实现的。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>人们写了很多个无锁数据结构，比如Folly的 <a href="https://github.com/facebook/folly/blob/master/folly/AtomicHashMap.h">AtomicHashMap</a>， <a href="https://www.boost.org/doc/libs/1_70_0/doc/html/lockfree.html">Boost.Lockfree类库</a>，多生产者/多消费者 <a href="https://github.com/cameron314/concurrentqueue">先进先出队列</a>(FIFO)，或者诸如 <a href="https://www.youtube.com/watch?v=rxQ5K9lo034">读取-复制-更新（RCU）</a>和 <a href="https://en.wikipedia.org/wiki/Shadow_paging">影子分页</a>(Shadow Paging)等一些算法。从头开始写这些原子工具很困难，更不用说让他们正确工作。这也是大多数时候你可能会使用已经存在的，实战检验过得算法与数据结构，而不是使用自习实现的。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="比较并交换cas循环">比较并交换(CAS)循环</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>具体到实际应用，比较并交换循环(CAS loop)可能是无锁编程中最常用的技巧，无论你是使用现成的数据结构或者从头开始实现算法。这是基于对应的 <strong>比较并交换</strong> 原子操作（CAS）而且有一个很好的特点：他能支持多个写线程。这是用到复杂系统中的并发算法的一个重要特征。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>CAS循环非常有趣是因为他在无锁代码中引入了重复模式，同时引入了用于推理的理论概念。我们进一步看一下。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="cas循环实现">CAS循环实现</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>操作系统或者编程语言提供的CAS函数可能张这个样子：</p> 
+  </div> 
+  <div class="listingblock"> 
+   <div class="content"> 
+    <pre class="prettyprint highlight"><code class="language-c" data-lang="c">boolean compare_and_swap(shared_data, expected_value, new_value);</code></pre> 
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>他的入参有共享数据的引用/指针，预期共享数据当前的值以及将要赋值的新值。这个函数只有在</p> 
+  </div> 
+  <div class="listingblock"> 
+   <div class="content"> 
+    <pre class="prettyprint highlight"><code class="language-c" data-lang="c">shared_date.value == expected_value</code></pre> 
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>的情况下才会使用新数据替换原始数据，并且只用数据改变的情况下才返回true。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>CAS循环的思路是不停的尝试比较和交换，直到操作成功。每一次尝试都需要给CAS函数传递共享数据的引用/指针，预期的数据和将要赋值的数据。这是和其他并发写线程配合的必要条件：如果其他线程在同步修改数据，也就是共享数据和预期数据不再匹配了，CAS函数就会失败。这样就支持了多个写线程。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>假设我们用CAS来实现前面代码片段实现的 <strong>fetch-and-add</strong> 算法，实现起来可能是这样的（伪代码）：</p> 
+  </div> 
+  <div class="listingblock"> 
+   <div class="content"> 
+    <pre class="prettyprint highlight"><code class="language-c" data-lang="c">x = 0
 
 reader_thread()
     print(load(x))
 
 writer_thread()
     temp = load(x)                              // (1)
-    while(!compare_and_swap(x, temp, temp + 1)) // (2)</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>第（1）行代码加载共享数据，然后尝试和新的数据进行交换，直到交换成功返回true（2）。</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="交换范式">交换范式</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>正如前面说的，CAS循环在许多无锁算法中引入了重复模式:</p>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>创建共享数据的本地副本；</p>
-</li>
-<li>
-<p>按需修改本地副本；</p>
-</li>
-<li>
-<p>合适的时候，通过交换更新后的数据与之前创建的副本数据来更新共享数据。</p>
-</li>
-</ol>
-</div>
-<div class="paragraph">
-<p>第3）点是关键：交换是通过原子操作来保证原子性的。本地写线程针对副本数据做了大部分的脏活累活，等到合适的时候才发布更新到共享数据。这样的话，其他线程只能看到这个共享数据的2种状态：未修改的数据和修改后的数据。由于原子交换，看不到修改过程中的中间状态，或者出错的更新。</p>
-</div>
-<div class="paragraph">
-<p>这也是哲学上不同于加锁方案的：无锁算法中，多线程仅仅在执行交换的时候才需要交互，其他时候都不被打扰的运行，也感知不到其他线程的存在。多线程之间的交互点缩小了并且被限制在执行原子操作的期间。</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="一种轻量级加锁形式">一种轻量级加锁形式</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>上面看到的循环直到成功的的策略再许多无锁算法中用到了，被称之为自旋锁(spinlock)：一个简单的循环，线程不停的尝试执行操作直到成功。这是一种经量级的加锁形式，此时线程实时活跃运行的，不会被操作系统休眠。尽管这个循环成功之前工作不会有进展。相比之下，互斥锁或者信号量中用到的常规锁代价非常高，因为一个挂起/唤醒周期需要大量的底层工作。</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="aba问题">ABA问题</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>行（1）和（2）所示指令虽然有所不同，但不是连续的。另一个线程可能插入中间，再（1）读取完成之后修改共享数据。更确切的说，另一个线程可以将初始数据，假设为A，修改为B，然后在（2）所示的比较并交换操作执行之前再修改回A。执行CAS操作的线程不会发现数据的变化而成功执行交换操作。这就是所谓的ABA问题：有时候你可以简单的直接忽略，如果你的算法就像上面那个一样简单，而有时候你就需要避免此问题，因为这会给你的应用程序引入非常难以发现的问题。信用的是有 <a href="https://en.wikipedia.org/wiki/Compare-and-swap#ABA_problem">几种方式</a> 可以绕过这个问题。</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="cas循环可以交换任意的事情">CAS循环可以交换任意的事情</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>CAS循环经常用来交换指针，这也是比较并交换操作支持的类型之一。当你需要修改复杂的诸如对象或者数组的数据集的时候非常有用：创建本地数据副本，按需修改这个副本，合适的时候交换本地副本数据和全局共享数据的指针。这样的话全局共享数据就指向了本地副本数据在内存中指针，其他线程就会看到更新后的最新数据。</p>
-</div>
-<div class="paragraph">
-<p>这个技术允许你同步非原始数据实体(primitive entities)，尽管要做到这个也有一定的难度。比如交换完成之后，一个读线程还在读取老的指针？如何安全的删除之前的数据副本而不引起非常危险的野指针问题？工程师们再一次的找到了很多解决方案，比如使用支持内存自动 <a href="https://en.wikipedia.org/wiki/Garbage_collection_(computer_science)">垃圾回收</a>的语言，或者一些深奥的技术如 <a href="https://aturon.github.io/blog/2015/08/27/epoch/">分代内存回收</a>， <a href="https://en.wikipedia.org/wiki/Hazard_pointer">冒险指针</a>或者 <a href="https://en.wikipedia.org/wiki/Reference_counting">引用计数</a>。</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="无锁和无等待">无锁和无等待</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>每个基于原子操作的算法或者数据结构可以归为2类：无锁的或者无等待的。当你要评估基于原子操作的类库对你应用程序性能的影响时，这是一个非常重要的不同点。</p>
-</div>
-<div class="paragraph">
-<p>无锁算法运行其他线程继续执行有用的工作，尽管有一个线程正在忙等。换句话说，至少有一个线程是可以继续执行的。CAS循环是一个非常好的无锁算法例子，因为如果循环的过程中如果有一此交换尝试失败了，一定是因为另一个线程成功修改了共享数据。尽管如此，无锁算法可能会在无法预知的时间内不停的忙等，尤其是有许多个线程在同时竞争同一个共享数据：更确切的说，当竞争非常激烈的时候。极端情况下，一个无锁算法的CPU资源效率可能远远不及让阻塞线程休眠的互斥锁。</p>
-</div>
-<div class="paragraph">
-<p>相比之下，在无等待算法中（无锁算法的子集），任何线程都能够在有限的步骤内完成工作，无论执行速度是怎样的，或者其他线程的工作负载水平是怎样的。本文中基于 *fetch-and-add*操作的第一个代码片段就是一个无等待算法实例：没有循环，没有重试，就是干净的业务流。还有，无等待算法是容错的：任何其他线程的失败，或者执行速度的波动都不会使当前线程完成不了工作。这些特性是的无等待算法非常适合复杂的 <a href="https://en.wikipedia.org/wiki/Real-time_computing">实时系统</a>，这里并发代码的行为可预知是必要的。</p>
-</div>
-<div class="imageblock">
-<div class="content">
-<img src="/images/lock-free-wait-free.png" alt="Lock-free" width="wait-free">
-</div>
-<div class="title">Figure 3. 无等待算法是无锁算法的子集</div>
-</div>
-<div class="paragraph">
-<p>无等待是并发代码非常需要的，但是很难获得的特性。总而言之，无论你正在构建一个阻塞的，无锁的还是无等待的算法，黄金法则是你一定要做基准测试并且衡量测试结果。有时候旧时的互斥锁比时髦的同步原语性能要好，尤其是并发任务的复杂度非常高的时候。</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="写到最后">写到最后</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>原子操作是无锁编码的必要组成，甚至是在单处理器的机器上也是。没有原子性，一个线程可能在事务中途被中断，可能会导致不一致的数据状态。本文中，我仅仅是浅尝辄止：一旦你把多核/多线程考虑进去，就打开了新世界。顺序一致性和内存屏障是非常关键的部分，如果要充分利用无锁算法，就不应该被忽视。我将在下一文章中讨论这些主题。</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="参考">参考</h2>
-<div class="sectionbody">
-<div class="ulist">
-<ul>
-<li>
-<p>Preshing on Programming - <a href="https://preshing.com/20120612/an-introduction-to-lock-free-programming/">An Introduction to Lock-Free Programming</a></p>
-</li>
-<li>
-<p>Preshing on Programming - <a href="https://preshing.com/20130618/atomic-vs-non-atomic-operations/">Atomic vs. Non-Atomic Operations</a></p>
-</li>
-<li>
-<p>Preshing on Programming - <a href="https://preshing.com/20150402/you-can-do-any-kind-of-atomic-read-modify-write-operation/">You Can Do Any Kind of Atomic Read-Modify-Write Operation</a></p>
-</li>
-<li>
-<p>StackOverflow - <a href="https://stackoverflow.com/questions/1525189/do-i-need-a-mutex-for-reading">Do I need a mutex for reading?</a></p>
-</li>
-<li>
-<p>StackOverflow - <a href="https://stackoverflow.com/questions/39795265/will-atomic-operations-block-other-threads">Will atomic operations block other threads?</a></p>
-</li>
-<li>
-<p>StackOverflow - <a href="https://stackoverflow.com/questions/38124337/spinlock-vs-busy-wait">Spinlock vs Busy wait</a></p>
-</li>
-<li>
-<p>GCC Wiki - <a href="https://gcc.gnu.org/wiki/Atomic/GCCMM/AtomicTypes">Atomics</a></p>
-</li>
-<li>
-<p>GCC Wiki - <a href="https://gcc.gnu.org/wiki/Atomic/GCCMM/AtomicSync">Memory model synchronization modes</a></p>
-</li>
-<li>
-<p>Threading Building Blocks - <a href="https://www.threadingbuildingblocks.org/docs/help/tbb_userguide/Atomic_Operations.html">Atomic Operations</a></p>
-</li>
-<li>
-<p>Just Software Solutions - <a href="https://www.justsoftwaresolutions.co.uk/threading/non_blocking_lock_free_and_wait_free.html">Definitions of Non-blocking, Lock-free and Wait-free</a></p>
-</li>
-<li>
-<p>Wikipedia - <a href="https://en.wikipedia.org/wiki/Compare-and-swap">Compare-and-swap</a></p>
-</li>
-<li>
-<p>Wikipedia - <a href="https://en.wikipedia.org/wiki/Read%E2%80%93modify%E2%80%93write">Read-modify-write</a></p>
-</li>
-<li>
-<p>Wikipedia - <a href="https://en.wikipedia.org/wiki/Test-and-set">Test-and-set</a></p>
-</li>
-<li>
-<p>Tyler Neely - <a href="https://medium.com/@tylerneely/fear-and-loathing-in-lock-free-programming-7158b1cdd50c">Fear and Loathing in Lock-Free Programming</a></p>
-</li>
-<li>
-<p>Jason Gregory - <a href="https://www.ebooks.com/en-us/95912264/game-engine-architecture-third-edition/jason-gregory/">Game Engine Architecture, Third Edition</a></p>
-</li>
-<li>
-<p>AA.VV. - <a href="https://spcl.inf.ethz.ch/Publications/.pdf/atomic-bench.pdf">Evaluating the Cost of Atomic Operations on Modern Architectures</a></p>
-</li>
-<li>
-<p>Herb Sutter, CppCon 2014 - <a href="https://www.youtube.com/watch?v=c1gO9aB9nbs">Lock-Free Programming (or, Juggling Razor Blades), Part 1</a></p>
-</li>
-<li>
-<p>Herb Sutter, CppCon 2014 - <a href="http://www.youtube.com/watch?v=CmxkPChOcvw">Lock-Free Programming (or, Juggling Razor Blades), Part 2</a></p>
-</li>
-<li>
-<p>Maurice Herlihy - <a href="https://cs.brown.edu/~mph/Herlihy91/p124-herlihy.pdf">Wait-free synchronization</a></p>
-</li>
-<li>
-<p>Fedor Pikus, CppCon 2014 - <a href="https://www.youtube.com/watch?v=rxQ5K9lo034">Read, Copy, Update, then what? RCU for non-kernel programmers</a></p>
-</li>
-<li>
-<p>1024cores - <a href="http://www.1024cores.net/home/lock-free-algorithms">Lockfree Algorithms</a></p>
-</li>
-<li>
-<p>Microsoft - <a href="https://docs.microsoft.com/en-us/windows/win32/dxtecharts/lockless-programming">Lockless Programming Considerations for Xbox 360 and Microsoft Windows</a></p>
-</li>
-<li>
-<p>Brian Goetz, IBM - <a href="https://www.ibm.com/developerworks/java/library/j-jtp11234/">Going Atomic</a></p>
-</li>
-</ul>
-</div>
-<div class="paragraph">
-<p>本文译自https://www.internalpointers.com/post/lock-free-multithreading-atomic-operations，英文读者可直接阅读原文。</p>
-</div>
-</div>
+    while(!compare_and_swap(x, temp, temp + 1)) // (2)</code></pre> 
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>第（1）行代码加载共享数据，然后尝试和新的数据进行交换，直到交换成功返回true（2）。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="交换范式">交换范式</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>正如前面说的，CAS循环在许多无锁算法中引入了重复模式:</p> 
+  </div> 
+  <div class="olist arabic"> 
+   <ol class="arabic"> 
+    <li> <p>创建共享数据的本地副本；</p> </li> 
+    <li> <p>按需修改本地副本；</p> </li> 
+    <li> <p>合适的时候，通过交换更新后的数据与之前创建的副本数据来更新共享数据。</p> </li> 
+   </ol> 
+  </div> 
+  <div class="paragraph"> 
+   <p>第3）点是关键：交换是通过原子操作来保证原子性的。本地写线程针对副本数据做了大部分的脏活累活，等到合适的时候才发布更新到共享数据。这样的话，其他线程只能看到这个共享数据的2种状态：未修改的数据和修改后的数据。由于原子交换，看不到修改过程中的中间状态，或者出错的更新。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>这也是哲学上不同于加锁方案的：无锁算法中，多线程仅仅在执行交换的时候才需要交互，其他时候都不被打扰的运行，也感知不到其他线程的存在。多线程之间的交互点缩小了并且被限制在执行原子操作的期间。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="一种轻量级加锁形式">一种轻量级加锁形式</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>上面看到的循环直到成功的的策略再许多无锁算法中用到了，被称之为自旋锁(spinlock)：一个简单的循环，线程不停的尝试执行操作直到成功。这是一种经量级的加锁形式，此时线程实时活跃运行的，不会被操作系统休眠。尽管这个循环成功之前工作不会有进展。相比之下，互斥锁或者信号量中用到的常规锁代价非常高，因为一个挂起/唤醒周期需要大量的底层工作。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="aba问题">ABA问题</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>行（1）和（2）所示指令虽然有所不同，但不是连续的。另一个线程可能插入中间，再（1）读取完成之后修改共享数据。更确切的说，另一个线程可以将初始数据，假设为A，修改为B，然后在（2）所示的比较并交换操作执行之前再修改回A。执行CAS操作的线程不会发现数据的变化而成功执行交换操作。这就是所谓的ABA问题：有时候你可以简单的直接忽略，如果你的算法就像上面那个一样简单，而有时候你就需要避免此问题，因为这会给你的应用程序引入非常难以发现的问题。信用的是有 <a href="https://en.wikipedia.org/wiki/Compare-and-swap#ABA_problem">几种方式</a> 可以绕过这个问题。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="cas循环可以交换任意的事情">CAS循环可以交换任意的事情</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>CAS循环经常用来交换指针，这也是比较并交换操作支持的类型之一。当你需要修改复杂的诸如对象或者数组的数据集的时候非常有用：创建本地数据副本，按需修改这个副本，合适的时候交换本地副本数据和全局共享数据的指针。这样的话全局共享数据就指向了本地副本数据在内存中指针，其他线程就会看到更新后的最新数据。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>这个技术允许你同步非原始数据实体(primitive entities)，尽管要做到这个也有一定的难度。比如交换完成之后，一个读线程还在读取老的指针？如何安全的删除之前的数据副本而不引起非常危险的野指针问题？工程师们再一次的找到了很多解决方案，比如使用支持内存自动 <a href="https://en.wikipedia.org/wiki/Garbage_collection_(computer_science)">垃圾回收</a>的语言，或者一些深奥的技术如 <a href="https://aturon.github.io/blog/2015/08/27/epoch/">分代内存回收</a>， <a href="https://en.wikipedia.org/wiki/Hazard_pointer">冒险指针</a>或者 <a href="https://en.wikipedia.org/wiki/Reference_counting">引用计数</a>。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="无锁和无等待">无锁和无等待</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>每个基于原子操作的算法或者数据结构可以归为2类：无锁的或者无等待的。当你要评估基于原子操作的类库对你应用程序性能的影响时，这是一个非常重要的不同点。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>无锁算法运行其他线程继续执行有用的工作，尽管有一个线程正在忙等。换句话说，至少有一个线程是可以继续执行的。CAS循环是一个非常好的无锁算法例子，因为如果循环的过程中如果有一此交换尝试失败了，一定是因为另一个线程成功修改了共享数据。尽管如此，无锁算法可能会在无法预知的时间内不停的忙等，尤其是有许多个线程在同时竞争同一个共享数据：更确切的说，当竞争非常激烈的时候。极端情况下，一个无锁算法的CPU资源效率可能远远不及让阻塞线程休眠的互斥锁。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>相比之下，在无等待算法中（无锁算法的子集），任何线程都能够在有限的步骤内完成工作，无论执行速度是怎样的，或者其他线程的工作负载水平是怎样的。本文中基于 *fetch-and-add*操作的第一个代码片段就是一个无等待算法实例：没有循环，没有重试，就是干净的业务流。还有，无等待算法是容错的：任何其他线程的失败，或者执行速度的波动都不会使当前线程完成不了工作。这些特性是的无等待算法非常适合复杂的 <a href="https://en.wikipedia.org/wiki/Real-time_computing">实时系统</a>，这里并发代码的行为可预知是必要的。</p> 
+  </div> 
+  <div class="imageblock"> 
+   <div class="content"> 
+    <img src="http://reploop.org/blog/2020/02/images/lock-free-wait-free.png" alt="Lock-free" width="wait-free"> 
+   </div> 
+   <div class="title">
+    Figure 3. 无等待算法是无锁算法的子集
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>无等待是并发代码非常需要的，但是很难获得的特性。总而言之，无论你正在构建一个阻塞的，无锁的还是无等待的算法，黄金法则是你一定要做基准测试并且衡量测试结果。有时候旧时的互斥锁比时髦的同步原语性能要好，尤其是并发任务的复杂度非常高的时候。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="写到最后">写到最后</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>原子操作是无锁编码的必要组成，甚至是在单处理器的机器上也是。没有原子性，一个线程可能在事务中途被中断，可能会导致不一致的数据状态。本文中，我仅仅是浅尝辄止：一旦你把多核/多线程考虑进去，就打开了新世界。顺序一致性和内存屏障是非常关键的部分，如果要充分利用无锁算法，就不应该被忽视。我将在下一文章中讨论这些主题。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="参考">参考</h2> 
+ <div class="sectionbody"> 
+  <div class="ulist"> 
+   <ul> 
+    <li> <p>Preshing on Programming - <a href="https://preshing.com/20120612/an-introduction-to-lock-free-programming/">An Introduction to Lock-Free Programming</a></p> </li> 
+    <li> <p>Preshing on Programming - <a href="https://preshing.com/20130618/atomic-vs-non-atomic-operations/">Atomic vs. Non-Atomic Operations</a></p> </li> 
+    <li> <p>Preshing on Programming - <a href="https://preshing.com/20150402/you-can-do-any-kind-of-atomic-read-modify-write-operation/">You Can Do Any Kind of Atomic Read-Modify-Write Operation</a></p> </li> 
+    <li> <p>StackOverflow - <a href="https://stackoverflow.com/questions/1525189/do-i-need-a-mutex-for-reading">Do I need a mutex for reading?</a></p> </li> 
+    <li> <p>StackOverflow - <a href="https://stackoverflow.com/questions/39795265/will-atomic-operations-block-other-threads">Will atomic operations block other threads?</a></p> </li> 
+    <li> <p>StackOverflow - <a href="https://stackoverflow.com/questions/38124337/spinlock-vs-busy-wait">Spinlock vs Busy wait</a></p> </li> 
+    <li> <p>GCC Wiki - <a href="https://gcc.gnu.org/wiki/Atomic/GCCMM/AtomicTypes">Atomics</a></p> </li> 
+    <li> <p>GCC Wiki - <a href="https://gcc.gnu.org/wiki/Atomic/GCCMM/AtomicSync">Memory model synchronization modes</a></p> </li> 
+    <li> <p>Threading Building Blocks - <a href="https://www.threadingbuildingblocks.org/docs/help/tbb_userguide/Atomic_Operations.html">Atomic Operations</a></p> </li> 
+    <li> <p>Just Software Solutions - <a href="https://www.justsoftwaresolutions.co.uk/threading/non_blocking_lock_free_and_wait_free.html">Definitions of Non-blocking, Lock-free and Wait-free</a></p> </li> 
+    <li> <p>Wikipedia - <a href="https://en.wikipedia.org/wiki/Compare-and-swap">Compare-and-swap</a></p> </li> 
+    <li> <p>Wikipedia - <a href="https://en.wikipedia.org/wiki/Read%E2%80%93modify%E2%80%93write">Read-modify-write</a></p> </li> 
+    <li> <p>Wikipedia - <a href="https://en.wikipedia.org/wiki/Test-and-set">Test-and-set</a></p> </li> 
+    <li> <p>Tyler Neely - <a href="https://medium.com/@tylerneely/fear-and-loathing-in-lock-free-programming-7158b1cdd50c">Fear and Loathing in Lock-Free Programming</a></p> </li> 
+    <li> <p>Jason Gregory - <a href="https://www.ebooks.com/en-us/95912264/game-engine-architecture-third-edition/jason-gregory/">Game Engine Architecture, Third Edition</a></p> </li> 
+    <li> <p>AA.VV. - <a href="https://spcl.inf.ethz.ch/Publications/.pdf/atomic-bench.pdf">Evaluating the Cost of Atomic Operations on Modern Architectures</a></p> </li> 
+    <li> <p>Herb Sutter, CppCon 2014 - <a href="https://www.youtube.com/watch?v=c1gO9aB9nbs">Lock-Free Programming (or, Juggling Razor Blades), Part 1</a></p> </li> 
+    <li> <p>Herb Sutter, CppCon 2014 - <a href="http://www.youtube.com/watch?v=CmxkPChOcvw">Lock-Free Programming (or, Juggling Razor Blades), Part 2</a></p> </li> 
+    <li> <p>Maurice Herlihy - <a href="https://cs.brown.edu/~mph/Herlihy91/p124-herlihy.pdf">Wait-free synchronization</a></p> </li> 
+    <li> <p>Fedor Pikus, CppCon 2014 - <a href="https://www.youtube.com/watch?v=rxQ5K9lo034">Read, Copy, Update, then what? RCU for non-kernel programmers</a></p> </li> 
+    <li> <p>1024cores - <a href="http://www.1024cores.net/home/lock-free-algorithms">Lockfree Algorithms</a></p> </li> 
+    <li> <p>Microsoft - <a href="https://docs.microsoft.com/en-us/windows/win32/dxtecharts/lockless-programming">Lockless Programming Considerations for Xbox 360 and Microsoft Windows</a></p> </li> 
+    <li> <p>Brian Goetz, IBM - <a href="https://www.ibm.com/developerworks/java/library/j-jtp11234/">Going Atomic</a></p> </li> 
+   </ul> 
+  </div> 
+  <div class="paragraph"> 
+   <p>本文译自https://www.internalpointers.com/post/lock-free-multithreading-atomic-operations，英文读者可直接阅读原文。</p> 
+  </div> 
+ </div> 
 </div></p>
   			<a href="blog/2020/02/introduction-to-thread-synchronization.html"><h1>线程同步: 多线程应用中最常见的的并发控制方法之一</h1></a>
   			<p>23 February 2020</p>
-  			<p><div id="preamble">
-<div class="sectionbody">
-<div class="ulist">
-<div class="title">本系列中的其他文章</div>
-<ul>
-<li>
-<p><a href="a-gentle-introduction-to-multithreading.html">多线程简介</a> - 一步一步走进并发的世界</p>
-</li>
-<li>
-<p><a href="lock-free-multithreading-with-atomic-operations.html">用原子操作实现无锁多线程</a> - 底层线程同步</p>
-</li>
-<li>
-<p><a href="understanding-memory-reordering.html">理解内存重排序</a> - 为什写无锁多线程代码时它很重要</p>
-</li>
-</ul>
-</div>
-<div class="paragraph">
-<p>本文讨论的是多线程应用中最常见的并发控制方法之一。</p>
-</div>
-<div class="paragraph">
-<p>就像我<a href="a-gentle-introduction-to-multithreading.html">前一篇文章</a>所阐述的，开发并发代码需要技巧的。 会遇到两个大问题：数据竞争，当一个写线程在修改内存数据的同时一个读线程正在从中读取数据和竞争条件，当2个或以上的线程以不可预知的顺序执行任务的时候会发生。幸运的是我们有一些办法来避免这类错误：这篇文章我们就来看一个最常用的办法：同步。</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="什么是同步">什么是同步</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>同步是让2个或以上线程和平共处的技巧合集。更确切的说，同步能够帮你达成多线程程序中至少2个重要的特性：
-. 原子性 - 如果你的代码包含多个线程操作共享数据的指令，不受控制的并发访问共享数据可触发数据竞争。包含此类指令的代码块称为关键区块。你要确保关键区块要原子执行：如前文所定义的，一个<a href="a-gentle-introduction-to-multithreading.html">原子操作</a>不能在细分为更小的操作了，因此当一个线程在执行原子代码块的时候，就不会受到其他线程的干扰。
-. 有序性 - 有时候你需要2个或以上的线程按照可预测的顺序执行任务，或者限制访问某个资源的线程数。正常情况下你是不能控制这个的，这也可能是竞争条件发生的根本原因。有了同步之后，你就可以根据计划来编排多个线程的执行了。</p>
-</div>
-<div class="paragraph">
-<p>同步是通过支持多线程的操作系统或者编程语言提供的同步原语来实现的。然后你就可以在代码中使用同步原语来保证多线程不会触发数据竞争、竞争条件或者全部。</p>
-</div>
-<div class="paragraph">
-<p>同步可以发生在硬件和软件，以及线程之间和操作系统进程之间。 这篇文章是关于软件线程同步：对应的硬件同步部分非常有趣，将会在后续的文章中介绍。</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="常见同步原语">常见同步原语</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>最重要的同步原语是互斥锁，信号量和条件变量。这些关键字还没有官方的定义，所以在不同的书本或者实现中会有轻微的不同特征。</p>
-</div>
-<div class="paragraph">
-<p>操作系统原生支持他们。例如Linux和macOS支持POSIX线程，也就是pthreads，使得你可以用这一组函数开发安全的多线程应用。Windows则用C运行时代码库（CRT）提供自己的同步工具：概念上和POSIX多线程功能相似但是不同的命名。</p>
-</div>
-<div class="paragraph">
-<p>除非你正在写非常底层的代码，通常你只要使用编程语言提供的同步原语就可以了。每个支持多线程的编程语言都提供了自己的同步原语工具箱，以及一些额外的线程处理功能。例如Java提供了 java.util.concurrent 包，现代C++有自己的线程库，C#提供 System.Threading命名空间等等。当然所有这个功能和对象都是基于底层操作系统同步原语的。</p>
-</div>
-<div class="paragraph">
-<p>还有其他同步工具，本文至关注上面提到的3个，因为他们是构建复杂系统的基础。让我们进一步分析。</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="互斥锁">互斥锁</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>互斥锁是一个同步原语，是为了避免数据竞争而给关键区域的增加限制的保护机制。 互斥锁能通过同时只允许一个线程访问关键区来保证原子性。</p>
-</div>
-<div class="paragraph">
-<p>严格来讲，互斥锁是应用中的一个全局对象，在多个线程之间共享，并且提供通常叫做加锁和解锁的2个功能函数。一个即将要进入关键区域的线程通过加锁操作锁定这个互斥锁，结束后，也就是关键区域结束之后，同样的线程调用解锁操作来释放这个互斥锁。互斥锁非常重要的特性是：只有锁定这个互斥锁的线程才能解锁。</p>
-</div>
-<div class="paragraph">
-<p>如果一个线程正在关键区，而另一个线程尝试锁定这个互斥锁，操作系统就让后面这个线程休眠，直到第一个线程任务结束并且释放了这个互斥锁。这样就只有1个线程可以访问关键区，任何其他线程都不能访问而且必须等待互斥锁的释放。基于这个原因，互斥锁也叫做锁机制。</p>
-</div>
-<div class="paragraph">
-<p>你可以用互斥锁保护比如一个共享变量的并发读和写操作，也可以保护更大、更复杂的操作，同时只允许一个线程执行的，比如写日志文件或者修改数据库。无论如何，互斥锁的加锁/解锁操作总是和关键区的边界是匹配的。</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="递归互斥锁">递归互斥锁</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>任何正常的互斥锁实现中，一个线程两次加锁同一个互斥锁会引起错误。但是递归互斥锁允许此类操作：一个线程可以锁定一个递归互斥锁许多次而不需要先释放。尽管如此，其他线程只有等到第一个线程释放所有的递归互斥锁之后才能锁定这个锁。这个同步原语也叫做可重入互斥锁，这里的可重入性是指在前一次调用结束可以多次调用同一个函数的能力。</p>
-</div>
-<div class="paragraph">
-<p>递归互斥锁很难用而且容易出错。你必须记录哪个线程锁定了哪个互斥锁多少次，而且要保证一个线程完全释放这个互斥锁。不然的话就会导致互斥锁没能释放而引起讨厌的后果。大多数时候正常的互斥锁就够用了。</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="读写锁">读写锁</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>正如我们从前一篇文章中知道的，多个线程可以安全的并发读一个共享资源，只要没有线程修改该共享资源。所以为什么还需要锁定一个互斥锁如果一些线程是“只读”模式的？例如一个并发数据库被多个线程频繁读取，同时另一个线程偶尔写入更新。你当然需要一个互斥锁来保护读/写访问，但是大多数情况下锁定一个互斥锁仅仅是为了读操作，这样也同时阻碍了其他读线程正常执行。</p>
-</div>
-<div class="paragraph">
-<p>读/写互斥锁允许多线程并发读和单线程排他写共享资源。这个互斥锁可以被锁定为读模式和写模式。为了修改资源，一个线程必须先获得排他写入锁。排他写入锁直到所有的读取锁全部释放之后才能获取。</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="信号量">信号量</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>信号量是用来编排线程的同步原语：那个线程先启动，多少个线程可以访问一个资源等等。就像“红绿灯”调节交通一样，程序信号量规范多线程交互流程：基于这个原因，信号量也称为信号机制。他可以被看做互斥锁的进化，因为他能同时保证有序性和原子性。尽管如此，接下来的几段中我讲告诉你为什么仅仅为了原子性而使用信号量不是一个好选择。</p>
-</div>
-<div class="paragraph">
-<p>严格来讲，信号量是应用中的全局变量，多个线程间共享，还包含了一个数字技术器，通过2个函数管理：一个增加计数器，另一个减少计数器。历史原因，分别叫做P操作和V操作，现代信号量的实现使用更友好的名字比如获取和释放。</p>
-</div>
-<div class="paragraph">
-<p>信号量控制共享资源的访问：计数器决定了并行访问共享资源的最大线程数。程序启动的时候，也就是信号量被初始化的时候，你根据自己的需要选择这个最大线程数。然后一个想访问共享资源的线程调用获取函数：</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>如果计数器大于0就继续进行。计数器被立即减少1，然后当前线程可以开始操作了。结束后，当前线程调用释放函数，同时计数器加1.</p>
-</li>
-<li>
-<p>如果计数器等于0则此线程不能继续进行：其他线程已经占用了可以空间。当前线程被操作系统休眠，只有等到信号量的计数器再次大于0（也就是有线程完成任务后调用了释放函数）的时候才会被唤醒。</p>
-</li>
-</ul>
-</div>
-<div class="paragraph">
-<p>不像互斥锁，任何线程可以释放信号量，不仅仅是获取信号量的线程。</p>
-</div>
-<div class="paragraph">
-<p>单信号量可以用来限制同时访问贡献资源的线程数：例如为了控制多线程数据库的连接数。而每个线程是连接到你的服务器的用户触发的。</p>
-</div>
-<div class="paragraph">
-<p>结合多个信号量一起，你就可以解决线程的有序性问题了：比如在浏览器中渲染网页的线程必须在通过互联网下载HTML文件的线程之后启动。线程A结束的时候会通知线程B，因此线程B可以被唤醒继续执行任务：这个也常被称为著名的 <a href="https://en.wikipedia.org/wiki/Producer%E2%80%93consumer_problem">生产者-消费者问题</a>。</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="二元信号量">二元信号量</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>如果信号量的计数器只允许取值0和1，则称之为二元信号量：也就是同时只允许一个线程访问共享资源。 等一下，这基本上就是互斥锁保护关键区。你确实可以用二元信号量来实现互斥锁的行为。但是要时刻牢记以下2点：</p>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>互斥锁只能被加锁的线程解锁，但是信号量可以被任意线程释放。如果你仅仅需要一个锁机制的话，这会导致迷惑和微妙的问题；</p>
-</li>
-<li>
-<p>信号量是用来编排线程的信号机制。但是互斥锁是保护共享资源的锁机制。你不应改使用信号量来保护共享资源，也不应该将互斥锁用于信号机制：你的意图对你和你的代码读者会更明确。</p>
-</li>
-</ol>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="条件变量">条件变量</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>条件变量是另一个用来保证有序性的同步原语。他们是用来在不同线程之间发送唤醒信号的。条件变量往往配合互斥锁一起使用，单独使用条件变量没有意义。</p>
-</div>
-<div class="paragraph">
-<p>严格来讲，条件变量是应用中的全局对象，多个线程之间共享，提供3个函数，分别叫做：wait，notify_one和notify_all, 外加一个传递已知互斥锁给他的一个机制（具体方法依实现而定）。</p>
-</div>
-<div class="paragraph">
-<p>线程调用一个条件变量的等待操作会被操作系统休眠。然后其他的线程想要唤醒休眠线程的话就调用notify_one或者notify_all。notify_one和notify_all的不同之处是notify_one仅仅唤醒一个休眠线程，但是notify_all会唤醒所有因为调用了条件变量的等待操作而休眠的线程。条件变量内部使用互斥锁提供休眠/唤醒机制。</p>
-</div>
-<div class="paragraph">
-<p>条件变量是在线程直接发送信号的强大机制，此机制仅仅依靠互斥锁是实现不了的。例如你也可以使用它解决生产者-消费者问题，线程A完成任务后产生一个信号，接着线程B就可以开始执行任务了。</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="常见的同步问题">常见的同步问题</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>本文所述的所有同步原语有共同之处：都会让线程休眠。基于这个原因，他们也被叫做阻塞机制。如果你想避免数据竞争或者竞争条件，阻塞机制是防止并发访问贡献资源的好办法：休眠线程不会有任何害处。但是他能够触发不幸的的副作用，我们来看看都有哪些。</p>
-</div>
-<div class="sect2">
-<h3 id="死锁">死锁</h3>
-<div class="paragraph">
-<p>死锁发生在一个线程等待另一个线程持有的共享变量，而第二个线程在等待第一个线程持有的贡献变量。这种情况通常在使用多个互斥锁的时候发生：2个线程在死循环中永久等待：线程A在等待线程B，线程B在等待线程A，而线程A又在等待线程B，如此往复。。。</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="饥饿">饥饿</h3>
-<div class="paragraph">
-<p>线程进入饥饿模式没有得到足够的爱：它永远卡在休眠模式等待访问共享资源，但是这个贡献资源持续的给了其他线程。例如一个基于信号量的糟糕实现可能会忘记唤醒等待队列中的一些线程，这个可以通过给部分线程高优先级的方式实现。饥饿线程会永久等待而不能做任何有效的工作。</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="无效唤醒">无效唤醒</h3>
-<div class="paragraph">
-<p>这是一些操作系统中条件变量的具体实现方式带来的微妙问题。一个无效唤醒可能是线程没有收到条件变量的信号而被唤醒了。这也是多数同步原语同时也包含了检查唤醒信号是否真的来自线程正在等待的条件变量的方法。</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="优先级反转">优先级反转</h3>
-<div class="paragraph">
-<p>优先级反转是一个执行高优先级任务的的线程阻塞等待一个低优先级的线程释放资源，如互斥锁。例如输出音频到声卡的线程（高优先级）被显示界面的线程（低优先级）阻塞了，会导致扬声器严重的卡顿。</p>
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="下一步">下一步</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>所有这些同步问题被研究很多年了，也有很多技术和架构方面的解决方法。严谨的设计和一些实际经验能很大程度上预发问题的发生。鉴于<a href="a-gentle-introduction-to-multithreading.html">不确定性</a>，(非常难的)多线程程序的性质，人们也开发出来在并发代码中检测错误和潜在缺陷的有趣工具。就像 <a href="https://github.com/google/sanitizers/wiki/ThreadSanitizerCppManual">Google的TSan</a>或者 <a href="http://valgrind.org/docs/manual/hg-manual.html">Helgrind</a>一样。</p>
-</div>
-<div class="paragraph">
-<p>尽管如此，有时候你可能在多线程应用中采用不同的方法，完全去掉阻塞机制。这意味着进入非阻塞领域：这是一个非常底层的领域，线程不会被操作系统休眠，并发是通过原子操作和无锁数据结构规范的。这是一个充满挑战的领域，并不是总是有必要，能够加速你的软件或者对他造成严重的破坏。不过这是下一篇文章的内容。</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="参考">参考</h2>
-<div class="sectionbody">
-<div class="ulist">
-<ul>
-<li>
-<p>Wikipedia - <a href="https://en.wikipedia.org/wiki/Synchronization_%28computer_science%29#Thread_or_process_synchronization">Synchronization (computer science)</a></p>
-</li>
-<li>
-<p>Wikipedia - <a href="https://en.wikipedia.org/wiki/Reentrant_mutex">Reentrant mutex</a></p>
-</li>
-<li>
-<p>Wikipedia - <a href="https://en.wikipedia.org/wiki/Reentrancy_%28computing%29">Reentrancy (computing)</a></p>
-</li>
-<li>
-<p>Wikipedia - <a href="https://en.wikipedia.org/wiki/Semaphore_%28programming%29">Semaphore (programming)</a></p>
-</li>
-<li>
-<p>Wikipedia - <a href="https://en.wikipedia.org/wiki/Spurious_wakeup">Spurious Wakeup</a></p>
-</li>
-<li>
-<p>Wikipedia - <a href="https://en.wikipedia.org/wiki/Priority_inversion">Priority inversion</a></p>
-</li>
-<li>
-<p>Wikipedia - <a href="https://en.wikipedia.org/wiki/Deadlock">Deadlock</a></p>
-</li>
-<li>
-<p>Wikipedia - <a href="https://en.wikipedia.org/wiki/Starvation_%28computer_science%29">Starvation (computer science)</a></p>
-</li>
-<li>
-<p>Columbia Engineering - <a href="http://www.cs.columbia.edu/~hgs/os/sync.html">Synchronization primitives</a></p>
-</li>
-<li>
-<p>StackOverflow - <a href="https://stackoverflow.com/questions/8017507/definition-of-synchronization-primitive">Definition of “synchronization primitive”</a></p>
-</li>
-<li>
-<p>StackOverflow - <a href="https://stackoverflow.com/questions/2332765/lock-mutex-semaphore-whats-the-difference">Lock, mutex, semaphore… what&#8217;s the difference?</a></p>
-</li>
-<li>
-<p>StackOverflow - <a href="https://stackoverflow.com/questions/11173532/why-is-locking-a-stdmutex-twice-undefined-behaviour">Why is locking a std::mutex twice 'Undefined Behaviour'?</a></p>
-</li>
-<li>
-<p>Operating Systems: Three Easy Pieces - <a href="http://pages.cs.wisc.edu/~remzi/OSTEP/">Concurrency</a></p>
-</li>
-<li>
-<p>Jaka&#8217;s Corner - <a href="http://jakascorner.com/blog/2016/01/data-races.html">Data race and mutex</a></p>
-</li>
-<li>
-<p>Java 10 API specs - <a href="https://docs.oracle.com/javase/10/docs/api/java/util/concurrent/Semaphore.html">Class Semaphore</a></p>
-</li>
-<li>
-<p>Oracle&#8217;s Multithreaded Programming Guide - <a href="https://docs.oracle.com/cd/E19455-01/806-5257/6je9h032t/index.html">Read-Write Lock Attributes</a></p>
-</li>
-<li>
-<p>Oracle&#8217;s Multithreaded Programming Guide - <a href="https://docs.oracle.com/cd/E19455-01/806-5257/6je9h0347/index.html">Avoiding Deadlock</a></p>
-</li>
-<li>
-<p>Just Software Solutions - <a href="https://www.justsoftwaresolutions.co.uk/threading/locks-mutexes-semaphores.html">Locks, Mutexes, and Semaphores: Types of Synchronization Objects</a></p>
-</li>
-<li>
-<p>Just Software Solutions - <a href="https://www.justsoftwaresolutions.co.uk/threading/non_blocking_lock_free_and_wait_free.html">Definitions of Non-blocking, Lock-free and Wait-free</a></p>
-</li>
-<li>
-<p>Cppreference - <a href="https://en.cppreference.com/w/cpp/thread/shared_mutex">std::shared_mutex</a></p>
-</li>
-<li>
-<p>Cppreference - <a href="https://en.cppreference.com/w/cpp/thread/condition_variable">std::condition_variable</a></p>
-</li>
-<li>
-<p>Quora - <a href="https://www.quora.com/What-is-the-difference-between-a-mutex-and-a-semaphore">What is the difference between a mutex and a semaphore?</a></p>
-</li>
-<li>
-<p>gerald-fahrnholz.eu - <a href="http://www.gerald-fahrnholz.eu/sw/online_doc_multithreading/html/group___grp_condition_variable_safe_way.html">Using condition variables - the safe way</a></p>
-</li>
-<li>
-<p>Politecnico di Milano - <a href="http://home.deib.polimi.it/loiacono/uploads/Teaching/CP/CP_04_Pthread_CondVar.pdf">Thread Posix: Condition Variables</a></p>
-</li>
-<li>
-<p>SoftwareEngineering - <a href="https://softwareengineering.stackexchange.com/questions/186842/spurious-wakeups-explanation-sounds-like-a-bug-that-just-isnt-worth-fixing-is">Spurious wakeups explanation sounds like a bug that just isn&#8217;t worth fixing, is that right?</a></p>
-</li>
-<li>
-<p>Android Open Source Project - <a href="https://source.android.com/devices/audio/avoiding_pi">Avoiding Priority Inversion</a></p>
-</li>
-</ul>
-</div>
-<div class="paragraph">
-<p>本文译自https://www.internalpointers.com/post/introduction-thread-synchronization，英文读者可直接阅读原文。</p>
-</div>
-</div>
+  			<p><div id="preamble"> 
+ <div class="sectionbody"> 
+  <div class="ulist"> 
+   <div class="title">
+    本系列中的其他文章
+   </div> 
+   <ul> 
+    <li> <p><a href="a-gentle-introduction-to-multithreading.html">多线程简介</a> - 一步一步走进并发的世界</p> </li> 
+    <li> <p><a href="lock-free-multithreading-with-atomic-operations.html">用原子操作实现无锁多线程</a> - 底层线程同步</p> </li> 
+    <li> <p><a href="understanding-memory-reordering.html">理解内存重排序</a> - 为什写无锁多线程代码时它很重要</p> </li> 
+   </ul> 
+  </div> 
+  <div class="paragraph"> 
+   <p>本文讨论的是多线程应用中最常见的并发控制方法之一。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>就像我<a href="a-gentle-introduction-to-multithreading.html">前一篇文章</a>所阐述的，开发并发代码需要技巧的。 会遇到两个大问题：数据竞争，当一个写线程在修改内存数据的同时一个读线程正在从中读取数据和竞争条件，当2个或以上的线程以不可预知的顺序执行任务的时候会发生。幸运的是我们有一些办法来避免这类错误：这篇文章我们就来看一个最常用的办法：同步。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="什么是同步">什么是同步</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>同步是让2个或以上线程和平共处的技巧合集。更确切的说，同步能够帮你达成多线程程序中至少2个重要的特性： . 原子性 - 如果你的代码包含多个线程操作共享数据的指令，不受控制的并发访问共享数据可触发数据竞争。包含此类指令的代码块称为关键区块。你要确保关键区块要原子执行：如前文所定义的，一个<a href="a-gentle-introduction-to-multithreading.html">原子操作</a>不能在细分为更小的操作了，因此当一个线程在执行原子代码块的时候，就不会受到其他线程的干扰。 . 有序性 - 有时候你需要2个或以上的线程按照可预测的顺序执行任务，或者限制访问某个资源的线程数。正常情况下你是不能控制这个的，这也可能是竞争条件发生的根本原因。有了同步之后，你就可以根据计划来编排多个线程的执行了。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>同步是通过支持多线程的操作系统或者编程语言提供的同步原语来实现的。然后你就可以在代码中使用同步原语来保证多线程不会触发数据竞争、竞争条件或者全部。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>同步可以发生在硬件和软件，以及线程之间和操作系统进程之间。 这篇文章是关于软件线程同步：对应的硬件同步部分非常有趣，将会在后续的文章中介绍。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="常见同步原语">常见同步原语</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>最重要的同步原语是互斥锁，信号量和条件变量。这些关键字还没有官方的定义，所以在不同的书本或者实现中会有轻微的不同特征。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>操作系统原生支持他们。例如Linux和macOS支持POSIX线程，也就是pthreads，使得你可以用这一组函数开发安全的多线程应用。Windows则用C运行时代码库（CRT）提供自己的同步工具：概念上和POSIX多线程功能相似但是不同的命名。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>除非你正在写非常底层的代码，通常你只要使用编程语言提供的同步原语就可以了。每个支持多线程的编程语言都提供了自己的同步原语工具箱，以及一些额外的线程处理功能。例如Java提供了 java.util.concurrent 包，现代C++有自己的线程库，C#提供 System.Threading命名空间等等。当然所有这个功能和对象都是基于底层操作系统同步原语的。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>还有其他同步工具，本文至关注上面提到的3个，因为他们是构建复杂系统的基础。让我们进一步分析。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="互斥锁">互斥锁</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>互斥锁是一个同步原语，是为了避免数据竞争而给关键区域的增加限制的保护机制。 互斥锁能通过同时只允许一个线程访问关键区来保证原子性。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>严格来讲，互斥锁是应用中的一个全局对象，在多个线程之间共享，并且提供通常叫做加锁和解锁的2个功能函数。一个即将要进入关键区域的线程通过加锁操作锁定这个互斥锁，结束后，也就是关键区域结束之后，同样的线程调用解锁操作来释放这个互斥锁。互斥锁非常重要的特性是：只有锁定这个互斥锁的线程才能解锁。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>如果一个线程正在关键区，而另一个线程尝试锁定这个互斥锁，操作系统就让后面这个线程休眠，直到第一个线程任务结束并且释放了这个互斥锁。这样就只有1个线程可以访问关键区，任何其他线程都不能访问而且必须等待互斥锁的释放。基于这个原因，互斥锁也叫做锁机制。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>你可以用互斥锁保护比如一个共享变量的并发读和写操作，也可以保护更大、更复杂的操作，同时只允许一个线程执行的，比如写日志文件或者修改数据库。无论如何，互斥锁的加锁/解锁操作总是和关键区的边界是匹配的。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="递归互斥锁">递归互斥锁</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>任何正常的互斥锁实现中，一个线程两次加锁同一个互斥锁会引起错误。但是递归互斥锁允许此类操作：一个线程可以锁定一个递归互斥锁许多次而不需要先释放。尽管如此，其他线程只有等到第一个线程释放所有的递归互斥锁之后才能锁定这个锁。这个同步原语也叫做可重入互斥锁，这里的可重入性是指在前一次调用结束可以多次调用同一个函数的能力。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>递归互斥锁很难用而且容易出错。你必须记录哪个线程锁定了哪个互斥锁多少次，而且要保证一个线程完全释放这个互斥锁。不然的话就会导致互斥锁没能释放而引起讨厌的后果。大多数时候正常的互斥锁就够用了。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="读写锁">读写锁</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>正如我们从前一篇文章中知道的，多个线程可以安全的并发读一个共享资源，只要没有线程修改该共享资源。所以为什么还需要锁定一个互斥锁如果一些线程是“只读”模式的？例如一个并发数据库被多个线程频繁读取，同时另一个线程偶尔写入更新。你当然需要一个互斥锁来保护读/写访问，但是大多数情况下锁定一个互斥锁仅仅是为了读操作，这样也同时阻碍了其他读线程正常执行。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>读/写互斥锁允许多线程并发读和单线程排他写共享资源。这个互斥锁可以被锁定为读模式和写模式。为了修改资源，一个线程必须先获得排他写入锁。排他写入锁直到所有的读取锁全部释放之后才能获取。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="信号量">信号量</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>信号量是用来编排线程的同步原语：那个线程先启动，多少个线程可以访问一个资源等等。就像“红绿灯”调节交通一样，程序信号量规范多线程交互流程：基于这个原因，信号量也称为信号机制。他可以被看做互斥锁的进化，因为他能同时保证有序性和原子性。尽管如此，接下来的几段中我讲告诉你为什么仅仅为了原子性而使用信号量不是一个好选择。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>严格来讲，信号量是应用中的全局变量，多个线程间共享，还包含了一个数字技术器，通过2个函数管理：一个增加计数器，另一个减少计数器。历史原因，分别叫做P操作和V操作，现代信号量的实现使用更友好的名字比如获取和释放。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>信号量控制共享资源的访问：计数器决定了并行访问共享资源的最大线程数。程序启动的时候，也就是信号量被初始化的时候，你根据自己的需要选择这个最大线程数。然后一个想访问共享资源的线程调用获取函数：</p> 
+  </div> 
+  <div class="ulist"> 
+   <ul> 
+    <li> <p>如果计数器大于0就继续进行。计数器被立即减少1，然后当前线程可以开始操作了。结束后，当前线程调用释放函数，同时计数器加1.</p> </li> 
+    <li> <p>如果计数器等于0则此线程不能继续进行：其他线程已经占用了可以空间。当前线程被操作系统休眠，只有等到信号量的计数器再次大于0（也就是有线程完成任务后调用了释放函数）的时候才会被唤醒。</p> </li> 
+   </ul> 
+  </div> 
+  <div class="paragraph"> 
+   <p>不像互斥锁，任何线程可以释放信号量，不仅仅是获取信号量的线程。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>单信号量可以用来限制同时访问贡献资源的线程数：例如为了控制多线程数据库的连接数。而每个线程是连接到你的服务器的用户触发的。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>结合多个信号量一起，你就可以解决线程的有序性问题了：比如在浏览器中渲染网页的线程必须在通过互联网下载HTML文件的线程之后启动。线程A结束的时候会通知线程B，因此线程B可以被唤醒继续执行任务：这个也常被称为著名的 <a href="https://en.wikipedia.org/wiki/Producer%E2%80%93consumer_problem">生产者-消费者问题</a>。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="二元信号量">二元信号量</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>如果信号量的计数器只允许取值0和1，则称之为二元信号量：也就是同时只允许一个线程访问共享资源。 等一下，这基本上就是互斥锁保护关键区。你确实可以用二元信号量来实现互斥锁的行为。但是要时刻牢记以下2点：</p> 
+  </div> 
+  <div class="olist arabic"> 
+   <ol class="arabic"> 
+    <li> <p>互斥锁只能被加锁的线程解锁，但是信号量可以被任意线程释放。如果你仅仅需要一个锁机制的话，这会导致迷惑和微妙的问题；</p> </li> 
+    <li> <p>信号量是用来编排线程的信号机制。但是互斥锁是保护共享资源的锁机制。你不应改使用信号量来保护共享资源，也不应该将互斥锁用于信号机制：你的意图对你和你的代码读者会更明确。</p> </li> 
+   </ol> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="条件变量">条件变量</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>条件变量是另一个用来保证有序性的同步原语。他们是用来在不同线程之间发送唤醒信号的。条件变量往往配合互斥锁一起使用，单独使用条件变量没有意义。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>严格来讲，条件变量是应用中的全局对象，多个线程之间共享，提供3个函数，分别叫做：wait，notify_one和notify_all, 外加一个传递已知互斥锁给他的一个机制（具体方法依实现而定）。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>线程调用一个条件变量的等待操作会被操作系统休眠。然后其他的线程想要唤醒休眠线程的话就调用notify_one或者notify_all。notify_one和notify_all的不同之处是notify_one仅仅唤醒一个休眠线程，但是notify_all会唤醒所有因为调用了条件变量的等待操作而休眠的线程。条件变量内部使用互斥锁提供休眠/唤醒机制。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>条件变量是在线程直接发送信号的强大机制，此机制仅仅依靠互斥锁是实现不了的。例如你也可以使用它解决生产者-消费者问题，线程A完成任务后产生一个信号，接着线程B就可以开始执行任务了。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="常见的同步问题">常见的同步问题</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>本文所述的所有同步原语有共同之处：都会让线程休眠。基于这个原因，他们也被叫做阻塞机制。如果你想避免数据竞争或者竞争条件，阻塞机制是防止并发访问贡献资源的好办法：休眠线程不会有任何害处。但是他能够触发不幸的的副作用，我们来看看都有哪些。</p> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="死锁">死锁</h3> 
+   <div class="paragraph"> 
+    <p>死锁发生在一个线程等待另一个线程持有的共享变量，而第二个线程在等待第一个线程持有的贡献变量。这种情况通常在使用多个互斥锁的时候发生：2个线程在死循环中永久等待：线程A在等待线程B，线程B在等待线程A，而线程A又在等待线程B，如此往复。。。</p> 
+   </div> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="饥饿">饥饿</h3> 
+   <div class="paragraph"> 
+    <p>线程进入饥饿模式没有得到足够的爱：它永远卡在休眠模式等待访问共享资源，但是这个贡献资源持续的给了其他线程。例如一个基于信号量的糟糕实现可能会忘记唤醒等待队列中的一些线程，这个可以通过给部分线程高优先级的方式实现。饥饿线程会永久等待而不能做任何有效的工作。</p> 
+   </div> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="无效唤醒">无效唤醒</h3> 
+   <div class="paragraph"> 
+    <p>这是一些操作系统中条件变量的具体实现方式带来的微妙问题。一个无效唤醒可能是线程没有收到条件变量的信号而被唤醒了。这也是多数同步原语同时也包含了检查唤醒信号是否真的来自线程正在等待的条件变量的方法。</p> 
+   </div> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="优先级反转">优先级反转</h3> 
+   <div class="paragraph"> 
+    <p>优先级反转是一个执行高优先级任务的的线程阻塞等待一个低优先级的线程释放资源，如互斥锁。例如输出音频到声卡的线程（高优先级）被显示界面的线程（低优先级）阻塞了，会导致扬声器严重的卡顿。</p> 
+   </div> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="下一步">下一步</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>所有这些同步问题被研究很多年了，也有很多技术和架构方面的解决方法。严谨的设计和一些实际经验能很大程度上预发问题的发生。鉴于<a href="a-gentle-introduction-to-multithreading.html">不确定性</a>，(非常难的)多线程程序的性质，人们也开发出来在并发代码中检测错误和潜在缺陷的有趣工具。就像 <a href="https://github.com/google/sanitizers/wiki/ThreadSanitizerCppManual">Google的TSan</a>或者 <a href="http://valgrind.org/docs/manual/hg-manual.html">Helgrind</a>一样。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>尽管如此，有时候你可能在多线程应用中采用不同的方法，完全去掉阻塞机制。这意味着进入非阻塞领域：这是一个非常底层的领域，线程不会被操作系统休眠，并发是通过原子操作和无锁数据结构规范的。这是一个充满挑战的领域，并不是总是有必要，能够加速你的软件或者对他造成严重的破坏。不过这是下一篇文章的内容。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="参考">参考</h2> 
+ <div class="sectionbody"> 
+  <div class="ulist"> 
+   <ul> 
+    <li> <p>Wikipedia - <a href="https://en.wikipedia.org/wiki/Synchronization_%28computer_science%29#Thread_or_process_synchronization">Synchronization (computer science)</a></p> </li> 
+    <li> <p>Wikipedia - <a href="https://en.wikipedia.org/wiki/Reentrant_mutex">Reentrant mutex</a></p> </li> 
+    <li> <p>Wikipedia - <a href="https://en.wikipedia.org/wiki/Reentrancy_%28computing%29">Reentrancy (computing)</a></p> </li> 
+    <li> <p>Wikipedia - <a href="https://en.wikipedia.org/wiki/Semaphore_%28programming%29">Semaphore (programming)</a></p> </li> 
+    <li> <p>Wikipedia - <a href="https://en.wikipedia.org/wiki/Spurious_wakeup">Spurious Wakeup</a></p> </li> 
+    <li> <p>Wikipedia - <a href="https://en.wikipedia.org/wiki/Priority_inversion">Priority inversion</a></p> </li> 
+    <li> <p>Wikipedia - <a href="https://en.wikipedia.org/wiki/Deadlock">Deadlock</a></p> </li> 
+    <li> <p>Wikipedia - <a href="https://en.wikipedia.org/wiki/Starvation_%28computer_science%29">Starvation (computer science)</a></p> </li> 
+    <li> <p>Columbia Engineering - <a href="http://www.cs.columbia.edu/~hgs/os/sync.html">Synchronization primitives</a></p> </li> 
+    <li> <p>StackOverflow - <a href="https://stackoverflow.com/questions/8017507/definition-of-synchronization-primitive">Definition of “synchronization primitive”</a></p> </li> 
+    <li> <p>StackOverflow - <a href="https://stackoverflow.com/questions/2332765/lock-mutex-semaphore-whats-the-difference">Lock, mutex, semaphore… what’s the difference?</a></p> </li> 
+    <li> <p>StackOverflow - <a href="https://stackoverflow.com/questions/11173532/why-is-locking-a-stdmutex-twice-undefined-behaviour">Why is locking a std::mutex twice 'Undefined Behaviour'?</a></p> </li> 
+    <li> <p>Operating Systems: Three Easy Pieces - <a href="http://pages.cs.wisc.edu/~remzi/OSTEP/">Concurrency</a></p> </li> 
+    <li> <p>Jaka’s Corner - <a href="http://jakascorner.com/blog/2016/01/data-races.html">Data race and mutex</a></p> </li> 
+    <li> <p>Java 10 API specs - <a href="https://docs.oracle.com/javase/10/docs/api/java/util/concurrent/Semaphore.html">Class Semaphore</a></p> </li> 
+    <li> <p>Oracle’s Multithreaded Programming Guide - <a href="https://docs.oracle.com/cd/E19455-01/806-5257/6je9h032t/index.html">Read-Write Lock Attributes</a></p> </li> 
+    <li> <p>Oracle’s Multithreaded Programming Guide - <a href="https://docs.oracle.com/cd/E19455-01/806-5257/6je9h0347/index.html">Avoiding Deadlock</a></p> </li> 
+    <li> <p>Just Software Solutions - <a href="https://www.justsoftwaresolutions.co.uk/threading/locks-mutexes-semaphores.html">Locks, Mutexes, and Semaphores: Types of Synchronization Objects</a></p> </li> 
+    <li> <p>Just Software Solutions - <a href="https://www.justsoftwaresolutions.co.uk/threading/non_blocking_lock_free_and_wait_free.html">Definitions of Non-blocking, Lock-free and Wait-free</a></p> </li> 
+    <li> <p>Cppreference - <a href="https://en.cppreference.com/w/cpp/thread/shared_mutex">std::shared_mutex</a></p> </li> 
+    <li> <p>Cppreference - <a href="https://en.cppreference.com/w/cpp/thread/condition_variable">std::condition_variable</a></p> </li> 
+    <li> <p>Quora - <a href="https://www.quora.com/What-is-the-difference-between-a-mutex-and-a-semaphore">What is the difference between a mutex and a semaphore?</a></p> </li> 
+    <li> <p>gerald-fahrnholz.eu - <a href="http://www.gerald-fahrnholz.eu/sw/online_doc_multithreading/html/group___grp_condition_variable_safe_way.html">Using condition variables - the safe way</a></p> </li> 
+    <li> <p>Politecnico di Milano - <a href="http://home.deib.polimi.it/loiacono/uploads/Teaching/CP/CP_04_Pthread_CondVar.pdf">Thread Posix: Condition Variables</a></p> </li> 
+    <li> <p>SoftwareEngineering - <a href="https://softwareengineering.stackexchange.com/questions/186842/spurious-wakeups-explanation-sounds-like-a-bug-that-just-isnt-worth-fixing-is">Spurious wakeups explanation sounds like a bug that just isn’t worth fixing, is that right?</a></p> </li> 
+    <li> <p>Android Open Source Project - <a href="https://source.android.com/devices/audio/avoiding_pi">Avoiding Priority Inversion</a></p> </li> 
+   </ul> 
+  </div> 
+  <div class="paragraph"> 
+   <p>本文译自https://www.internalpointers.com/post/introduction-thread-synchronization，英文读者可直接阅读原文。</p> 
+  </div> 
+ </div> 
 </div></p>
   			<a href="blog/2020/02/a-gentle-introduction-to-multithreading.html"><h1>多线程简介: 一步一步走进并发的世界</h1></a>
   			<p>20 February 2020</p>
-  			<p><div id="preamble">
-<div class="sectionbody">
-<div class="ulist">
-<div class="title">本系列中的其他文章</div>
-<ul>
-<li>
-<p><a href="introduction-to-thread-synchronization.html">线程同步简介</a> - 多线程应用中最常见的的并发控制方法之一</p>
-</li>
-<li>
-<p><a href="lock-free-multithreading-with-atomic-operations.html">用原子操作实现无锁多线程</a> - 底层线程同步</p>
-</li>
-<li>
-<p><a href="understanding-memory-reordering.html">理解内存重排序</a> - 为什写无锁多线程代码时它很重要</p>
-</li>
-</ul>
-</div>
-<div class="paragraph">
-<p>现代计算机有同时执行多个的能力。在高级硬件和更智能的操作系统的支持下，计算机的这个能力能够让你的程序在执行时间和响应速度两方面体现的更快。</p>
-</div>
-<div class="paragraph">
-<p>开发利用这个能力的软件是有趣并且需要技巧的：它要求你理解计算机的底层细节。在本系列的第一篇文章中，我尝试浅显介绍一下线程（thread）。操作系统为执行此类魔法提供了很多工具，线程是其一。</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="进程与线程用正确的方式命名">进程与线程：用正确的方式命名</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>现代操作系统能够同时执行多个程序。这就是你在用浏览器（一个程序）看这篇文章的同时还能够用多媒体播放器（另一个程序）听音乐的原因。每个程序就是一个正在被执行的进程（process）。操作系统知道很多技巧是的多个程序并行执行。更好的利用底层的硬件。不管那种方式，最终结果就是你感觉到所有的程序就是同时运行的。</p>
-</div>
-<div class="paragraph">
-<p>在操作系统中运行多个进程不是同时执行多个命令的唯一办法。每个进程内部可以同时运行多个子任务，称之为线程。你可以把线程看作是进程的部分。 每个进程在启动时会至少会创建1个线程，这个线程叫做主线程。然后，根据程序或者程序员的需要，更多的线程会被启动或者中止。多线程技术是指在一个进程内运行多个线程。</p>
-</div>
-<div class="paragraph">
-<p>例如，多媒体播放器可能是多线程的：1个线程负责绘制界面（通常是主线程），另1个线程则负责播放音乐，如此类推。</p>
-</div>
-<div class="paragraph">
-<p>你可以把操作系统看作是包含了多个进程的容器。而每个进程则是包含了多个线程的容器。这篇文章中，我只会将重点放在线程上，但是整个主题是非常有趣的，在未来的文章会会有更深入的分析。</p>
-</div>
-<div class="imageblock">
-<div class="content">
-<img src="/images/processes-threads.png" alt="Processes vs Threads">
-</div>
-<div class="title">Figure 1. 操作系统可看作高包含多个进程的盒子，而进程则是包含了至少一个线程的盒子</div>
-</div>
-<div class="sect2">
-<h3 id="进程与线程的不同之处">进程与线程的不同之处</h3>
-<div class="paragraph">
-<p>每个进程都有操作系统为其分配的内存块。默认情况下，进程的内存块不能够和其他进程共享：你的浏览器是不能访问分配给多媒体播放器的内存块的，反之亦然。如果你运行一个程序的两个实例，规则也是一样的。比如你打开2个浏览器。操作系统把每个实例看作是一个新的拥有独立内存块的进程。所以，默认情况下，2个或者更多的进程之间没法共享数据，除非执行高级的技巧。这就是所谓的进程间通信（ <a href="https://en.wikipedia.org/wiki/Inter-process_communication">IPC</a> ）。</p>
-</div>
-<div class="paragraph">
-<p>不像进程，线程则共享了操作系统分配给其所在进程的内存块：多媒体播放器的音频引擎可能很容易的访问播放器界面上的数据，反之亦然。因此线程间通信要比进程间通信容易多了。初次之外，线程通常比进程轻量：线程占用较少的资源并且创建速度更快，这也是线程被称为所谓的轻量级进程的原因。</p>
-</div>
-<div class="paragraph">
-<p>线程是同时执行多个操作的更方便的办法。没有线程，你需要为每个任务写一个程序，然后按进程运行并且通过操作系统来同步这些进程。这样会更难（IPC需要技巧）而且慢（进程比线程更重量级）。</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="绿色线程或纤程">绿色线程，或纤程</h3>
-<div class="paragraph">
-<p>到目前为止，线程是操作系统级别的：一个进程启动一个线程需要和操作系统交互。并不是每种操作系统都原生支持线程。绿色线程，也称为纤程是一种在不支持线程的环境下通过软件模拟的多线程从而使的多线程程序能够工作。比如一个虚拟机可能会实现绿色线程以防底层依赖的操作系统不支持原生的线程。</p>
-</div>
-<div class="paragraph">
-<p>绿色线程能够更快的创建和管理，因为绿色线程完全绕过了操作系统。但是也有其不足之处。我会在后续的文章中写这个主题。</p>
-</div>
-<div class="paragraph">
-<p>『绿色线程』的名字是指90年代太阳微系统公司的内最初设计Java线程库的『绿色团队』。今天Java不在使用绿色线程了，2000年的时候Java从绿色现场切换到操作系统原生线程了。有部分其他语言（随便举几个例子Go，Haskell或者Rust）实现了原生线程对应的绿色线程。</p>
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="线程用来干什么的">线程用来干什么的</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>为啥一个进程要使用多个线程？ 如前所述，并行做事能够很大程度上的加快速度。比如你准备用电影编辑器渲染一部电源，电源编辑器能够智能的把渲染任务分散到多个线程，每个线程处理这部电影的一部分。所以如果单线程执行这个任务要话1小时，用2个线程可能只需要30分钟，用4个线程可能只需要15分钟，依此类推。</p>
-</div>
-<div class="paragraph">
-<p>真的如此简单吗？有3个重要的点要考虑：</p>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>并不是每个程序都需要多线程的。如果你的程序执行串行操作或者经常等待用户做一些事情，多线程可能并不会有多大好处；</p>
-</li>
-<li>
-<p>你不能不停的创建线程来让他运行更快：每个子任务都要仔细的思考和设计，才能执行并行操作。</p>
-</li>
-<li>
-<p>不能百分百的保证所有的线程是真正的平行执行的。也就是在某一时刻，是否真的并行取决于底层硬件。</p>
-</li>
-</ol>
-</div>
-<div class="paragraph">
-<p>最后一点比较关键：如果你的计算机不支持同时执行多个操作，那么操作系统就要模拟多线程。我们马上就会看到如何做了。 目前而言，让我们把并发(concurrency)认为是我们感觉多个任务在同时执行，而把真正的并行(parallelism)认为是多个任务真正的同时执行。</p>
-</div>
-<div class="imageblock">
-<div class="content">
-<img src="/images/concurrency-parallelism.png" alt="Concurrency vs Parallelism">
-</div>
-<div class="title">Figure 2. 并行是并发的子集。</div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="并发和并行的背后原理">并发和并行的背后原理</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>计算机中的中央处理单元(CPU)是真正负责运行程序的。 它有几部分构成，主要部分就是所谓的核（core）：所有的计算都是在核上执行的。一个核一次只能执行一个操作。</p>
-</div>
-<div class="paragraph">
-<p>这当然也是一个主要缺点。 基于这个原因，操作系统发展出许多高级的技术才让用户能够一次运行多个进程（或者线程），特别是单核机器上的图形环境下。最重要的一个是抢占式多任务技术。其中抢占式是指操作能够中断当前正在运行的任务，切换到另一个任务并且一段时间之后还能够继续执行之前被中断的程序。</p>
-</div>
-<div class="paragraph">
-<p>所以如果你的CPU是单核的，操作系统的部分工作就是将单核的算力分散给多个进程或者线程，这些进程或者线程是一个一个的循环执行的。这个操作会让你有个幻觉至少一个程序在并行运行，或者某个程序在同时做多个事情（如果是多线程程序的话）。并发是满足了，但是真正的平行，也就是同时运行多个进程的能力还是缺失的。</p>
-</div>
-<div class="paragraph">
-<p>今天现代CPU有不止1个核，而且同一时刻，每个核都可以独立的执行操作。 拥有2个或者更多的核心意味着真正的并行是可能的。例如，我们的Intel Core i7是4核的：也就是说在某个时刻，它可以同时运行4个不同的进程或者线程。</p>
-</div>
-<div class="paragraph">
-<p>操作系统能够检测到CPU的核数并且分配进程或者线程给每个单独的核。操作系统可以分配自己喜欢的任意的核给一个线程，并且这种类型的调度对正在运行的程序是完全透明的。</p>
-</div>
-<div class="sect2">
-<h3 id="多线程应用程序跑在单核上有意义吗">多线程应用程序跑在单核上：有意义吗？</h3>
-<div class="paragraph">
-<p>在单核机器上是不可能实现真正的并行的。 不过如果你的应用程序能从中获益的话，写一个多线程程序仍然是有意义的。当一个应用程序使用了多线程，抢占式多任务技术能够让该应用跑起来，那怕是其中有些线程执行的是很慢的或者阻塞的任务。</p>
-</div>
-<div class="paragraph">
-<p>比如你正在开发一个桌面应用程序从非常慢磁盘上读出数据。如果你仅仅用单线程写这个程序，整个应用就会卡死，直到磁盘操作完成：被分配给唯一线程的CPU再等待磁盘唤醒的过程中完全浪费了。当然操作系统可以运行除此之外的其他程序，但是你的这个应用程序不会有任何响应了。</p>
-</div>
-<div class="paragraph">
-<p>我们来用多线程重新考虑这个应用。 线程A负责磁盘读取，同时线程B负责主界面。如果线程A卡在等待很慢的设备，线程B仍然再运行主界面，这就能保证你的应用程序有响应。这是因为有2个线程的话，操作系统可以在2个线程之间切换CPU资源，这样就不用卡在那个慢的上。</p>
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="线程越多问题越多">线程越多，问题越多</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>如我们所知，线程会共享所在进程的内存块。这极大的简化了一个进程中2个或者多个线程之间交换数据。例如；一个电影编辑器可能持有了共享内存中包含视频时间线的一大部分。这部分共享内存会被多个用于渲染影片的工作线程访问。所有这些线程仅仅需要内存的一个句柄（比如指针）来读取数据并且将渲染后的帧写到磁盘上。</p>
-</div>
-<div class="paragraph">
-<p>只要所有的线程都从内存中读取数据，程序就能够平滑运行。但是只要有一个线程写共享内存，同时其他线程读共享内存就会引起问题。在这种情况下会产生两种问题:</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>数据竞争 - 当一个写线程在修改内存的时候， 一个读线程可能正在读内存。 如果写线程没有完成写入， 读线程就会得的损坏的数据；</p>
-</li>
-<li>
-<p>竞争条件 - 一个读线程只有在写线程写入数据之后才应该读数据。如果顺序反过来会怎样？比数据竞争更难理解，竞争条件是指2个或以上的线程以不可预知的顺序执行，事实上这些操作需要按照合适的顺序执行才能得到正确的结果。你的程序可触发竞争条件，即使是它已经有数据竞争保护。</p>
-</li>
-</ul>
-</div>
-<div class="sect2">
-<h3 id="线程安全性的概念">线程安全性的概念</h3>
-<div class="paragraph">
-<p>我们说一段程序是线程安全的，是说这段程序能够正确工作，即使多个线程同时执行，也没有数据竞争或者竞争条件。你可能已经发现了一些程序类库声称自己是线程安全的：如果你正在写一个多线程程序，你要确保任何第三方函数可以在多个线程间调用而不会触发并发问题。</p>
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="数据竞争的根本原因">数据竞争的根本原因</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>我们知道一个CPU核某一时刻只能执行一条机器指令。 这种指令叫做原子的，因为他不能再细分了：它不能再细分为更小的操作了。『atom』在希腊语中是不可再分割的意思。</p>
-</div>
-<div class="paragraph">
-<p>不能再细分的性质是的原子操作天然的线程安全的。当一个线程执行一个原子写数据操作，没有其他线程能够读到未完成的修改的数据。相反的，当一个线程执行一个原子读操作，它读出完整的数据。一个线程不能干扰一次原子操作，因此也不会有数据竞争发生。</p>
-</div>
-<div class="paragraph">
-<p>坏消息是大部分操作都不是原子的。即使一个简单的赋值操作如 <strong>x = 1</strong> 在一些硬件上也可能是由多个原子机器指令组成的，这就造成了这个赋值语句本身不是一个原子操作。当一个线程读取 <strong>x</strong> 的值而另一个现在正在赋值就会触发数据竞争。</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="竞争条件的根本原因">竞争条件的根本原因</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>抢占式多任务技术给了操作系统对线程管理的完全控制：根据高级调度算法，它可以启动，停止和暂停线程。作为程序员是控制不了程序执行的时间或者顺序的。事实上，没有任何保证如下这段简单的程序：</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="prettyprint highlight"><code class="language-c" data-lang="c">writer_thread.start()
-reader_thread.start()</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>能够按照书写顺序依次启动2个线程。多运行几次这段程序，你就会发现他每次执行之间的不同表现：有时候写线程先启动，有时候确实杜线程先启动。如果你的程序需要写线程总是先于读线程启动，这就一定会触发竞争条件。</p>
-</div>
-<div class="paragraph">
-<p>这个行为称为不确定性：每次执行的结果是变化的而且你不能预测到。调试竞争条件相关的程序是非常讨厌的，因为你不能在受控的环境下每次都重现此问题。</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="让线程和平共处并发控制">让线程和平共处：并发控制</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>数据竞争和竞争条件都是真实世界中的问题：一些人甚至是因此而丧命。协调2个或者更多并发线程的技术叫并发控制：操作系统和编程语言提供了处理并发控制的一些解决方案。最重要的方案如下：</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>同步 - 保证资源某一时刻只能被一个线程使用的方法。同步方法将特定代码块保护起来，使得2个或者更多的并发线程不能同时执行它，否则就会损坏你的共享数据；</p>
-</li>
-<li>
-<p>原子操作 - 由于操作系统提供了一下特殊的指令，一批非原子操作（如上文提到的赋值操作）可以被转化为原子操作。这样的话共享数据总是有效的状态，不论其他线程如何访问它。</p>
-</li>
-<li>
-<p>不可变数据 - 共享数据被标记为不可变的，谁都不能修改它：线程只允许读数据，消除了根本原因。 就我们所知线程可以安全从同样的内存读数据，只要数据不被修改。这也是函数式编程背后的主要哲学。</p>
-</li>
-</ul>
-</div>
-<div class="paragraph">
-<p>我会在这个关于并发的迷你系列的后续文章中覆盖所有有趣的主题，保持关注。</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="参考">参考</h2>
-<div class="sectionbody">
-<div class="ulist">
-<ul>
-<li>
-<p>8 bit avenue - <a href="https://www.8bitavenue.com/difference-between-multiprogramming-multitasking-multithreading-and-multiprocessing/">Difference between Multiprogramming, Multitasking, Multithreading and Multiprocessing</a></p>
-</li>
-<li>
-<p>Wikipedia - <a href="https://en.wikipedia.org/wiki/Inter-process_communication">Inter-process communication</a></p>
-</li>
-<li>
-<p>Wikipedia - <a href="https://en.wikipedia.org/wiki/Process_%28computing%29">Process (computing)</a></p>
-</li>
-<li>
-<p>Wikipedia - <a href="https://en.wikipedia.org/wiki/Concurrency_%28computer_science%29">Concurrency (computer science)</a></p>
-</li>
-<li>
-<p>Wikipedia - <a href="https://en.wikipedia.org/wiki/Parallel_computing">Parallel computing</a></p>
-</li>
-<li>
-<p>Wikipedia - <a href="https://en.wikipedia.org/wiki/Multithreading_%28computer_architecture%29">Multithreading (computer architecture)</a></p>
-</li>
-<li>
-<p>Stackoverflow - <a href="https://stackoverflow.com/questions/1713554/threads-processes-vs-multithreading-multicore-multiprocessor-how-they-are">Threads &amp; Processes Vs MultiThreading &amp; Multi-Core/MultiProcessor: How they are mapped?</a></p>
-</li>
-<li>
-<p>Stackoverflow - <a href="https://stackoverflow.com/questions/19225859/difference-between-core-and-processor">Difference between core and processor?</a></p>
-</li>
-<li>
-<p>Wikipedia - <a href="https://en.wikipedia.org/wiki/Thread_%28computing%29">Thread (computing)</a></p>
-</li>
-<li>
-<p>Wikipedia - <a href="https://en.wikipedia.org/wiki/Computer_multitasking">Computer multitasking</a></p>
-</li>
-<li>
-<p>Ibm.com - <a href="https://www.ibm.com/support/knowledgecenter/en/ssw_aix_71/generalprogramming/benefits_threads.html">Benefits of threads</a></p>
-</li>
-<li>
-<p>Haskell.org - <a href="https://wiki.haskell.org/Parallelism_vs._Concurrency">Parallelism vs. Concurrency</a></p>
-</li>
-<li>
-<p>Stackoverflow - <a href="https://stackoverflow.com/questions/16116952/can-multithreading-be-implemented-on-a-single-processor-system">Can multithreading be implemented on a single processor system?</a></p>
-</li>
-<li>
-<p>HowToGeek - <a href="https://www.howtogeek.com/194756/cpu-basics-multiple-cpus-cores-and-hyper-threading-explained/">CPU Basics: Multiple CPUs, Cores, and Hyper-Threading Explained</a></p>
-</li>
-<li>
-<p>Oracle.com - <a href="https://docs.oracle.com/cd/E19205-01/820-0619/geojs/index.html">1.2 What is a Data Race?</a></p>
-</li>
-<li>
-<p>Jaka&#8217;s corner - <a href="http://jakascorner.com/blog/2016/01/data-races.html">Data race and mutex</a></p>
-</li>
-<li>
-<p>Wikipedia - <a href="https://en.wikipedia.org/wiki/Thread_safety">Thread safety</a></p>
-</li>
-<li>
-<p>Preshing on Programming - <a href="https://preshing.com/20130618/atomic-vs-non-atomic-operations/">Atomic vs. Non-Atomic Operations</a></p>
-</li>
-<li>
-<p>Wikipedia - <a href="https://en.wikipedia.org/wiki/Green_threads">Green threads</a></p>
-</li>
-<li>
-<p>Stackoverflow - <a href="https://stackoverflow.com/questions/617787/why-should-i-use-a-thread-vs-using-a-process">Why should I use a thread vs. using a process?</a></p>
-</li>
-</ul>
-</div>
-<div class="paragraph">
-<p>本文译自https://www.internalpointers.com/post/gentle-introduction-multithreading，英文读者可直接阅读原文。</p>
-</div>
-</div>
+  			<p><div id="preamble"> 
+ <div class="sectionbody"> 
+  <div class="ulist"> 
+   <div class="title">
+    本系列中的其他文章
+   </div> 
+   <ul> 
+    <li> <p><a href="introduction-to-thread-synchronization.html">线程同步简介</a> - 多线程应用中最常见的的并发控制方法之一</p> </li> 
+    <li> <p><a href="lock-free-multithreading-with-atomic-operations.html">用原子操作实现无锁多线程</a> - 底层线程同步</p> </li> 
+    <li> <p><a href="understanding-memory-reordering.html">理解内存重排序</a> - 为什写无锁多线程代码时它很重要</p> </li> 
+   </ul> 
+  </div> 
+  <div class="paragraph"> 
+   <p>现代计算机有同时执行多个的能力。在高级硬件和更智能的操作系统的支持下，计算机的这个能力能够让你的程序在执行时间和响应速度两方面体现的更快。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>开发利用这个能力的软件是有趣并且需要技巧的：它要求你理解计算机的底层细节。在本系列的第一篇文章中，我尝试浅显介绍一下线程（thread）。操作系统为执行此类魔法提供了很多工具，线程是其一。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="进程与线程用正确的方式命名">进程与线程：用正确的方式命名</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>现代操作系统能够同时执行多个程序。这就是你在用浏览器（一个程序）看这篇文章的同时还能够用多媒体播放器（另一个程序）听音乐的原因。每个程序就是一个正在被执行的进程（process）。操作系统知道很多技巧是的多个程序并行执行。更好的利用底层的硬件。不管那种方式，最终结果就是你感觉到所有的程序就是同时运行的。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>在操作系统中运行多个进程不是同时执行多个命令的唯一办法。每个进程内部可以同时运行多个子任务，称之为线程。你可以把线程看作是进程的部分。 每个进程在启动时会至少会创建1个线程，这个线程叫做主线程。然后，根据程序或者程序员的需要，更多的线程会被启动或者中止。多线程技术是指在一个进程内运行多个线程。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>例如，多媒体播放器可能是多线程的：1个线程负责绘制界面（通常是主线程），另1个线程则负责播放音乐，如此类推。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>你可以把操作系统看作是包含了多个进程的容器。而每个进程则是包含了多个线程的容器。这篇文章中，我只会将重点放在线程上，但是整个主题是非常有趣的，在未来的文章会会有更深入的分析。</p> 
+  </div> 
+  <div class="imageblock"> 
+   <div class="content"> 
+    <img src="http://reploop.org/blog/2020/02/images/processes-threads.png" alt="Processes vs Threads"> 
+   </div> 
+   <div class="title">
+    Figure 1. 操作系统可看作高包含多个进程的盒子，而进程则是包含了至少一个线程的盒子
+   </div> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="进程与线程的不同之处">进程与线程的不同之处</h3> 
+   <div class="paragraph"> 
+    <p>每个进程都有操作系统为其分配的内存块。默认情况下，进程的内存块不能够和其他进程共享：你的浏览器是不能访问分配给多媒体播放器的内存块的，反之亦然。如果你运行一个程序的两个实例，规则也是一样的。比如你打开2个浏览器。操作系统把每个实例看作是一个新的拥有独立内存块的进程。所以，默认情况下，2个或者更多的进程之间没法共享数据，除非执行高级的技巧。这就是所谓的进程间通信（ <a href="https://en.wikipedia.org/wiki/Inter-process_communication">IPC</a> ）。</p> 
+   </div> 
+   <div class="paragraph"> 
+    <p>不像进程，线程则共享了操作系统分配给其所在进程的内存块：多媒体播放器的音频引擎可能很容易的访问播放器界面上的数据，反之亦然。因此线程间通信要比进程间通信容易多了。初次之外，线程通常比进程轻量：线程占用较少的资源并且创建速度更快，这也是线程被称为所谓的轻量级进程的原因。</p> 
+   </div> 
+   <div class="paragraph"> 
+    <p>线程是同时执行多个操作的更方便的办法。没有线程，你需要为每个任务写一个程序，然后按进程运行并且通过操作系统来同步这些进程。这样会更难（IPC需要技巧）而且慢（进程比线程更重量级）。</p> 
+   </div> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="绿色线程或纤程">绿色线程，或纤程</h3> 
+   <div class="paragraph"> 
+    <p>到目前为止，线程是操作系统级别的：一个进程启动一个线程需要和操作系统交互。并不是每种操作系统都原生支持线程。绿色线程，也称为纤程是一种在不支持线程的环境下通过软件模拟的多线程从而使的多线程程序能够工作。比如一个虚拟机可能会实现绿色线程以防底层依赖的操作系统不支持原生的线程。</p> 
+   </div> 
+   <div class="paragraph"> 
+    <p>绿色线程能够更快的创建和管理，因为绿色线程完全绕过了操作系统。但是也有其不足之处。我会在后续的文章中写这个主题。</p> 
+   </div> 
+   <div class="paragraph"> 
+    <p>『绿色线程』的名字是指90年代太阳微系统公司的内最初设计Java线程库的『绿色团队』。今天Java不在使用绿色线程了，2000年的时候Java从绿色现场切换到操作系统原生线程了。有部分其他语言（随便举几个例子Go，Haskell或者Rust）实现了原生线程对应的绿色线程。</p> 
+   </div> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="线程用来干什么的">线程用来干什么的</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>为啥一个进程要使用多个线程？ 如前所述，并行做事能够很大程度上的加快速度。比如你准备用电影编辑器渲染一部电源，电源编辑器能够智能的把渲染任务分散到多个线程，每个线程处理这部电影的一部分。所以如果单线程执行这个任务要话1小时，用2个线程可能只需要30分钟，用4个线程可能只需要15分钟，依此类推。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>真的如此简单吗？有3个重要的点要考虑：</p> 
+  </div> 
+  <div class="olist arabic"> 
+   <ol class="arabic"> 
+    <li> <p>并不是每个程序都需要多线程的。如果你的程序执行串行操作或者经常等待用户做一些事情，多线程可能并不会有多大好处；</p> </li> 
+    <li> <p>你不能不停的创建线程来让他运行更快：每个子任务都要仔细的思考和设计，才能执行并行操作。</p> </li> 
+    <li> <p>不能百分百的保证所有的线程是真正的平行执行的。也就是在某一时刻，是否真的并行取决于底层硬件。</p> </li> 
+   </ol> 
+  </div> 
+  <div class="paragraph"> 
+   <p>最后一点比较关键：如果你的计算机不支持同时执行多个操作，那么操作系统就要模拟多线程。我们马上就会看到如何做了。 目前而言，让我们把并发(concurrency)认为是我们感觉多个任务在同时执行，而把真正的并行(parallelism)认为是多个任务真正的同时执行。</p> 
+  </div> 
+  <div class="imageblock"> 
+   <div class="content"> 
+    <img src="http://reploop.org/blog/2020/02/images/concurrency-parallelism.png" alt="Concurrency vs Parallelism"> 
+   </div> 
+   <div class="title">
+    Figure 2. 并行是并发的子集。
+   </div> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="并发和并行的背后原理">并发和并行的背后原理</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>计算机中的中央处理单元(CPU)是真正负责运行程序的。 它有几部分构成，主要部分就是所谓的核（core）：所有的计算都是在核上执行的。一个核一次只能执行一个操作。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>这当然也是一个主要缺点。 基于这个原因，操作系统发展出许多高级的技术才让用户能够一次运行多个进程（或者线程），特别是单核机器上的图形环境下。最重要的一个是抢占式多任务技术。其中抢占式是指操作能够中断当前正在运行的任务，切换到另一个任务并且一段时间之后还能够继续执行之前被中断的程序。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>所以如果你的CPU是单核的，操作系统的部分工作就是将单核的算力分散给多个进程或者线程，这些进程或者线程是一个一个的循环执行的。这个操作会让你有个幻觉至少一个程序在并行运行，或者某个程序在同时做多个事情（如果是多线程程序的话）。并发是满足了，但是真正的平行，也就是同时运行多个进程的能力还是缺失的。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>今天现代CPU有不止1个核，而且同一时刻，每个核都可以独立的执行操作。 拥有2个或者更多的核心意味着真正的并行是可能的。例如，我们的Intel Core i7是4核的：也就是说在某个时刻，它可以同时运行4个不同的进程或者线程。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>操作系统能够检测到CPU的核数并且分配进程或者线程给每个单独的核。操作系统可以分配自己喜欢的任意的核给一个线程，并且这种类型的调度对正在运行的程序是完全透明的。</p> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="多线程应用程序跑在单核上有意义吗">多线程应用程序跑在单核上：有意义吗？</h3> 
+   <div class="paragraph"> 
+    <p>在单核机器上是不可能实现真正的并行的。 不过如果你的应用程序能从中获益的话，写一个多线程程序仍然是有意义的。当一个应用程序使用了多线程，抢占式多任务技术能够让该应用跑起来，那怕是其中有些线程执行的是很慢的或者阻塞的任务。</p> 
+   </div> 
+   <div class="paragraph"> 
+    <p>比如你正在开发一个桌面应用程序从非常慢磁盘上读出数据。如果你仅仅用单线程写这个程序，整个应用就会卡死，直到磁盘操作完成：被分配给唯一线程的CPU再等待磁盘唤醒的过程中完全浪费了。当然操作系统可以运行除此之外的其他程序，但是你的这个应用程序不会有任何响应了。</p> 
+   </div> 
+   <div class="paragraph"> 
+    <p>我们来用多线程重新考虑这个应用。 线程A负责磁盘读取，同时线程B负责主界面。如果线程A卡在等待很慢的设备，线程B仍然再运行主界面，这就能保证你的应用程序有响应。这是因为有2个线程的话，操作系统可以在2个线程之间切换CPU资源，这样就不用卡在那个慢的上。</p> 
+   </div> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="线程越多问题越多">线程越多，问题越多</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>如我们所知，线程会共享所在进程的内存块。这极大的简化了一个进程中2个或者多个线程之间交换数据。例如；一个电影编辑器可能持有了共享内存中包含视频时间线的一大部分。这部分共享内存会被多个用于渲染影片的工作线程访问。所有这些线程仅仅需要内存的一个句柄（比如指针）来读取数据并且将渲染后的帧写到磁盘上。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>只要所有的线程都从内存中读取数据，程序就能够平滑运行。但是只要有一个线程写共享内存，同时其他线程读共享内存就会引起问题。在这种情况下会产生两种问题:</p> 
+  </div> 
+  <div class="ulist"> 
+   <ul> 
+    <li> <p>数据竞争 - 当一个写线程在修改内存的时候， 一个读线程可能正在读内存。 如果写线程没有完成写入， 读线程就会得的损坏的数据；</p> </li> 
+    <li> <p>竞争条件 - 一个读线程只有在写线程写入数据之后才应该读数据。如果顺序反过来会怎样？比数据竞争更难理解，竞争条件是指2个或以上的线程以不可预知的顺序执行，事实上这些操作需要按照合适的顺序执行才能得到正确的结果。你的程序可触发竞争条件，即使是它已经有数据竞争保护。</p> </li> 
+   </ul> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="线程安全性的概念">线程安全性的概念</h3> 
+   <div class="paragraph"> 
+    <p>我们说一段程序是线程安全的，是说这段程序能够正确工作，即使多个线程同时执行，也没有数据竞争或者竞争条件。你可能已经发现了一些程序类库声称自己是线程安全的：如果你正在写一个多线程程序，你要确保任何第三方函数可以在多个线程间调用而不会触发并发问题。</p> 
+   </div> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="数据竞争的根本原因">数据竞争的根本原因</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>我们知道一个CPU核某一时刻只能执行一条机器指令。 这种指令叫做原子的，因为他不能再细分了：它不能再细分为更小的操作了。『atom』在希腊语中是不可再分割的意思。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>不能再细分的性质是的原子操作天然的线程安全的。当一个线程执行一个原子写数据操作，没有其他线程能够读到未完成的修改的数据。相反的，当一个线程执行一个原子读操作，它读出完整的数据。一个线程不能干扰一次原子操作，因此也不会有数据竞争发生。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>坏消息是大部分操作都不是原子的。即使一个简单的赋值操作如 <strong>x = 1</strong> 在一些硬件上也可能是由多个原子机器指令组成的，这就造成了这个赋值语句本身不是一个原子操作。当一个线程读取 <strong>x</strong> 的值而另一个现在正在赋值就会触发数据竞争。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="竞争条件的根本原因">竞争条件的根本原因</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>抢占式多任务技术给了操作系统对线程管理的完全控制：根据高级调度算法，它可以启动，停止和暂停线程。作为程序员是控制不了程序执行的时间或者顺序的。事实上，没有任何保证如下这段简单的程序：</p> 
+  </div> 
+  <div class="listingblock"> 
+   <div class="content"> 
+    <pre class="prettyprint highlight"><code class="language-c" data-lang="c">writer_thread.start()
+reader_thread.start()</code></pre> 
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>能够按照书写顺序依次启动2个线程。多运行几次这段程序，你就会发现他每次执行之间的不同表现：有时候写线程先启动，有时候确实杜线程先启动。如果你的程序需要写线程总是先于读线程启动，这就一定会触发竞争条件。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>这个行为称为不确定性：每次执行的结果是变化的而且你不能预测到。调试竞争条件相关的程序是非常讨厌的，因为你不能在受控的环境下每次都重现此问题。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="让线程和平共处并发控制">让线程和平共处：并发控制</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>数据竞争和竞争条件都是真实世界中的问题：一些人甚至是因此而丧命。协调2个或者更多并发线程的技术叫并发控制：操作系统和编程语言提供了处理并发控制的一些解决方案。最重要的方案如下：</p> 
+  </div> 
+  <div class="ulist"> 
+   <ul> 
+    <li> <p>同步 - 保证资源某一时刻只能被一个线程使用的方法。同步方法将特定代码块保护起来，使得2个或者更多的并发线程不能同时执行它，否则就会损坏你的共享数据；</p> </li> 
+    <li> <p>原子操作 - 由于操作系统提供了一下特殊的指令，一批非原子操作（如上文提到的赋值操作）可以被转化为原子操作。这样的话共享数据总是有效的状态，不论其他线程如何访问它。</p> </li> 
+    <li> <p>不可变数据 - 共享数据被标记为不可变的，谁都不能修改它：线程只允许读数据，消除了根本原因。 就我们所知线程可以安全从同样的内存读数据，只要数据不被修改。这也是函数式编程背后的主要哲学。</p> </li> 
+   </ul> 
+  </div> 
+  <div class="paragraph"> 
+   <p>我会在这个关于并发的迷你系列的后续文章中覆盖所有有趣的主题，保持关注。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="参考">参考</h2> 
+ <div class="sectionbody"> 
+  <div class="ulist"> 
+   <ul> 
+    <li> <p>8 bit avenue - <a href="https://www.8bitavenue.com/difference-between-multiprogramming-multitasking-multithreading-and-multiprocessing/">Difference between Multiprogramming, Multitasking, Multithreading and Multiprocessing</a></p> </li> 
+    <li> <p>Wikipedia - <a href="https://en.wikipedia.org/wiki/Inter-process_communication">Inter-process communication</a></p> </li> 
+    <li> <p>Wikipedia - <a href="https://en.wikipedia.org/wiki/Process_%28computing%29">Process (computing)</a></p> </li> 
+    <li> <p>Wikipedia - <a href="https://en.wikipedia.org/wiki/Concurrency_%28computer_science%29">Concurrency (computer science)</a></p> </li> 
+    <li> <p>Wikipedia - <a href="https://en.wikipedia.org/wiki/Parallel_computing">Parallel computing</a></p> </li> 
+    <li> <p>Wikipedia - <a href="https://en.wikipedia.org/wiki/Multithreading_%28computer_architecture%29">Multithreading (computer architecture)</a></p> </li> 
+    <li> <p>Stackoverflow - <a href="https://stackoverflow.com/questions/1713554/threads-processes-vs-multithreading-multicore-multiprocessor-how-they-are">Threads &amp; Processes Vs MultiThreading &amp; Multi-Core/MultiProcessor: How they are mapped?</a></p> </li> 
+    <li> <p>Stackoverflow - <a href="https://stackoverflow.com/questions/19225859/difference-between-core-and-processor">Difference between core and processor?</a></p> </li> 
+    <li> <p>Wikipedia - <a href="https://en.wikipedia.org/wiki/Thread_%28computing%29">Thread (computing)</a></p> </li> 
+    <li> <p>Wikipedia - <a href="https://en.wikipedia.org/wiki/Computer_multitasking">Computer multitasking</a></p> </li> 
+    <li> <p>Ibm.com - <a href="https://www.ibm.com/support/knowledgecenter/en/ssw_aix_71/generalprogramming/benefits_threads.html">Benefits of threads</a></p> </li> 
+    <li> <p>Haskell.org - <a href="https://wiki.haskell.org/Parallelism_vs._Concurrency">Parallelism vs. Concurrency</a></p> </li> 
+    <li> <p>Stackoverflow - <a href="https://stackoverflow.com/questions/16116952/can-multithreading-be-implemented-on-a-single-processor-system">Can multithreading be implemented on a single processor system?</a></p> </li> 
+    <li> <p>HowToGeek - <a href="https://www.howtogeek.com/194756/cpu-basics-multiple-cpus-cores-and-hyper-threading-explained/">CPU Basics: Multiple CPUs, Cores, and Hyper-Threading Explained</a></p> </li> 
+    <li> <p>Oracle.com - <a href="https://docs.oracle.com/cd/E19205-01/820-0619/geojs/index.html">1.2 What is a Data Race?</a></p> </li> 
+    <li> <p>Jaka’s corner - <a href="http://jakascorner.com/blog/2016/01/data-races.html">Data race and mutex</a></p> </li> 
+    <li> <p>Wikipedia - <a href="https://en.wikipedia.org/wiki/Thread_safety">Thread safety</a></p> </li> 
+    <li> <p>Preshing on Programming - <a href="https://preshing.com/20130618/atomic-vs-non-atomic-operations/">Atomic vs. Non-Atomic Operations</a></p> </li> 
+    <li> <p>Wikipedia - <a href="https://en.wikipedia.org/wiki/Green_threads">Green threads</a></p> </li> 
+    <li> <p>Stackoverflow - <a href="https://stackoverflow.com/questions/617787/why-should-i-use-a-thread-vs-using-a-process">Why should I use a thread vs. using a process?</a></p> </li> 
+   </ul> 
+  </div> 
+  <div class="paragraph"> 
+   <p>本文译自https://www.internalpointers.com/post/gentle-introduction-multithreading，英文读者可直接阅读原文。</p> 
+  </div> 
+ </div> 
 </div></p>
   			<a href="blog/2020/01/share.html"><h1>“程序员”的成长之路</h1></a>
   			<p>29 January 2020</p>
-  			<p><div id="preamble">
-<div class="sectionbody">
-<div class="quoteblock abstract">
-<blockquote>
-本文系2017年11月25日“鸟哥”的题为《“程序员”程序员成长之路》的分享结合自身的理解整理而来。这个分享PPT如果硬要规个类别的话，那就是乔布斯或者老罗说相声的PPT的样子，一页上只有一行字，其他的全靠嘴上功夫，然而就这样随性讲了2个小时，过程中轻松愉快，也不乏启发思考的点，是小白个人比较喜欢的风格。
-</blockquote>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="分享环节">分享环节</h2>
-<div class="sectionbody">
-<div class="sect2">
-<h3 id="鸡汤有毒">鸡汤有毒</h3>
-<div class="paragraph">
-<p>开场白是鸡汤有毒，明确表达了很少做非技术类的分享。对待鸡汤应该持有的态度是评判性的，要有能力甄别信息。
-过程中也是提出观点，让听众自己思考。</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="要有野心并且要让其他人知道">要有“野心”，并且要让其他人知道</h3>
-<div class="paragraph">
-<p>这里的“野心”说的是你短期或长期的目标。每个人都有自己的“野心”，只是有些人表达出来了，而有些是羞于表达的。比如最实际的一个目标是你想不想1年后工资涨50%？我相信每个人心中都有过这个想法，你也可以把他确立为你的短期目标。等目标明确了之后，要让其他人知道。因为其他人往往不知道你想要什么，之后就为这个目标去努力。</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="排除干扰">排除干扰</h3>
-<div class="paragraph">
-<p>每天困扰你的问题，也就是干扰项，要有意识、有目的、有手段的去消除。鸟哥本身对物质享受要求高一些，08年毕业后加入雅虎后月薪7000左右，但是租房就花了3000左右，头2个月还是挺好的，第三个月补交了前2个月的各种税和费之后，竟然不够交房租的了。核心部门核心业务3.4个月，目标明确的去了百度系统部，解决钱少的问题。</p>
-</div>
-<div class="paragraph">
-<p>毕业5年非常关键，干扰少，能迅速的提升。技术是一通百通的，学习思考的方法，而不是具体的技能。内向与外向：遇到挫折后自己静一静想办法解决的为内向，到处找人吐槽寻求帮助的为外向。</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="舒适区对自己狠一些">舒适区，对自己狠一些。</h3>
-<div class="paragraph">
-<p>懒惰是天性，需要有目的的把自己往一个方向上逼。</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="通过事提升人">通过事提升人</h3>
-<div class="paragraph">
-<p>认真对待每一件事，不管做什么事，要做完美。追求卓越之后，一定有提升。横向业务的人资源比较充足。业务线的人都是比较紧张的。鸟哥本人西交大计算机，然后国际关系学院。为了做鸡头走向php，国内没人做，差异化，走出了名头。</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="建设影响力">建设影响力</h3>
-<div class="paragraph">
-<p>影响力决定了资源能不能向你靠拢，积极主动的去建设影响力。影响力：帮助了多少人决定了你的影响力。做的事情多，想问题的方面多，思考问题的角度多一些，所以成长快。鼓励大家多做分享，不要怕说错。</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="为机会提早准备">为机会提早准备</h3>
-<div class="paragraph">
-<p>时刻学习。</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="修身养性">修身养性</h3>
-<div class="paragraph">
-<p>教主原来是个死胖子，然后每天早上去健身，坚持了2年了。为了能够早上健身，还特意再健身房附近租了房子。</p>
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="问答环节">问答环节</h2>
-<div class="sectionbody">
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>如何看人工智能？
-笑称：人工智能是人工智障。拐点：机器可以开始自我学习的时候。但是未必会出现，不确定。现在是人机交互和图像识别做的好，整体还是挺傻逼的。</p>
-</li>
-<li>
-<p>精和广该如何选择？精度和广度是矛盾的，二选一。先精以后，以后学习总结到一套抽象的认识，然后以这为根据地往广度拓宽会比较容易一些。</p>
-</li>
-<li>
-<p>技术转管理的困惑：
-团队的技术效能最大化，管理方法千人千面，自己摸索。自己的成就感来源要变。</p>
-</li>
-<li>
-<p>百度的经历：我一直努力让自己被更多人知道。</p>
-</li>
-<li>
-<p>精英创业与草根创业：自己的定位清晰。</p>
-</li>
-<li>
-<p>架构师的关注？全面了解系统的各个组成，懂得权衡，引进业界优秀方案，找到对业务合适的系统组成方式。</p>
-</li>
-<li>
-<p>大公司完善体系，如何提升？核心点还是自己的目标要明确，明确了之后办法自然就有了。</p>
-</li>
-<li>
-<p>牛人？正真的牛人是解决问题的。</p>
-</li>
-<li>
-<p>副总裁与架构师怎么平衡的？技术是乐趣，更喜欢程序员的称呼。做事是目的，想做的话什么事都能做好。</p>
-</li>
-<li>
-<p>机会争取的事情，蝴蝶效应：一定要争取</p>
-</li>
-<li>
-<p>语言：facebook来源具有玩票性质。需求是工具，重要的是解决问题的方法</p>
-</li>
-<li>
-<p>面试的时候提问一些题外话是不是需要了解的？明确目标，不管是什么困难都迎难而上，面试让你不懂什么，想去就学习。</p>
-</li>
-<li>
-<p>技术晋升：业务复杂，解决方案，评审的时候看的是能力，而不是做过什么。遇到了什么问题(突出难点)，我的解决方案是什么(列举一些，要有对比，说明优劣)，最后取得了什么效果。</p>
-</li>
-</ol>
-</div>
-</div>
+  			<p><div id="preamble"> 
+ <div class="sectionbody"> 
+  <div class="quoteblock abstract"> 
+   <blockquote>
+     本文系2017年11月25日“鸟哥”的题为《“程序员”程序员成长之路》的分享结合自身的理解整理而来。这个分享PPT如果硬要规个类别的话，那就是乔布斯或者老罗说相声的PPT的样子，一页上只有一行字，其他的全靠嘴上功夫，然而就这样随性讲了2个小时，过程中轻松愉快，也不乏启发思考的点，是小白个人比较喜欢的风格。 
+   </blockquote> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="分享环节">分享环节</h2> 
+ <div class="sectionbody"> 
+  <div class="sect2"> 
+   <h3 id="鸡汤有毒">鸡汤有毒</h3> 
+   <div class="paragraph"> 
+    <p>开场白是鸡汤有毒，明确表达了很少做非技术类的分享。对待鸡汤应该持有的态度是评判性的，要有能力甄别信息。 过程中也是提出观点，让听众自己思考。</p> 
+   </div> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="要有野心并且要让其他人知道">要有“野心”，并且要让其他人知道</h3> 
+   <div class="paragraph"> 
+    <p>这里的“野心”说的是你短期或长期的目标。每个人都有自己的“野心”，只是有些人表达出来了，而有些是羞于表达的。比如最实际的一个目标是你想不想1年后工资涨50%？我相信每个人心中都有过这个想法，你也可以把他确立为你的短期目标。等目标明确了之后，要让其他人知道。因为其他人往往不知道你想要什么，之后就为这个目标去努力。</p> 
+   </div> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="排除干扰">排除干扰</h3> 
+   <div class="paragraph"> 
+    <p>每天困扰你的问题，也就是干扰项，要有意识、有目的、有手段的去消除。鸟哥本身对物质享受要求高一些，08年毕业后加入雅虎后月薪7000左右，但是租房就花了3000左右，头2个月还是挺好的，第三个月补交了前2个月的各种税和费之后，竟然不够交房租的了。核心部门核心业务3.4个月，目标明确的去了百度系统部，解决钱少的问题。</p> 
+   </div> 
+   <div class="paragraph"> 
+    <p>毕业5年非常关键，干扰少，能迅速的提升。技术是一通百通的，学习思考的方法，而不是具体的技能。内向与外向：遇到挫折后自己静一静想办法解决的为内向，到处找人吐槽寻求帮助的为外向。</p> 
+   </div> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="舒适区对自己狠一些">舒适区，对自己狠一些。</h3> 
+   <div class="paragraph"> 
+    <p>懒惰是天性，需要有目的的把自己往一个方向上逼。</p> 
+   </div> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="通过事提升人">通过事提升人</h3> 
+   <div class="paragraph"> 
+    <p>认真对待每一件事，不管做什么事，要做完美。追求卓越之后，一定有提升。横向业务的人资源比较充足。业务线的人都是比较紧张的。鸟哥本人西交大计算机，然后国际关系学院。为了做鸡头走向php，国内没人做，差异化，走出了名头。</p> 
+   </div> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="建设影响力">建设影响力</h3> 
+   <div class="paragraph"> 
+    <p>影响力决定了资源能不能向你靠拢，积极主动的去建设影响力。影响力：帮助了多少人决定了你的影响力。做的事情多，想问题的方面多，思考问题的角度多一些，所以成长快。鼓励大家多做分享，不要怕说错。</p> 
+   </div> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="为机会提早准备">为机会提早准备</h3> 
+   <div class="paragraph"> 
+    <p>时刻学习。</p> 
+   </div> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="修身养性">修身养性</h3> 
+   <div class="paragraph"> 
+    <p>教主原来是个死胖子，然后每天早上去健身，坚持了2年了。为了能够早上健身，还特意再健身房附近租了房子。</p> 
+   </div> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="问答环节">问答环节</h2> 
+ <div class="sectionbody"> 
+  <div class="olist arabic"> 
+   <ol class="arabic"> 
+    <li> <p>如何看人工智能？ 笑称：人工智能是人工智障。拐点：机器可以开始自我学习的时候。但是未必会出现，不确定。现在是人机交互和图像识别做的好，整体还是挺傻逼的。</p> </li> 
+    <li> <p>精和广该如何选择？精度和广度是矛盾的，二选一。先精以后，以后学习总结到一套抽象的认识，然后以这为根据地往广度拓宽会比较容易一些。</p> </li> 
+    <li> <p>技术转管理的困惑： 团队的技术效能最大化，管理方法千人千面，自己摸索。自己的成就感来源要变。</p> </li> 
+    <li> <p>百度的经历：我一直努力让自己被更多人知道。</p> </li> 
+    <li> <p>精英创业与草根创业：自己的定位清晰。</p> </li> 
+    <li> <p>架构师的关注？全面了解系统的各个组成，懂得权衡，引进业界优秀方案，找到对业务合适的系统组成方式。</p> </li> 
+    <li> <p>大公司完善体系，如何提升？核心点还是自己的目标要明确，明确了之后办法自然就有了。</p> </li> 
+    <li> <p>牛人？正真的牛人是解决问题的。</p> </li> 
+    <li> <p>副总裁与架构师怎么平衡的？技术是乐趣，更喜欢程序员的称呼。做事是目的，想做的话什么事都能做好。</p> </li> 
+    <li> <p>机会争取的事情，蝴蝶效应：一定要争取</p> </li> 
+    <li> <p>语言：facebook来源具有玩票性质。需求是工具，重要的是解决问题的方法</p> </li> 
+    <li> <p>面试的时候提问一些题外话是不是需要了解的？明确目标，不管是什么困难都迎难而上，面试让你不懂什么，想去就学习。</p> </li> 
+    <li> <p>技术晋升：业务复杂，解决方案，评审的时候看的是能力，而不是做过什么。遇到了什么问题(突出难点)，我的解决方案是什么(列举一些，要有对比，说明优劣)，最后取得了什么效果。</p> </li> 
+   </ol> 
+  </div> 
+ </div> 
 </div></p>
   			<a href="blog/2020/01/bank-account-in-hk.html"><h1>香港开户经历</h1></a>
   			<p>06 May 2018</p>
-  			<p><div id="preamble">
-<div class="sectionbody">
-<div class="quoteblock abstract">
-<blockquote>
-香港金融中心，没有外汇管制，有个香港的账户方便很多。
-</blockquote>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="出行准备">出行准备</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>去香港之前，已经打听过一些准备资料，最基本的有：</p>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>身份证和港澳通行证。这个只要能去香港的话，基本都具备。需要注意的一点是大陆身份证也要携带，外资银行喜欢看上面的地址。</p>
-</li>
-<li>
-<p>地址证明。需要一个你能收到信的非公司地址证明。一般来说有以下几种地址：</p>
-<div class="ulist">
-<ul>
-<li>
-<p>身份证上的地址。大陆一般这个地址都是派出所地址，基本上没用。</p>
-</li>
-<li>
-<p>水电缴费单，上面有个人名字的。我家的缴费单只写到门牌号，没有名字。按照渣打银行客户经理的话说，大陆是只管这个单元有人交水电费，而不管谁交。</p>
-</li>
-<li>
-<p>信用卡账单地址。可能是唯一拿得出手的，有用的地址了。</p>
-</li>
-<li>
-<p>保险单地址。如果有买保险的话，这个地址或许也可以用用。</p>
-</li>
-</ul>
-</div>
-</li>
-<li>
-<p>存款准备金。开户的时候一般银行都有最低存款额要求，不同的银行要求不同。另外，银行看账户的总资产，比如你买了20万的股票，10万的保险，虽然没有一分钱现金，但是你的总资产在30万了。</p>
-</li>
-<li>
-<p>银行流水单。用以证明你是有正当、稳定收入的。看一些介绍说有用，但是我这次没有用到。</p>
-</li>
-</ol>
-</div>
-<div class="paragraph">
-<p>以上资料可能并不会全部用到，看银行具体要求和你遇到的客户经理了，多准备点总没有坏处。</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="申请经历">申请经历</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>在香港，当时的行程是在中环有一个下午的时段空闲。中环的银行也比较多，就开始转悠。</p>
-</div>
-<div class="sect2">
-<h3 id="渣打银行">渣打银行</h3>
-<div class="paragraph">
-<p>第一家去了渣打银行。进门取了个号，晃悠了一圈，逮着个大堂工作人员说我想开个户，工作人员的第一反馈是问我准备存多少钱进来，干什么。在大陆的时候看过一些介绍，
-所以就打肿脸蛋充胖子，说按照外汇管制的限额，我可能一年内存30万进来用于投资理财。随后工作人员说渣打银行最低存款要求20万，我符合要求。随后介绍一位同事过来，算是和我重复、正式的聊了一下上面的问题。</p>
-</div>
-<div class="paragraph">
-<p>OK, 准备资料（身份证，港澳通行证，地址证明）拿去复印的同时介绍了一位客户经理过来，到一个会议室继续聊，主要还是存多少钱和干什么的问题。
-存多少钱没问题，但是我说的用于投资理财的用途则有点勉强了。由于监管变严格，<strong>为了防止洗钱，资金外逃等，现在大陆来香港开单纯的股票、基金账户不好审批</strong>。因为大陆有渠道投资港股（没记错的话沪港通要50万才能用），理由不充分。但是香港的保险和大陆的有很大的不同，建议我同时买一份保险，就比较好审批。推荐了英国保诚的储蓄险种，我说要和家人再考虑考虑。不想让我留下一次被拒绝的记录，客户经理说等我考虑好了在帮忙提交申请，
-同时，地址证明出了问题，外资银行不认可国内银行的账单地址，包括保险账单地址。他们最好的是身份证上的地址，其次是水电缴费单，有名字在上面的。所以我提供的地址证明全部没用了。期间也讨论过其他的方式，比如别的外资机构寄给我的东西，如果有地址的话也能用。第一次申请就此作罢。</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="中国银行香港">中国银行(香港)</h3>
-<div class="paragraph">
-<p>从渣打出来之后直接去了中国银行，过去的比较晚了，下午4点多到了之后拿了号码排队，银行五点以后就不允许进人了。中间就是等啊等，其实按照大陆的经验，排队的人倒是没几个，但是每个人办理业务的时间很长。到我办理的时候已经是下午六点了，当天的倒数第二位客户了。基本上很顺利，材料还是那些材料，20分钟不到就办理完成了。有意思的是说最低存款1万，但是也由于下班了，并没有要求我当场存款。所以就是没花钱开了个户口，但是没钱在里面是需要管理费的。</p>
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="后记">后记</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>中国银行（香港）出来之后所有的银行都下班了，也算是完成了开户的目标。晚上和一位在香港生活10多年的朋友吃饭，聊到这个事情，建议海外第一个账户选择中资银行，等有了第一个户头以后，再到外资银行说，想把业务转过来，他们就很喜欢了。还有所谓的开户最低存款，只是为了保证账户是有效账户。只要你开了账户，不管里面钱多钱少，只是管理费的问题了。另外，开户用途大陆很多文章说要选择投资理财账户，之所以这样，是因为这种账户客户经理可以提成，所以比较推荐。但是其实只申请一个储蓄账户，什么附加功能都不需要的账户也是可以的。不过，香港存款利率是千分之几，相当的低，所以香港人一般都不会存款的，单纯的存款，由于有管理费的存在，你的钱会越来越少的。</p>
-</div>
-<div class="paragraph">
-<p>The End.</p>
-</div>
-</div>
+  			<p><div id="preamble"> 
+ <div class="sectionbody"> 
+  <div class="quoteblock abstract"> 
+   <blockquote>
+     香港金融中心，没有外汇管制，有个香港的账户方便很多。 
+   </blockquote> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="出行准备">出行准备</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>去香港之前，已经打听过一些准备资料，最基本的有：</p> 
+  </div> 
+  <div class="olist arabic"> 
+   <ol class="arabic"> 
+    <li> <p>身份证和港澳通行证。这个只要能去香港的话，基本都具备。需要注意的一点是大陆身份证也要携带，外资银行喜欢看上面的地址。</p> </li> 
+    <li> <p>地址证明。需要一个你能收到信的非公司地址证明。一般来说有以下几种地址：</p> 
+     <div class="ulist"> 
+      <ul> 
+       <li> <p>身份证上的地址。大陆一般这个地址都是派出所地址，基本上没用。</p> </li> 
+       <li> <p>水电缴费单，上面有个人名字的。我家的缴费单只写到门牌号，没有名字。按照渣打银行客户经理的话说，大陆是只管这个单元有人交水电费，而不管谁交。</p> </li> 
+       <li> <p>信用卡账单地址。可能是唯一拿得出手的，有用的地址了。</p> </li> 
+       <li> <p>保险单地址。如果有买保险的话，这个地址或许也可以用用。</p> </li> 
+      </ul> 
+     </div> </li> 
+    <li> <p>存款准备金。开户的时候一般银行都有最低存款额要求，不同的银行要求不同。另外，银行看账户的总资产，比如你买了20万的股票，10万的保险，虽然没有一分钱现金，但是你的总资产在30万了。</p> </li> 
+    <li> <p>银行流水单。用以证明你是有正当、稳定收入的。看一些介绍说有用，但是我这次没有用到。</p> </li> 
+   </ol> 
+  </div> 
+  <div class="paragraph"> 
+   <p>以上资料可能并不会全部用到，看银行具体要求和你遇到的客户经理了，多准备点总没有坏处。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="申请经历">申请经历</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>在香港，当时的行程是在中环有一个下午的时段空闲。中环的银行也比较多，就开始转悠。</p> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="渣打银行">渣打银行</h3> 
+   <div class="paragraph"> 
+    <p>第一家去了渣打银行。进门取了个号，晃悠了一圈，逮着个大堂工作人员说我想开个户，工作人员的第一反馈是问我准备存多少钱进来，干什么。在大陆的时候看过一些介绍， 所以就打肿脸蛋充胖子，说按照外汇管制的限额，我可能一年内存30万进来用于投资理财。随后工作人员说渣打银行最低存款要求20万，我符合要求。随后介绍一位同事过来，算是和我重复、正式的聊了一下上面的问题。</p> 
+   </div> 
+   <div class="paragraph"> 
+    <p>OK, 准备资料（身份证，港澳通行证，地址证明）拿去复印的同时介绍了一位客户经理过来，到一个会议室继续聊，主要还是存多少钱和干什么的问题。 存多少钱没问题，但是我说的用于投资理财的用途则有点勉强了。由于监管变严格，<strong>为了防止洗钱，资金外逃等，现在大陆来香港开单纯的股票、基金账户不好审批</strong>。因为大陆有渠道投资港股（没记错的话沪港通要50万才能用），理由不充分。但是香港的保险和大陆的有很大的不同，建议我同时买一份保险，就比较好审批。推荐了英国保诚的储蓄险种，我说要和家人再考虑考虑。不想让我留下一次被拒绝的记录，客户经理说等我考虑好了在帮忙提交申请， 同时，地址证明出了问题，外资银行不认可国内银行的账单地址，包括保险账单地址。他们最好的是身份证上的地址，其次是水电缴费单，有名字在上面的。所以我提供的地址证明全部没用了。期间也讨论过其他的方式，比如别的外资机构寄给我的东西，如果有地址的话也能用。第一次申请就此作罢。</p> 
+   </div> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="中国银行香港">中国银行(香港)</h3> 
+   <div class="paragraph"> 
+    <p>从渣打出来之后直接去了中国银行，过去的比较晚了，下午4点多到了之后拿了号码排队，银行五点以后就不允许进人了。中间就是等啊等，其实按照大陆的经验，排队的人倒是没几个，但是每个人办理业务的时间很长。到我办理的时候已经是下午六点了，当天的倒数第二位客户了。基本上很顺利，材料还是那些材料，20分钟不到就办理完成了。有意思的是说最低存款1万，但是也由于下班了，并没有要求我当场存款。所以就是没花钱开了个户口，但是没钱在里面是需要管理费的。</p> 
+   </div> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="后记">后记</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>中国银行（香港）出来之后所有的银行都下班了，也算是完成了开户的目标。晚上和一位在香港生活10多年的朋友吃饭，聊到这个事情，建议海外第一个账户选择中资银行，等有了第一个户头以后，再到外资银行说，想把业务转过来，他们就很喜欢了。还有所谓的开户最低存款，只是为了保证账户是有效账户。只要你开了账户，不管里面钱多钱少，只是管理费的问题了。另外，开户用途大陆很多文章说要选择投资理财账户，之所以这样，是因为这种账户客户经理可以提成，所以比较推荐。但是其实只申请一个储蓄账户，什么附加功能都不需要的账户也是可以的。不过，香港存款利率是千分之几，相当的低，所以香港人一般都不会存款的，单纯的存款，由于有管理费的存在，你的钱会越来越少的。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>The End.</p> 
+  </div> 
+ </div> 
 </div></p>
   			<a href="blog/2020/01/the-bad-of-thrift.html"><h1>Thrift的坑</h1></a>
   			<p>03 June 2017</p>
-  			<p><div id="preamble">
-<div class="sectionbody">
-<div class="quoteblock abstract">
-<blockquote>
-Thrift虽好，但是吹毛求疵的讲，可以更好。
-</blockquote>
-</div>
-<div class="paragraph">
-<p>Thrift作为一个经常拿来和Google的Protocol Buffers比较的二进制协议阵营中的重量级选手，我认为其最大的特点就是有个完整的RPC协议栈，而Protocol Buffers开源出来的版本基本上可以认为仅仅是个跨平台的数据序列化/反序列化的工具。</p>
-</div>
-<div class="imageblock">
-<div class="content">
-<img src="/images/Apache_Thrift_Architecture.png" alt="Thrift结构图">
-</div>
-<div class="title">Figure 1. Thrift结构图, 来自Wikipedia</div>
-</div>
-<div class="paragraph">
-<p>也是基于最大的理由，我们在RPC环境下选择了Thrift。但是在使用Thrift的过程中也逐渐发现她的一些不尽如我意的地方。</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="集合里面不能有null值">集合里面不能有null值</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>集合是指Thrift原生支持的list，set和map这三个容器类的数据结构。使用Java语言的话，集合里面不能有null值这点要特别注意。Thrift使用的Java的ArrayList，HashSet和HashMap这3个数据结构分别实现list，set和map。从Java的语义来讲，ArrayList里面是允许有null值的，HashMap的键（key）和值（value）都是允许有null值的，而HashSet内部是用了一个HashMap来实现的，同样也是允许有null值的。</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="prettyprint highlight"><code class="language-java" data-lang="java">    // HashMap
+  			<p><div id="preamble"> 
+ <div class="sectionbody"> 
+  <div class="quoteblock abstract"> 
+   <blockquote>
+     Thrift虽好，但是吹毛求疵的讲，可以更好。 
+   </blockquote> 
+  </div> 
+  <div class="paragraph"> 
+   <p>Thrift作为一个经常拿来和Google的Protocol Buffers比较的二进制协议阵营中的重量级选手，我认为其最大的特点就是有个完整的RPC协议栈，而Protocol Buffers开源出来的版本基本上可以认为仅仅是个跨平台的数据序列化/反序列化的工具。</p> 
+  </div> 
+  <div class="imageblock"> 
+   <div class="content"> 
+    <img src="http://reploop.org/blog/2020/01/images/Apache_Thrift_Architecture.png" alt="Thrift结构图"> 
+   </div> 
+   <div class="title">
+    Figure 1. Thrift结构图, 来自Wikipedia
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>也是基于最大的理由，我们在RPC环境下选择了Thrift。但是在使用Thrift的过程中也逐渐发现她的一些不尽如我意的地方。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="集合里面不能有null值">集合里面不能有null值</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>集合是指Thrift原生支持的list，set和map这三个容器类的数据结构。使用Java语言的话，集合里面不能有null值这点要特别注意。Thrift使用的Java的ArrayList，HashSet和HashMap这3个数据结构分别实现list，set和map。从Java的语义来讲，ArrayList里面是允许有null值的，HashMap的键（key）和值（value）都是允许有null值的，而HashSet内部是用了一个HashMap来实现的，同样也是允许有null值的。</p> 
+  </div> 
+  <div class="listingblock"> 
+   <div class="content"> 
+    <pre class="prettyprint highlight"><code class="language-java" data-lang="java">    // HashMap
     Map&lt;String, String&gt; map = new HashMap&lt;&gt;();
     map.put(null, null);
     assert(1 == map.size());
@@ -1653,108 +1367,102 @@ Thrift虽好，但是吹毛求疵的讲，可以更好。
     // HashSet
     Set&lt;String&gt; set = new HashSet&lt;&gt;();
     set.add(null);
-    assert(1 == set.size());</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>上面这段代码在Java语言范畴内是完全合法的，但是在Thrift里面，只要这些集合类里面混进了null值，而Thrift本身（libthrift）不做这方面的数据校验，就会导致客户端因为读不到预期的数据而报超时异常。所以写入的时候务必要对数据做非空的校验，从而避免这类异常的出现。</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="集合中不建议直接用枚举类型">集合中不建议直接用枚举类型</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>在Java语言中，枚举类型做Map的key是一个常用的做法，而且遇到枚举类型，基本上可以放心使用，而不用担心null值的。但是在Thrift环境下，为了避免枚举值（enum）扩展而带来的问题，枚举类型不要用在任何容器类集合里面，比如map，set和list。一旦这些集合类中出现enum类型，如果enum扩展了，增加了一个新值，那么就 <strong>需要所有的客户端先升级，代价比较大</strong>。
-这是因为一旦服务端先升级的话，客户端因为没有升级Schema而在读到这个新的枚举值的时候就会出现null值。这样的话，Map里面出现了null的key，相当于这个数据丢失了。从Java的角度来进一步讲，就会出现枚举属性为null的情况，这个会在业务代码中引起非常多的问题。为了避免这种潜在的问题，要确保枚举都用在struct中形成间接的关系而不能直接放入容器类集合中去。</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="字符串不能压缩">字符串不能压缩</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>实际上Thrift是有TCompactProtocol的，但是这个Protocol做的大部分工作是数值的编码工作以减少数据量。 <strong>但是实际业务中，往往字符串传输占了非常大的比例。针对字符串的压缩，Thrift并没有原生的支持</strong>。自己扩展Protocol支持字符串压缩也不是很方面，这往往需要在Thrift协议之上在包装一个定制的协议。</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="传输协议不支持动态探测">传输协议不支持动态探测</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>Protocol使用的时候只能通过服务端与客户端开发人员协商约定来确定，一旦确定之后很难变更。也就是协议没有动态探测功能，任何一端使用新的Protocol的话，都将导致对等的端不能解析数据。如何你的系统在Thrift上跑了几年，数据存储了非常，那么要实现一个字符串压缩功能，不停服，不更新存量数据的情况下基本上无法做到，而这个代价是相当大的。</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="不规范json序列化输出">不规范JSON序列化输出</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>枚举值做key，序列化的时候适用枚举对应的数值，而不是字符串。这样用TSimpleJSONProtocol序列化就产生了不标准JSON。JSON里面的Key都要求是字符串，而不能出现数值。需要定制一个特殊的JSON序列化Protocol。</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="没有header的支持">没有Header的支持</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>我们开头也说了，Thrift有完整的协议栈。如果仅仅使用协议栈就能满足业务的话，这个应该也不是问题。但是一个实战中的RPC服务，一般来讲都会涉及一些用户认证，背压，限流，降级，熔断等等，更别说调用链分析这种业务了。没有Header的支持，基本上要做到以上功能，都是需要侵入业务API的。比如一个检查用户昵称是否被占用的服务, 业务相关的API设计成这样应该是比较实用的:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="prettyprint highlight"><code class="language-thrift" data-lang="thrift">service UserService{
+    assert(1 == set.size());</code></pre> 
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>上面这段代码在Java语言范畴内是完全合法的，但是在Thrift里面，只要这些集合类里面混进了null值，而Thrift本身（libthrift）不做这方面的数据校验，就会导致客户端因为读不到预期的数据而报超时异常。所以写入的时候务必要对数据做非空的校验，从而避免这类异常的出现。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="集合中不建议直接用枚举类型">集合中不建议直接用枚举类型</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>在Java语言中，枚举类型做Map的key是一个常用的做法，而且遇到枚举类型，基本上可以放心使用，而不用担心null值的。但是在Thrift环境下，为了避免枚举值（enum）扩展而带来的问题，枚举类型不要用在任何容器类集合里面，比如map，set和list。一旦这些集合类中出现enum类型，如果enum扩展了，增加了一个新值，那么就 <strong>需要所有的客户端先升级，代价比较大</strong>。 这是因为一旦服务端先升级的话，客户端因为没有升级Schema而在读到这个新的枚举值的时候就会出现null值。这样的话，Map里面出现了null的key，相当于这个数据丢失了。从Java的角度来进一步讲，就会出现枚举属性为null的情况，这个会在业务代码中引起非常多的问题。为了避免这种潜在的问题，要确保枚举都用在struct中形成间接的关系而不能直接放入容器类集合中去。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="字符串不能压缩">字符串不能压缩</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>实际上Thrift是有TCompactProtocol的，但是这个Protocol做的大部分工作是数值的编码工作以减少数据量。 <strong>但是实际业务中，往往字符串传输占了非常大的比例。针对字符串的压缩，Thrift并没有原生的支持</strong>。自己扩展Protocol支持字符串压缩也不是很方面，这往往需要在Thrift协议之上在包装一个定制的协议。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="传输协议不支持动态探测">传输协议不支持动态探测</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>Protocol使用的时候只能通过服务端与客户端开发人员协商约定来确定，一旦确定之后很难变更。也就是协议没有动态探测功能，任何一端使用新的Protocol的话，都将导致对等的端不能解析数据。如何你的系统在Thrift上跑了几年，数据存储了非常，那么要实现一个字符串压缩功能，不停服，不更新存量数据的情况下基本上无法做到，而这个代价是相当大的。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="不规范json序列化输出">不规范JSON序列化输出</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>枚举值做key，序列化的时候适用枚举对应的数值，而不是字符串。这样用TSimpleJSONProtocol序列化就产生了不标准JSON。JSON里面的Key都要求是字符串，而不能出现数值。需要定制一个特殊的JSON序列化Protocol。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="没有header的支持">没有Header的支持</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>我们开头也说了，Thrift有完整的协议栈。如果仅仅使用协议栈就能满足业务的话，这个应该也不是问题。但是一个实战中的RPC服务，一般来讲都会涉及一些用户认证，背压，限流，降级，熔断等等，更别说调用链分析这种业务了。没有Header的支持，基本上要做到以上功能，都是需要侵入业务API的。比如一个检查用户昵称是否被占用的服务, 业务相关的API设计成这样应该是比较实用的:</p> 
+  </div> 
+  <div class="listingblock"> 
+   <div class="content"> 
+    <pre class="prettyprint highlight"><code class="language-thrift" data-lang="thrift">service UserService{
   bool checkNickname(1:string nickname);
-}</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>这就没法携带更多的信息了。如果我们要做用户认证，侵入业务API的做法，一种可能的实现可能是这样的：</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="prettyprint highlight"><code class="language-thrift" data-lang="thrift">struct NickNameRequest {
+}</code></pre> 
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>这就没法携带更多的信息了。如果我们要做用户认证，侵入业务API的做法，一种可能的实现可能是这样的：</p> 
+  </div> 
+  <div class="listingblock"> 
+   <div class="content"> 
+    <pre class="prettyprint highlight"><code class="language-thrift" data-lang="thrift">struct NickNameRequest {
   1: string nickname,
   2: string authUser,
 }
 service UserService{
   bool checkNickname(1:NickNameRequest request);
-}</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>这就对业务使用方不是特别方便。
-那么如何让Thrift支持Header呢？可能的方案至少有2个：</p>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>根据Thrift支持service multiplexing的思路，在service name里面做文章。这个需要Thrift 0.9以上的版本。</p>
-</li>
-<li>
-<p>根据Thrift解析数据的特点定制Protocol，善用FiledId为0和-1这些保留的值。</p>
-</li>
-</ol>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="java类库代码质量不好">Java类库代码质量不好</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>用静态代码分析工具分析一下Thrift的Java代码，结果往往是不忍直视。把这些问题归为编码规范的范畴也能说得过去，毕竟，能工作的代码，无论多么丑陋，他的核心价值并没有因此而减少。但是从可扩展的角度来考虑一下，基本上Thrift的Java代码质量是不太好的，基于他的二次开发扩展很难。毕竟Thrift的大部分代码是编译器自动生成的，也不需要人工维护。要扩展功能的时候，Java体系内可借助Thrift的metadata和反射来处理。</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="结论">结论</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>实际上，当前的RPC实现流行的做法使用netty做网络层，然后Thrift/Protocol Buffers用来描述数据结构以及序列化和反序列化数据。比如gRPC和armeria，基本上都抽象一个基本的Request和Response模型，然后使用分层的思路，或者类似Java语言中的Filter Chain模式来自由控制请求与响应，扩展性极强，可以和丰富的第三方类库整合。</p>
-</div>
-<div class="paragraph">
-<p>如果现在要评估Thrift和Protocol Buffers用哪个，我的第一选择可能是Protocol Buffers了。</p>
-</div>
-</div>
+}</code></pre> 
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>这就对业务使用方不是特别方便。 那么如何让Thrift支持Header呢？可能的方案至少有2个：</p> 
+  </div> 
+  <div class="olist arabic"> 
+   <ol class="arabic"> 
+    <li> <p>根据Thrift支持service multiplexing的思路，在service name里面做文章。这个需要Thrift 0.9以上的版本。</p> </li> 
+    <li> <p>根据Thrift解析数据的特点定制Protocol，善用FiledId为0和-1这些保留的值。</p> </li> 
+   </ol> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="java类库代码质量不好">Java类库代码质量不好</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>用静态代码分析工具分析一下Thrift的Java代码，结果往往是不忍直视。把这些问题归为编码规范的范畴也能说得过去，毕竟，能工作的代码，无论多么丑陋，他的核心价值并没有因此而减少。但是从可扩展的角度来考虑一下，基本上Thrift的Java代码质量是不太好的，基于他的二次开发扩展很难。毕竟Thrift的大部分代码是编译器自动生成的，也不需要人工维护。要扩展功能的时候，Java体系内可借助Thrift的metadata和反射来处理。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="结论">结论</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>实际上，当前的RPC实现流行的做法使用netty做网络层，然后Thrift/Protocol Buffers用来描述数据结构以及序列化和反序列化数据。比如gRPC和armeria，基本上都抽象一个基本的Request和Response模型，然后使用分层的思路，或者类似Java语言中的Filter Chain模式来自由控制请求与响应，扩展性极强，可以和丰富的第三方类库整合。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>如果现在要评估Thrift和Protocol Buffers用哪个，我的第一选择可能是Protocol Buffers了。</p> 
+  </div> 
+ </div> 
 </div></p>
 
 	<hr />
