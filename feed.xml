@@ -6,11 +6,11 @@
     <atom:link href="http://reploop.org/feed.xml" rel="self" type="application/rss+xml" />
     <description>JBake Bootstrap Template</description>
     <language>en-gb</language>
-    <pubDate>Wed, 4 Mar 2020 23:48:36 +0800</pubDate>
-    <lastBuildDate>Wed, 4 Mar 2020 23:48:36 +0800</lastBuildDate>
+    <pubDate>Fri, 6 Mar 2020 17:46:30 +0800</pubDate>
+    <lastBuildDate>Fri, 6 Mar 2020 17:46:30 +0800</lastBuildDate>
 
     <item>
-      <title>理解内存重排序以及为什写无锁多线程代码时很重要。</title>
+      <title>理解内存重排序以及为什写无锁多线程代码时很重要</title>
       <link>http://reploop.org/blog/2020/02/understanding-memory-reordering.html</link>
       <pubDate>Sat, 29 Feb 2020 00:00:00 +0800</pubDate>
       <guid isPermaLink="false">blog/2020/02/understanding-memory-reordering.html</guid>
@@ -1356,15 +1356,15 @@ reader_thread.start()&lt;/code&gt;&lt;/pre&gt;
   &lt;/div&gt; 
   &lt;div class=&quot;listingblock&quot;&gt; 
    &lt;div class=&quot;content&quot;&gt; 
-    &lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code class=&quot;language-java&quot; data-lang=&quot;java&quot;&gt;    // HashMap
-    Map&amp;lt;String, String&amp;gt; map = new HashMap&amp;lt;&amp;gt;();
-    map.put(null, null);
-    assert(1 == map.size());
+    &lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code class=&quot;language-java&quot; data-lang=&quot;java&quot;&gt;// HashMap
+Map&amp;lt;String, String&amp;gt; map = new HashMap&amp;lt;&amp;gt;();
+map.put(null, null);
+assert(1 == map.size());
 
-    // HashSet
-    Set&amp;lt;String&amp;gt; set = new HashSet&amp;lt;&amp;gt;();
-    set.add(null);
-    assert(1 == set.size());&lt;/code&gt;&lt;/pre&gt; 
+// HashSet
+Set&amp;lt;String&amp;gt; set = new HashSet&amp;lt;&amp;gt;();
+set.add(null);
+assert(1 == set.size());&lt;/code&gt;&lt;/pre&gt; 
    &lt;/div&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 

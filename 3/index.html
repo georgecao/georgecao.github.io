@@ -52,7 +52,7 @@
       </div>
     </div>
     <div class="container">
-  			<a href="blog/2020/02/understanding-memory-reordering.html"><h1>理解内存重排序以及为什写无锁多线程代码时很重要。</h1></a>
+  			<a href="blog/2020/02/understanding-memory-reordering.html"><h1>理解内存重排序以及为什写无锁多线程代码时很重要</h1></a>
   			<p>29 February 2020</p>
   			<p><div id="preamble"> 
  <div class="sectionbody"> 
@@ -1359,15 +1359,15 @@ reader_thread.start()</code></pre>
   </div> 
   <div class="listingblock"> 
    <div class="content"> 
-    <pre class="prettyprint highlight"><code class="language-java" data-lang="java">    // HashMap
-    Map&lt;String, String&gt; map = new HashMap&lt;&gt;();
-    map.put(null, null);
-    assert(1 == map.size());
+    <pre class="prettyprint highlight"><code class="language-java" data-lang="java">// HashMap
+Map&lt;String, String&gt; map = new HashMap&lt;&gt;();
+map.put(null, null);
+assert(1 == map.size());
 
-    // HashSet
-    Set&lt;String&gt; set = new HashSet&lt;&gt;();
-    set.add(null);
-    assert(1 == set.size());</code></pre> 
+// HashSet
+Set&lt;String&gt; set = new HashSet&lt;&gt;();
+set.add(null);
+assert(1 == set.size());</code></pre> 
    </div> 
   </div> 
   <div class="paragraph"> 
