@@ -70,7 +70,7 @@
   </div> 
   <div class="imageblock"> 
    <div class="content"> 
-    <img src="http://reploop.org/blog/2020/01/images/Apache_Thrift_Architecture.png" alt="Thrift结构图"> 
+    <img src="http://localhost:8820/blog/2020/01/images/Apache_Thrift_Architecture.png" alt="Thrift结构图"> 
    </div> 
    <div class="title">
     Figure 1. Thrift结构图, 来自Wikipedia
@@ -89,15 +89,15 @@
   </div> 
   <div class="listingblock"> 
    <div class="content"> 
-    <pre class="prettyprint highlight"><code class="language-java" data-lang="java">// HashMap
-Map&lt;String, String&gt; map = new HashMap&lt;&gt;();
-map.put(null, null);
-assert(1 == map.size());
+    <pre class="CodeRay highlight"><code data-lang="java"><span style="color:#777">// HashMap</span>
+<span style="color:#0a8;font-weight:bold">Map</span>&lt;<span style="color:#0a8;font-weight:bold">String</span>, <span style="color:#0a8;font-weight:bold">String</span>&gt; map = <span style="color:#080;font-weight:bold">new</span> <span style="color:#0a8;font-weight:bold">HashMap</span>&lt;&gt;();
+map.put(<span style="color:#069">null</span>, <span style="color:#069">null</span>);
+<span style="color:#080;font-weight:bold">assert</span>(<span style="color:#00D">1</span> == map.size());
 
-// HashSet
-Set&lt;String&gt; set = new HashSet&lt;&gt;();
-set.add(null);
-assert(1 == set.size());</code></pre> 
+<span style="color:#777">// HashSet</span>
+<span style="color:#0a8;font-weight:bold">Set</span>&lt;<span style="color:#0a8;font-weight:bold">String</span>&gt; set = <span style="color:#080;font-weight:bold">new</span> <span style="color:#0a8;font-weight:bold">HashSet</span>&lt;&gt;();
+set.add(<span style="color:#069">null</span>);
+<span style="color:#080;font-weight:bold">assert</span>(<span style="color:#00D">1</span> == set.size());</code></pre> 
    </div> 
   </div> 
   <div class="paragraph"> 
@@ -145,7 +145,7 @@ assert(1 == set.size());</code></pre>
   </div> 
   <div class="listingblock"> 
    <div class="content"> 
-    <pre class="prettyprint highlight"><code class="language-thrift" data-lang="thrift">service UserService{
+    <pre class="CodeRay highlight"><code data-lang="thrift">service UserService{
   bool checkNickname(1:string nickname);
 }</code></pre> 
    </div> 
@@ -155,7 +155,7 @@ assert(1 == set.size());</code></pre>
   </div> 
   <div class="listingblock"> 
    <div class="content"> 
-    <pre class="prettyprint highlight"><code class="language-thrift" data-lang="thrift">struct NickNameRequest {
+    <pre class="CodeRay highlight"><code data-lang="thrift">struct NickNameRequest {
   1: string nickname,
   2: string authUser,
 }

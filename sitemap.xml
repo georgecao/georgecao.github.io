@@ -1,35 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
     <url>
-        <loc>http://reploop.org/about.html</loc>
+        <loc>http://localhost:8820/about.html</loc>
         <lastmod>2020-01-20</lastmod>
     </url>
     <url>
-        <loc>http://reploop.org/blog/2020/02/understanding-memory-reordering.html</loc>
+        <loc>http://localhost:8820/blog/2020/02/understanding-memory-reordering.html</loc>
         <lastmod>2020-02-29</lastmod>
     </url>
     <url>
-        <loc>http://reploop.org/blog/2020/02/lock-free-multithreading-with-atomic-operations.html</loc>
+        <loc>http://localhost:8820/blog/2020/02/lock-free-multithreading-with-atomic-operations.html</loc>
         <lastmod>2020-02-27</lastmod>
     </url>
     <url>
-        <loc>http://reploop.org/blog/2020/02/introduction-to-thread-synchronization.html</loc>
+        <loc>http://localhost:8820/blog/2020/02/introduction-to-thread-synchronization.html</loc>
         <lastmod>2020-02-23</lastmod>
     </url>
     <url>
-        <loc>http://reploop.org/blog/2020/02/a-gentle-introduction-to-multithreading.html</loc>
+        <loc>http://localhost:8820/blog/2020/02/a-gentle-introduction-to-multithreading.html</loc>
         <lastmod>2020-02-20</lastmod>
     </url>
     <url>
-        <loc>http://reploop.org/blog/2020/01/share.html</loc>
+        <loc>http://localhost:8820/blog/2020/01/share.html</loc>
         <lastmod>2020-01-29</lastmod>
     </url>
     <url>
-        <loc>http://reploop.org/blog/2020/01/bank-account-in-hk.html</loc>
+        <loc>http://localhost:8820/blog/2020/01/bank-account-in-hk.html</loc>
         <lastmod>2018-05-06</lastmod>
     </url>
     <url>
-        <loc>http://reploop.org/blog/2020/01/the-bad-of-thrift.html</loc>
+        <loc>http://localhost:8820/blog/2020/01/the-bad-of-thrift.html</loc>
         <lastmod>2017-06-03</lastmod>
     </url>
 </urlset>
