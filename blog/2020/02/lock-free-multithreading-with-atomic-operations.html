@@ -65,9 +65,9 @@
     本系列中的其他文章
    </div> 
    <ul> 
-    <li> <p><a href="a-gentle-introduction-to-multithreading.html">多线程简介</a> - 一步一步走进并发的世界</p> </li> 
-    <li> <p><a href="introduction-to-thread-synchronization.html">线程同步简介</a> - 多线程应用中最常见的的并发控制方法之一</p> </li> 
-    <li> <p><a href="understanding-memory-reordering.html">理解内存重排序</a> - 为什写无锁多线程代码时它很重要</p> </li> 
+    <li> <p><a href="http://reploop.org/blog/2020/02/a-gentle-introduction-to-multithreading.html">多线程简介</a> - 一步一步走进并发的世界</p> </li> 
+    <li> <p><a href="http://reploop.org/blog/2020/02/introduction-to-thread-synchronization.html">线程同步简介</a> - 多线程应用中最常见的并发控制方法之一</p> </li> 
+    <li> <p><a href="http://reploop.org/blog/2020/02/understanding-memory-reordering.html">理解内存重排序</a> - 为什写无锁多线程代码时它很重要</p> </li> 
    </ul> 
   </div> 
   <div class="paragraph"> 
@@ -77,10 +77,10 @@
    <p>"atom"在希腊语中拾不可再分割的意思。在计算机中一个任务被称为原子的是指他不能再细分了：它不能再拆分为更小的执行步骤了。</p> 
   </div> 
   <div class="paragraph"> 
-   <p><em>原子性</em> 是多线程操作的一个重要特征：因为原子操作是不可在细分的，所以一个线程是不可能干扰另一个正在并发执行原子操作的线程的。例如，当一个线程原子写入共享数据，其他线程是没有办法读取到未完成的数据。相反的，当一个线程原子读取共享数据，这个数据就像是单个时间点上的数据。换句话说，就是没有<a href="a-gentle-introduction-to-multithreading.html">数据竞争</a>的风险。</p> 
+   <p><em>原子性</em> 是多线程操作的一个重要特征：因为原子操作是不可在细分的，所以一个线程是不可能干扰另一个正在并发执行原子操作的线程的。例如，当一个线程原子写入共享数据，其他线程是没有办法读取到未完成的数据。相反的，当一个线程原子读取共享数据，这个数据就像是单个时间点上的数据。换句话说，就是没有<a href="http://reploop.org/blog/2020/02/a-gentle-introduction-to-multithreading.html">数据竞争</a>的风险。</p> 
   </div> 
   <div class="paragraph"> 
-   <p>在<a href="introduction-to-thread-synchronization.html">上一篇文章</a>中，我介绍了所谓的 <strong>同步原语</strong>，也就是最常用的线程同步工具。他们是用来为多线程间处理共享数据的操作提供原子性的。怎么做到的呢？其实就是直接让单个线程执行并发任务，同时操作系统阻塞了其他线程直到第一个线程完成它的工作。这么做的原因是一个被阻塞的线程对其他线程是无害的。考虑到阻塞线程的能力，同步原语也称为 <strong>阻塞机制</strong>。</p> 
+   <p>在<a href="http://reploop.org/blog/2020/02/introduction-to-thread-synchronization.html">上一篇文章</a>中，我介绍了所谓的 <strong>同步原语</strong>，也就是最常用的线程同步工具。他们是用来为多线程间处理共享数据的操作提供原子性的。怎么做到的呢？其实就是直接让单个线程执行并发任务，同时操作系统阻塞了其他线程直到第一个线程完成它的工作。这么做的原因是一个被阻塞的线程对其他线程是无害的。考虑到阻塞线程的能力，同步原语也称为 <strong>阻塞机制</strong>。</p> 
   </div> 
   <div class="paragraph"> 
    <p>上一篇文章中的任意一种阻塞机制对大多数应用来说能够很好的工作。如果能够正确的使用，他们也是快速的和可靠的。尽管如此，他们还是有一些你可能需要考虑的缺点：</p> 
@@ -119,7 +119,7 @@
   </div> 
   <div class="imageblock"> 
    <div class="content"> 
-    <img src="http://localhost:8820/blog/2020/02/images/software-hardware-layers.png" alt="Software - hardware layers"> 
+    <img src="http://reploop.org/blog/2020/02/images/software-hardware-layers.png" alt="Software - hardware layers"> 
    </div> 
    <div class="title">
     Figure 1. 计算机程序的不同层次。虚线代表软件层次，实线代表硬件层次。
@@ -166,7 +166,7 @@
   </div> 
   <div class="imageblock"> 
    <div class="content"> 
-    <img src="http://localhost:8820/blog/2020/02/images/atomics-levels.png" alt="Three levels of atomic instructions"> 
+    <img src="http://reploop.org/blog/2020/02/images/atomics-levels.png" alt="Three levels of atomic instructions"> 
    </div> 
    <div class="title">
     Figure 2. 原子指令和操作的层级。虚线代表软件层次，实线代表硬件层次。
@@ -225,7 +225,7 @@ writer_thread()
     <p>现在，上面这个例子显示了原子操作的一个重要特性：他们仅针对原子类型，如boolean型，字符串，整数等。但是真的程序是需要使用同步技术来实现更复杂的数据结构，比如数组，向量，对象，数据向量，对象里包含数据等等。如何用基于原子类型的简单操作来保证负责数据的原子性？</p> 
    </div> 
    <div class="paragraph"> 
-    <p>无锁编程迫使你跳出常规的同步原语来思考问题。你不用直接用原子操作保护共享资源，而是用互斥锁或者信号量。同样的，你会基于原子操作构建 <strong>无锁算法</strong> 或者 <strong>无锁数据结构</strong> 来确定多个线程如何访问你的数据。</p> 
+    <p>无锁编程迫使你跳出常规的同步原语来思考问题。你不直接用原子操作保护共享资源，而是用互斥锁或者信号量。同样的，你会基于原子操作构建 <strong>无锁算法</strong> 或者 <strong>无锁数据结构</strong> 来确定多个线程如何访问你的数据。</p> 
    </div> 
    <div class="paragraph"> 
     <p>例如，上面看到的 <em>fetch-and-add</em> 操作可以用来实现一个基本的信号量，而这个信号量就可以用来协调多个线程。毫无意外，所有传统的阻塞同步工具都是基于原子操作的实现的。</p> 
@@ -334,7 +334,7 @@ writer_thread()
   </div> 
   <div class="imageblock"> 
    <div class="content"> 
-    <img src="http://localhost:8820/blog/2020/02/images/lock-free-wait-free.png" alt="Lock-free" width="wait-free"> 
+    <img src="http://reploop.org/blog/2020/02/images/lock-free-wait-free.png" alt="Lock-free" width="wait-free"> 
    </div> 
    <div class="title">
     Figure 3. 无等待算法是无锁算法的子集
@@ -397,7 +397,7 @@ writer_thread()
     
     <div id="footer">
       <div class="container">
-        <p class="muted credit">&copy; 2020 | Mixed with <a href="http://getbootstrap.com/">Bootstrap v3.1.1</a> | Baked with <a href="http://jbake.org">JBake v2.6.4</a></p>
+        <p class="muted credit">&copy; 2020 | Mixed with <a href="http://getbootstrap.com/">Bootstrap v3.1.1</a> | Baked with <a href="http://jbake.org">JBake v2.7.0-SNAPSHOT</a></p>
       </div>
     </div>
     
