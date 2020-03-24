@@ -4,10 +4,10 @@
     <meta charset="utf-8"/>
     <title>理解内存重排序以及为什写无锁多线程代码时很重要</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="blog">
+    <meta name="description" content="REPLoop，在脚本编程语言中经常能看到REPL，也就是Read-Evaluate-Print-Loop，意思是读取源代码，评估执行，打印结果的循环。这个过程能够快速的学习实践然后得到结果。非常像一个学习成长的过程：输入信息，消化吸收，输出知识并用于实践，然后持之以恒的坚持。4个环节缺一不可，而且最难做到的大概是持之以恒了。">
     <meta name="author" content="georgecao">
-    <meta name="keywords" content="blog">
-    <meta name="generator" content="JBake">
+    <meta name="keywords" content="内存模型,多线程,原子性,多线程,内存重排序">
+    <meta name="generator" content="JBake v2.7.0-SNAPSHOT">
 
     <!-- Le styles -->
     <link href="../../../css/bootstrap.min.css" rel="stylesheet">
@@ -44,8 +44,9 @@
         <div class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
             <li><a href="../../../index.html">博客</a></li>
-            <li><a href="../../../about.html">关于</a></li>
             <li><a href="../../../archive.html">归档</a></li>
+            <li><a href="../../../tags/index.html">标签</a></li>
+            <li><a href="../../../about.html">关于</a></li>
             <li><a href="../../../feed.xml">订阅</a></li>
           </ul>
         </div><!--/.nav-collapse -->
@@ -56,7 +57,7 @@
 		<h1>理解内存重排序以及为什写无锁多线程代码时很重要</h1>
 	</div>
 
-	<p><em>29 February 2020</em></p>
+	<p><em>2020年02月29日</em></p>
 
 	<p><div id="preamble"> 
  <div class="sectionbody"> 
@@ -149,17 +150,17 @@
   </div> 
   <div class="listingblock"> 
    <div class="content"> 
-    <pre class="CodeRay highlight"><code data-lang="c">x = <span style="color:#00D">0</span>
-v = <span style="color:#069">false</span>
+    <pre class="prettyprint highlight"><code class="language-c" data-lang="c">x = 0
+v = false
 
 thread_one():
-    <span style="color:#080;font-weight:bold">while</span> load(v) == <span style="color:#069">false</span>:
-        <span style="color:#080;font-weight:bold">continue</span>
+    while load(v) == false:
+        continue
     print(load(x))
 
 thread_two():
-    store(x, <span style="color:#00D">1</span>)
-    store(v, <span style="color:#069">true</span>)</code></pre> 
+    store(x, 1)
+    store(v, true)</code></pre> 
    </div> 
   </div> 
   <div class="paragraph"> 
@@ -240,20 +241,20 @@ thread_two():
    </div> 
    <div class="listingblock"> 
     <div class="content"> 
-     <pre class="CodeRay highlight"><code data-lang="c">x = <span style="color:#00D">0</span>
-y = <span style="color:#00D">0</span>
+     <pre class="prettyprint highlight"><code class="language-c" data-lang="c">x = 0
+y = 0
 
 thread_A:
-    store(x, <span style="color:#00D">1</span>)
+    store(x, 1)
 
 thread_B:
-    store(y, <span style="color:#00D">1</span>)
+    store(y, 1)
 
 thread_C:
-    assert(load(x) == <span style="color:#00D">1</span> &amp;&amp; load(y) == <span style="color:#00D">0</span>)
+    assert(load(x) == 1 &amp;&amp; load(y) == 0)
 
 thread_D:
-    assert(load(x) == <span style="color:#00D">0</span> &amp;&amp; load(y) == <span style="color:#00D">1</span>)</code></pre> 
+    assert(load(x) == 0 &amp;&amp; load(y) == 1)</code></pre> 
     </div> 
    </div> 
    <div class="paragraph"> 

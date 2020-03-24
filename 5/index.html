@@ -4,10 +4,10 @@
     <meta charset="utf-8"/>
     <title>REPLoop</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="blog">
+    <meta name="description" content="REPLoop，在脚本编程语言中经常能看到REPL，也就是Read-Evaluate-Print-Loop，意思是读取源代码，评估执行，打印结果的循环。这个过程能够快速的学习实践然后得到结果。非常像一个学习成长的过程：输入信息，消化吸收，输出知识并用于实践，然后持之以恒的坚持。4个环节缺一不可，而且最难做到的大概是持之以恒了。">
     <meta name="author" content="georgecao">
-    <meta name="keywords" content="blog">
-    <meta name="generator" content="JBake">
+    <meta name="keywords" content="">
+    <meta name="generator" content="JBake v2.7.0-SNAPSHOT">
 
     <!-- Le styles -->
     <link href="../css/bootstrap.min.css" rel="stylesheet">
@@ -44,8 +44,9 @@
         <div class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
             <li><a href="../index.html">博客</a></li>
-            <li><a href="../about.html">关于</a></li>
             <li><a href="../archive.html">归档</a></li>
+            <li><a href="../tags/index.html">标签</a></li>
+            <li><a href="../about.html">关于</a></li>
             <li><a href="../feed.xml">订阅</a></li>
           </ul>
         </div><!--/.nav-collapse -->
@@ -53,7 +54,7 @@
     </div>
     <div class="container">
   			<a href="blog/2020/02/understanding-memory-reordering.html"><h1>理解内存重排序以及为什写无锁多线程代码时很重要</h1></a>
-  			<p>29 February 2020</p>
+  			<p>2020年02月29日</p>
   			<p><div id="preamble"> 
  <div class="sectionbody"> 
   <div class="ulist"> 
@@ -145,17 +146,17 @@
   </div> 
   <div class="listingblock"> 
    <div class="content"> 
-    <pre class="CodeRay highlight"><code data-lang="c">x = <span style="color:#00D">0</span>
-v = <span style="color:#069">false</span>
+    <pre class="prettyprint highlight"><code class="language-c" data-lang="c">x = 0
+v = false
 
 thread_one():
-    <span style="color:#080;font-weight:bold">while</span> load(v) == <span style="color:#069">false</span>:
-        <span style="color:#080;font-weight:bold">continue</span>
+    while load(v) == false:
+        continue
     print(load(x))
 
 thread_two():
-    store(x, <span style="color:#00D">1</span>)
-    store(v, <span style="color:#069">true</span>)</code></pre> 
+    store(x, 1)
+    store(v, true)</code></pre> 
    </div> 
   </div> 
   <div class="paragraph"> 
@@ -236,20 +237,20 @@ thread_two():
    </div> 
    <div class="listingblock"> 
     <div class="content"> 
-     <pre class="CodeRay highlight"><code data-lang="c">x = <span style="color:#00D">0</span>
-y = <span style="color:#00D">0</span>
+     <pre class="prettyprint highlight"><code class="language-c" data-lang="c">x = 0
+y = 0
 
 thread_A:
-    store(x, <span style="color:#00D">1</span>)
+    store(x, 1)
 
 thread_B:
-    store(y, <span style="color:#00D">1</span>)
+    store(y, 1)
 
 thread_C:
-    assert(load(x) == <span style="color:#00D">1</span> &amp;&amp; load(y) == <span style="color:#00D">0</span>)
+    assert(load(x) == 1 &amp;&amp; load(y) == 0)
 
 thread_D:
-    assert(load(x) == <span style="color:#00D">0</span> &amp;&amp; load(y) == <span style="color:#00D">1</span>)</code></pre> 
+    assert(load(x) == 0 &amp;&amp; load(y) == 1)</code></pre> 
     </div> 
    </div> 
    <div class="paragraph"> 
@@ -336,7 +337,7 @@ thread_D:
  </div> 
 </div></p>
   			<a href="blog/2020/02/lock-free-multithreading-with-atomic-operations.html"><h1>用原子操作实现无锁多线程：底层线程同步</h1></a>
-  			<p>27 February 2020</p>
+  			<p>2020年02月27日</p>
   			<p><div id="preamble"> 
  <div class="sectionbody"> 
   <div class="ulist"> 
@@ -464,8 +465,8 @@ thread_D:
   </div> 
   <div class="listingblock"> 
    <div class="content"> 
-    <pre class="CodeRay highlight"><code data-lang="c">mutex = initialize_mutex()
-x     = <span style="color:#00D">0</span>
+    <pre class="prettyprint highlight"><code class="language-c" data-lang="c">mutex = initialize_mutex()
+x     = 0
 
 reader_thread()
     mutex.lock()
@@ -486,13 +487,13 @@ writer_thread()
   </div> 
   <div class="listingblock"> 
    <div class="content"> 
-    <pre class="CodeRay highlight"><code data-lang="c">x = <span style="color:#00D">0</span>
+    <pre class="prettyprint highlight"><code class="language-c" data-lang="c">x = 0
 
 reader_thread()
     print(load(x))
 
 writer_thread()
-    fetch_and_add(x, <span style="color:#00D">1</span>)</code></pre> 
+    fetch_and_add(x, 1)</code></pre> 
    </div> 
   </div> 
   <div class="paragraph"> 
@@ -529,7 +530,7 @@ writer_thread()
    </div> 
    <div class="listingblock"> 
     <div class="content"> 
-     <pre class="CodeRay highlight"><code data-lang="c">boolean compare_and_swap(shared_data, expected_value, new_value);</code></pre> 
+     <pre class="prettyprint highlight"><code class="language-c" data-lang="c">boolean compare_and_swap(shared_data, expected_value, new_value);</code></pre> 
     </div> 
    </div> 
    <div class="paragraph"> 
@@ -543,14 +544,14 @@ writer_thread()
    </div> 
    <div class="listingblock"> 
     <div class="content"> 
-     <pre class="CodeRay highlight"><code data-lang="c">x = <span style="color:#00D">0</span>
+     <pre class="prettyprint highlight"><code class="language-c" data-lang="c">x = 0
 
 reader_thread()
     print(load(x))
 
 writer_thread()
-    temp = load(x)                              <span style="color:#777">// (1)</span>
-    <span style="color:#080;font-weight:bold">while</span>(!compare_and_swap(x, temp, temp + <span style="color:#00D">1</span>)) <span style="color:#777">// (2)</span></code></pre> 
+    temp = load(x)                              // (1)
+    while(!compare_and_swap(x, temp, temp + 1)) // (2)</code></pre> 
     </div> 
    </div> 
    <div class="paragraph"> 
@@ -668,7 +669,7 @@ writer_thread()
  </div> 
 </div></p>
   			<a href="blog/2020/02/introduction-to-thread-synchronization.html"><h1>线程同步: 多线程应用中最常见的并发控制方法之一</h1></a>
-  			<p>23 February 2020</p>
+  			<p>2020年02月23日</p>
   			<p><div id="preamble"> 
  <div class="sectionbody"> 
   <div class="ulist"> 
@@ -901,7 +902,7 @@ writer_thread()
  </div> 
 </div></p>
   			<a href="blog/2020/02/a-gentle-introduction-to-multithreading.html"><h1>多线程简介: 一步一步走进并发的世界</h1></a>
-  			<p>20 February 2020</p>
+  			<p>2020年02月20日</p>
   			<p><div id="preamble"> 
  <div class="sectionbody"> 
   <div class="ulist"> 
@@ -1077,7 +1078,7 @@ writer_thread()
   </div> 
   <div class="listingblock"> 
    <div class="content"> 
-    <pre class="CodeRay highlight"><code data-lang="c">writer_thread.start()
+    <pre class="prettyprint highlight"><code class="language-c" data-lang="c">writer_thread.start()
 reader_thread.start()</code></pre> 
    </div> 
   </div> 
@@ -1140,7 +1141,7 @@ reader_thread.start()</code></pre>
  </div> 
 </div></p>
   			<a href="blog/2020/01/share.html"><h1>“程序员”的成长之路</h1></a>
-  			<p>29 January 2020</p>
+  			<p>2020年01月29日</p>
   			<p><div id="preamble"> 
  <div class="sectionbody"> 
   <div class="quoteblock abstract"> 
@@ -1229,7 +1230,7 @@ reader_thread.start()</code></pre>
  </div> 
 </div></p>
   			<a href="blog/2020/01/bank-account-in-hk.html"><h1>香港开户经历</h1></a>
-  			<p>06 May 2018</p>
+  			<p>2018年05月06日</p>
   			<p><div id="preamble"> 
  <div class="sectionbody"> 
   <div class="quoteblock abstract"> 
@@ -1301,7 +1302,7 @@ reader_thread.start()</code></pre>
  </div> 
 </div></p>
   			<a href="blog/2020/01/the-bad-of-thrift.html"><h1>Thrift的坑</h1></a>
-  			<p>03 June 2017</p>
+  			<p>2017年06月03日</p>
   			<p><div id="preamble"> 
  <div class="sectionbody"> 
   <div class="quoteblock abstract"> 
@@ -1333,15 +1334,15 @@ reader_thread.start()</code></pre>
   </div> 
   <div class="listingblock"> 
    <div class="content"> 
-    <pre class="CodeRay highlight"><code data-lang="java"><span style="color:#777">// HashMap</span>
-<span style="color:#0a8;font-weight:bold">Map</span>&lt;<span style="color:#0a8;font-weight:bold">String</span>, <span style="color:#0a8;font-weight:bold">String</span>&gt; map = <span style="color:#080;font-weight:bold">new</span> <span style="color:#0a8;font-weight:bold">HashMap</span>&lt;&gt;();
-map.put(<span style="color:#069">null</span>, <span style="color:#069">null</span>);
-<span style="color:#080;font-weight:bold">assert</span>(<span style="color:#00D">1</span> == map.size());
+    <pre class="prettyprint highlight"><code class="language-java" data-lang="java">// HashMap
+Map&lt;String, String&gt; map = new HashMap&lt;&gt;();
+map.put(null, null);
+assert(1 == map.size());
 
-<span style="color:#777">// HashSet</span>
-<span style="color:#0a8;font-weight:bold">Set</span>&lt;<span style="color:#0a8;font-weight:bold">String</span>&gt; set = <span style="color:#080;font-weight:bold">new</span> <span style="color:#0a8;font-weight:bold">HashSet</span>&lt;&gt;();
-set.add(<span style="color:#069">null</span>);
-<span style="color:#080;font-weight:bold">assert</span>(<span style="color:#00D">1</span> == set.size());</code></pre> 
+// HashSet
+Set&lt;String&gt; set = new HashSet&lt;&gt;();
+set.add(null);
+assert(1 == set.size());</code></pre> 
    </div> 
   </div> 
   <div class="paragraph"> 
@@ -1389,7 +1390,7 @@ set.add(<span style="color:#069">null</span>);
   </div> 
   <div class="listingblock"> 
    <div class="content"> 
-    <pre class="CodeRay highlight"><code data-lang="thrift">service UserService{
+    <pre class="prettyprint highlight"><code class="language-thrift" data-lang="thrift">service UserService{
   bool checkNickname(1:string nickname);
 }</code></pre> 
    </div> 
@@ -1399,7 +1400,7 @@ set.add(<span style="color:#069">null</span>);
   </div> 
   <div class="listingblock"> 
    <div class="content"> 
-    <pre class="CodeRay highlight"><code data-lang="thrift">struct NickNameRequest {
+    <pre class="prettyprint highlight"><code class="language-thrift" data-lang="thrift">struct NickNameRequest {
   1: string nickname,
   2: string authUser,
 }

@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <title>REPLoop</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="REPLoop，在脚本编程语言中经常能看到REPL，也就是Read-Evaluate-Print-Loop，意思是读取源代码，评估执行，打印结果的循环。这个过程能够快速的学习实践然后得到结果。非常像一个学习成长的过程：输入信息，消化吸收，输出知识并用于实践，然后持之以恒的坚持。4个环节缺一不可，而且最难做到的大概是持之以恒了。">
+    <meta name="author" content="georgecao">
+    <meta name="keywords" content="">
+    <meta name="generator" content="JBake v2.7.0-SNAPSHOT">
+
+    <!-- Le styles -->
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../css/asciidoctor.css" rel="stylesheet">
+    <link href="../css/base.css" rel="stylesheet">
+    <link href="../css/prettify.css" rel="stylesheet">
+
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+
+    <!-- Fav and touch icons -->
+    <!--<link rel="apple-touch-icon-precomposed" sizes="144x144" href="../assets/ico/apple-touch-icon-144-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="../assets/ico/apple-touch-icon-114-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="../assets/ico/apple-touch-icon-72-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" href="../assets/ico/apple-touch-icon-57-precomposed.png">-->
+    <link rel="shortcut icon" href="../favicon.ico">
+  </head>
+  <body onload="prettyPrint()">
+    <div id="wrap">
+
+	<!-- Fixed navbar -->
+    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../">REPLoop</a>
+        </div>
+        <div class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li><a href="../index.html">博客</a></li>
+            <li><a href="../archive.html">归档</a></li>
+            <li><a href="../tags/index.html">标签</a></li>
+            <li><a href="../about.html">关于</a></li>
+            <li><a href="../feed.xml">订阅</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </div>
+    <div class="container">
+<div id="main">
+    <ul class="posts">
+        <header>
+            <h1>标签云</h1>
+        </header>
+            <button type="button" class="btn btn-secondary">
+                <a href="../tags/并行.html">并行</a>
+                <span class="badge badge-light">1</span>
+            </button>
+            <button type="button" class="btn btn-secondary">
+                <a href="../tags/条件变量.html">条件变量</a>
+                <span class="badge badge-light">1</span>
+            </button>
+            <button type="button" class="btn btn-secondary">
+                <a href="../tags/互斥锁.html">互斥锁</a>
+                <span class="badge badge-light">1</span>
+            </button>
+            <button type="button" class="btn btn-secondary">
+                <a href="../tags/开户.html">开户</a>
+                <span class="badge badge-light">1</span>
+            </button>
+            <button type="button" class="btn btn-secondary">
+                <a href="../tags/thrift.html">thrift</a>
+                <span class="badge badge-light">1</span>
+            </button>
+            <button type="button" class="btn btn-secondary">
+                <a href="../tags/多线程.html">多线程</a>
+                <span class="badge badge-light">4</span>
+            </button>
+            <button type="button" class="btn btn-secondary">
+                <a href="../tags/鸟哥.html">鸟哥</a>
+                <span class="badge badge-light">1</span>
+            </button>
+            <button type="button" class="btn btn-secondary">
+                <a href="../tags/同步.html">同步</a>
+                <span class="badge badge-light">1</span>
+            </button>
+            <button type="button" class="btn btn-secondary">
+                <a href="../tags/原子性.html">原子性</a>
+                <span class="badge badge-light">1</span>
+            </button>
+            <button type="button" class="btn btn-secondary">
+                <a href="../tags/算法.html">算法</a>
+                <span class="badge badge-light">1</span>
+            </button>
+            <button type="button" class="btn btn-secondary">
+                <a href="../tags/无等待.html">无等待</a>
+                <span class="badge badge-light">1</span>
+            </button>
+            <button type="button" class="btn btn-secondary">
+                <a href="../tags/并发.html">并发</a>
+                <span class="badge badge-light">3</span>
+            </button>
+            <button type="button" class="btn btn-secondary">
+                <a href="../tags/信号量.html">信号量</a>
+                <span class="badge badge-light">1</span>
+            </button>
+            <button type="button" class="btn btn-secondary">
+                <a href="../tags/内存模型.html">内存模型</a>
+                <span class="badge badge-light">1</span>
+            </button>
+            <button type="button" class="btn btn-secondary">
+                <a href="../tags/无锁.html">无锁</a>
+                <span class="badge badge-light">1</span>
+            </button>
+            <button type="button" class="btn btn-secondary">
+                <a href="../tags/原子指令.html">原子指令</a>
+                <span class="badge badge-light">1</span>
+            </button>
+            <button type="button" class="btn btn-secondary">
+                <a href="../tags/香港.html">香港</a>
+                <span class="badge badge-light">1</span>
+            </button>
+            <button type="button" class="btn btn-secondary">
+                <a href="../tags/银行.html">银行</a>
+                <span class="badge badge-light">1</span>
+            </button>
+            <button type="button" class="btn btn-secondary">
+                <a href="../tags/成长.html">成长</a>
+                <span class="badge badge-light">1</span>
+            </button>
+            <button type="button" class="btn btn-secondary">
+                <a href="../tags/线程.html">线程</a>
+                <span class="badge badge-light">2</span>
+            </button>
+            <button type="button" class="btn btn-secondary">
+                <a href="../tags/程序员.html">程序员</a>
+                <span class="badge badge-light">1</span>
+            </button>
+            <button type="button" class="btn btn-secondary">
+                <a href="../tags/protobuf.html">protobuf</a>
+                <span class="badge badge-light">1</span>
+            </button>
+            <button type="button" class="btn btn-secondary">
+                <a href="../tags/进程.html">进程</a>
+                <span class="badge badge-light">1</span>
+            </button>
+            <button type="button" class="btn btn-secondary">
+                <a href="../tags/内存重排序.html">内存重排序</a>
+                <span class="badge badge-light">1</span>
+            </button>
+    </ul>
+</div>
+
+		</div>
+		<div id="push"></div>
+    </div>
+    
+    <div id="footer">
+      <div class="container">
+        <p class="muted credit">&copy; 2020 | Mixed with <a href="http://getbootstrap.com/">Bootstrap v3.1.1</a> | Baked with <a href="http://jbake.org">JBake v2.7.0-SNAPSHOT</a></p>
+      </div>
+    </div>
+    
+    <!-- Le javascript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="../js/jquery-1.11.1.min.js"></script>
+    <script src="../js/bootstrap.min.js"></script>
+    <script src="../js/prettify.js"></script>
+    
+  </body>
+</html>

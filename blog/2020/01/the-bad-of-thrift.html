@@ -4,10 +4,10 @@
     <meta charset="utf-8"/>
     <title>Thrift的坑</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="blog">
+    <meta name="description" content="REPLoop，在脚本编程语言中经常能看到REPL，也就是Read-Evaluate-Print-Loop，意思是读取源代码，评估执行，打印结果的循环。这个过程能够快速的学习实践然后得到结果。非常像一个学习成长的过程：输入信息，消化吸收，输出知识并用于实践，然后持之以恒的坚持。4个环节缺一不可，而且最难做到的大概是持之以恒了。">
     <meta name="author" content="georgecao">
-    <meta name="keywords" content="blog">
-    <meta name="generator" content="JBake">
+    <meta name="keywords" content="thrift,protobuf">
+    <meta name="generator" content="JBake v2.7.0-SNAPSHOT">
 
     <!-- Le styles -->
     <link href="../../../css/bootstrap.min.css" rel="stylesheet">
@@ -44,8 +44,9 @@
         <div class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
             <li><a href="../../../index.html">博客</a></li>
-            <li><a href="../../../about.html">关于</a></li>
             <li><a href="../../../archive.html">归档</a></li>
+            <li><a href="../../../tags/index.html">标签</a></li>
+            <li><a href="../../../about.html">关于</a></li>
             <li><a href="../../../feed.xml">订阅</a></li>
           </ul>
         </div><!--/.nav-collapse -->
@@ -56,7 +57,7 @@
 		<h1>Thrift的坑</h1>
 	</div>
 
-	<p><em>03 June 2017</em></p>
+	<p><em>2017年06月03日</em></p>
 
 	<p><div id="preamble"> 
  <div class="sectionbody"> 
@@ -89,15 +90,15 @@
   </div> 
   <div class="listingblock"> 
    <div class="content"> 
-    <pre class="CodeRay highlight"><code data-lang="java"><span style="color:#777">// HashMap</span>
-<span style="color:#0a8;font-weight:bold">Map</span>&lt;<span style="color:#0a8;font-weight:bold">String</span>, <span style="color:#0a8;font-weight:bold">String</span>&gt; map = <span style="color:#080;font-weight:bold">new</span> <span style="color:#0a8;font-weight:bold">HashMap</span>&lt;&gt;();
-map.put(<span style="color:#069">null</span>, <span style="color:#069">null</span>);
-<span style="color:#080;font-weight:bold">assert</span>(<span style="color:#00D">1</span> == map.size());
+    <pre class="prettyprint highlight"><code class="language-java" data-lang="java">// HashMap
+Map&lt;String, String&gt; map = new HashMap&lt;&gt;();
+map.put(null, null);
+assert(1 == map.size());
 
-<span style="color:#777">// HashSet</span>
-<span style="color:#0a8;font-weight:bold">Set</span>&lt;<span style="color:#0a8;font-weight:bold">String</span>&gt; set = <span style="color:#080;font-weight:bold">new</span> <span style="color:#0a8;font-weight:bold">HashSet</span>&lt;&gt;();
-set.add(<span style="color:#069">null</span>);
-<span style="color:#080;font-weight:bold">assert</span>(<span style="color:#00D">1</span> == set.size());</code></pre> 
+// HashSet
+Set&lt;String&gt; set = new HashSet&lt;&gt;();
+set.add(null);
+assert(1 == set.size());</code></pre> 
    </div> 
   </div> 
   <div class="paragraph"> 
@@ -145,7 +146,7 @@ set.add(<span style="color:#069">null</span>);
   </div> 
   <div class="listingblock"> 
    <div class="content"> 
-    <pre class="CodeRay highlight"><code data-lang="thrift">service UserService{
+    <pre class="prettyprint highlight"><code class="language-thrift" data-lang="thrift">service UserService{
   bool checkNickname(1:string nickname);
 }</code></pre> 
    </div> 
@@ -155,7 +156,7 @@ set.add(<span style="color:#069">null</span>);
   </div> 
   <div class="listingblock"> 
    <div class="content"> 
-    <pre class="CodeRay highlight"><code data-lang="thrift">struct NickNameRequest {
+    <pre class="prettyprint highlight"><code class="language-thrift" data-lang="thrift">struct NickNameRequest {
   1: string nickname,
   2: string authUser,
 }

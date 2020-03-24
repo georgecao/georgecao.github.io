@@ -4,10 +4,10 @@
     <meta charset="utf-8"/>
     <title>用原子操作实现无锁多线程：底层线程同步</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="blog">
+    <meta name="description" content="REPLoop，在脚本编程语言中经常能看到REPL，也就是Read-Evaluate-Print-Loop，意思是读取源代码，评估执行，打印结果的循环。这个过程能够快速的学习实践然后得到结果。非常像一个学习成长的过程：输入信息，消化吸收，输出知识并用于实践，然后持之以恒的坚持。4个环节缺一不可，而且最难做到的大概是持之以恒了。">
     <meta name="author" content="georgecao">
-    <meta name="keywords" content="blog">
-    <meta name="generator" content="JBake">
+    <meta name="keywords" content="原子指令,多线程,无锁,无等待,并发,算法">
+    <meta name="generator" content="JBake v2.7.0-SNAPSHOT">
 
     <!-- Le styles -->
     <link href="../../../css/bootstrap.min.css" rel="stylesheet">
@@ -44,8 +44,9 @@
         <div class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
             <li><a href="../../../index.html">博客</a></li>
-            <li><a href="../../../about.html">关于</a></li>
             <li><a href="../../../archive.html">归档</a></li>
+            <li><a href="../../../tags/index.html">标签</a></li>
+            <li><a href="../../../about.html">关于</a></li>
             <li><a href="../../../feed.xml">订阅</a></li>
           </ul>
         </div><!--/.nav-collapse -->
@@ -56,7 +57,7 @@
 		<h1>用原子操作实现无锁多线程：底层线程同步</h1>
 	</div>
 
-	<p><em>27 February 2020</em></p>
+	<p><em>2020年02月27日</em></p>
 
 	<p><div id="preamble"> 
  <div class="sectionbody"> 
@@ -185,8 +186,8 @@
   </div> 
   <div class="listingblock"> 
    <div class="content"> 
-    <pre class="CodeRay highlight"><code data-lang="c">mutex = initialize_mutex()
-x     = <span style="color:#00D">0</span>
+    <pre class="prettyprint highlight"><code class="language-c" data-lang="c">mutex = initialize_mutex()
+x     = 0
 
 reader_thread()
     mutex.lock()
@@ -207,13 +208,13 @@ writer_thread()
   </div> 
   <div class="listingblock"> 
    <div class="content"> 
-    <pre class="CodeRay highlight"><code data-lang="c">x = <span style="color:#00D">0</span>
+    <pre class="prettyprint highlight"><code class="language-c" data-lang="c">x = 0
 
 reader_thread()
     print(load(x))
 
 writer_thread()
-    fetch_and_add(x, <span style="color:#00D">1</span>)</code></pre> 
+    fetch_and_add(x, 1)</code></pre> 
    </div> 
   </div> 
   <div class="paragraph"> 
@@ -250,7 +251,7 @@ writer_thread()
    </div> 
    <div class="listingblock"> 
     <div class="content"> 
-     <pre class="CodeRay highlight"><code data-lang="c">boolean compare_and_swap(shared_data, expected_value, new_value);</code></pre> 
+     <pre class="prettyprint highlight"><code class="language-c" data-lang="c">boolean compare_and_swap(shared_data, expected_value, new_value);</code></pre> 
     </div> 
    </div> 
    <div class="paragraph"> 
@@ -264,14 +265,14 @@ writer_thread()
    </div> 
    <div class="listingblock"> 
     <div class="content"> 
-     <pre class="CodeRay highlight"><code data-lang="c">x = <span style="color:#00D">0</span>
+     <pre class="prettyprint highlight"><code class="language-c" data-lang="c">x = 0
 
 reader_thread()
     print(load(x))
 
 writer_thread()
-    temp = load(x)                              <span style="color:#777">// (1)</span>
-    <span style="color:#080;font-weight:bold">while</span>(!compare_and_swap(x, temp, temp + <span style="color:#00D">1</span>)) <span style="color:#777">// (2)</span></code></pre> 
+    temp = load(x)                              // (1)
+    while(!compare_and_swap(x, temp, temp + 1)) // (2)</code></pre> 
     </div> 
    </div> 
    <div class="paragraph"> 

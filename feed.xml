@@ -6,8 +6,8 @@
     <atom:link href="http://reploop.org/feed.xml" rel="self" type="application/rss+xml" />
     <description>JBake Bootstrap Template</description>
     <language>en-gb</language>
-    <pubDate>Mon, 23 Mar 2020 14:43:19 +0800</pubDate>
-    <lastBuildDate>Mon, 23 Mar 2020 14:43:19 +0800</lastBuildDate>
+    <pubDate>Tue, 24 Mar 2020 23:16:14 +0800</pubDate>
+    <lastBuildDate>Tue, 24 Mar 2020 23:16:14 +0800</lastBuildDate>
 
     <item>
       <title>理解内存重排序以及为什写无锁多线程代码时很重要</title>
@@ -106,17 +106,17 @@
   &lt;/div&gt; 
   &lt;div class=&quot;listingblock&quot;&gt; 
    &lt;div class=&quot;content&quot;&gt; 
-    &lt;pre class=&quot;CodeRay highlight&quot;&gt;&lt;code data-lang=&quot;c&quot;&gt;x = &lt;span style=&quot;color:#00D&quot;&gt;0&lt;/span&gt;
-v = &lt;span style=&quot;color:#069&quot;&gt;false&lt;/span&gt;
+    &lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code class=&quot;language-c&quot; data-lang=&quot;c&quot;&gt;x = 0
+v = false
 
 thread_one():
-    &lt;span style=&quot;color:#080;font-weight:bold&quot;&gt;while&lt;/span&gt; load(v) == &lt;span style=&quot;color:#069&quot;&gt;false&lt;/span&gt;:
-        &lt;span style=&quot;color:#080;font-weight:bold&quot;&gt;continue&lt;/span&gt;
+    while load(v) == false:
+        continue
     print(load(x))
 
 thread_two():
-    store(x, &lt;span style=&quot;color:#00D&quot;&gt;1&lt;/span&gt;)
-    store(v, &lt;span style=&quot;color:#069&quot;&gt;true&lt;/span&gt;)&lt;/code&gt;&lt;/pre&gt; 
+    store(x, 1)
+    store(v, true)&lt;/code&gt;&lt;/pre&gt; 
    &lt;/div&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
@@ -197,20 +197,20 @@ thread_two():
    &lt;/div&gt; 
    &lt;div class=&quot;listingblock&quot;&gt; 
     &lt;div class=&quot;content&quot;&gt; 
-     &lt;pre class=&quot;CodeRay highlight&quot;&gt;&lt;code data-lang=&quot;c&quot;&gt;x = &lt;span style=&quot;color:#00D&quot;&gt;0&lt;/span&gt;
-y = &lt;span style=&quot;color:#00D&quot;&gt;0&lt;/span&gt;
+     &lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code class=&quot;language-c&quot; data-lang=&quot;c&quot;&gt;x = 0
+y = 0
 
 thread_A:
-    store(x, &lt;span style=&quot;color:#00D&quot;&gt;1&lt;/span&gt;)
+    store(x, 1)
 
 thread_B:
-    store(y, &lt;span style=&quot;color:#00D&quot;&gt;1&lt;/span&gt;)
+    store(y, 1)
 
 thread_C:
-    assert(load(x) == &lt;span style=&quot;color:#00D&quot;&gt;1&lt;/span&gt; &amp;amp;&amp;amp; load(y) == &lt;span style=&quot;color:#00D&quot;&gt;0&lt;/span&gt;)
+    assert(load(x) == 1 &amp;amp;&amp;amp; load(y) == 0)
 
 thread_D:
-    assert(load(x) == &lt;span style=&quot;color:#00D&quot;&gt;0&lt;/span&gt; &amp;amp;&amp;amp; load(y) == &lt;span style=&quot;color:#00D&quot;&gt;1&lt;/span&gt;)&lt;/code&gt;&lt;/pre&gt; 
+    assert(load(x) == 0 &amp;amp;&amp;amp; load(y) == 1)&lt;/code&gt;&lt;/pre&gt; 
     &lt;/div&gt; 
    &lt;/div&gt; 
    &lt;div class=&quot;paragraph&quot;&gt; 
@@ -431,8 +431,8 @@ thread_D:
   &lt;/div&gt; 
   &lt;div class=&quot;listingblock&quot;&gt; 
    &lt;div class=&quot;content&quot;&gt; 
-    &lt;pre class=&quot;CodeRay highlight&quot;&gt;&lt;code data-lang=&quot;c&quot;&gt;mutex = initialize_mutex()
-x     = &lt;span style=&quot;color:#00D&quot;&gt;0&lt;/span&gt;
+    &lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code class=&quot;language-c&quot; data-lang=&quot;c&quot;&gt;mutex = initialize_mutex()
+x     = 0
 
 reader_thread()
     mutex.lock()
@@ -453,13 +453,13 @@ writer_thread()
   &lt;/div&gt; 
   &lt;div class=&quot;listingblock&quot;&gt; 
    &lt;div class=&quot;content&quot;&gt; 
-    &lt;pre class=&quot;CodeRay highlight&quot;&gt;&lt;code data-lang=&quot;c&quot;&gt;x = &lt;span style=&quot;color:#00D&quot;&gt;0&lt;/span&gt;
+    &lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code class=&quot;language-c&quot; data-lang=&quot;c&quot;&gt;x = 0
 
 reader_thread()
     print(load(x))
 
 writer_thread()
-    fetch_and_add(x, &lt;span style=&quot;color:#00D&quot;&gt;1&lt;/span&gt;)&lt;/code&gt;&lt;/pre&gt; 
+    fetch_and_add(x, 1)&lt;/code&gt;&lt;/pre&gt; 
    &lt;/div&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
@@ -496,7 +496,7 @@ writer_thread()
    &lt;/div&gt; 
    &lt;div class=&quot;listingblock&quot;&gt; 
     &lt;div class=&quot;content&quot;&gt; 
-     &lt;pre class=&quot;CodeRay highlight&quot;&gt;&lt;code data-lang=&quot;c&quot;&gt;boolean compare_and_swap(shared_data, expected_value, new_value);&lt;/code&gt;&lt;/pre&gt; 
+     &lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code class=&quot;language-c&quot; data-lang=&quot;c&quot;&gt;boolean compare_and_swap(shared_data, expected_value, new_value);&lt;/code&gt;&lt;/pre&gt; 
     &lt;/div&gt; 
    &lt;/div&gt; 
    &lt;div class=&quot;paragraph&quot;&gt; 
@@ -510,14 +510,14 @@ writer_thread()
    &lt;/div&gt; 
    &lt;div class=&quot;listingblock&quot;&gt; 
     &lt;div class=&quot;content&quot;&gt; 
-     &lt;pre class=&quot;CodeRay highlight&quot;&gt;&lt;code data-lang=&quot;c&quot;&gt;x = &lt;span style=&quot;color:#00D&quot;&gt;0&lt;/span&gt;
+     &lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code class=&quot;language-c&quot; data-lang=&quot;c&quot;&gt;x = 0
 
 reader_thread()
     print(load(x))
 
 writer_thread()
-    temp = load(x)                              &lt;span style=&quot;color:#777&quot;&gt;// (1)&lt;/span&gt;
-    &lt;span style=&quot;color:#080;font-weight:bold&quot;&gt;while&lt;/span&gt;(!compare_and_swap(x, temp, temp + &lt;span style=&quot;color:#00D&quot;&gt;1&lt;/span&gt;)) &lt;span style=&quot;color:#777&quot;&gt;// (2)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt; 
+    temp = load(x)                              // (1)
+    while(!compare_and_swap(x, temp, temp + 1)) // (2)&lt;/code&gt;&lt;/pre&gt; 
     &lt;/div&gt; 
    &lt;/div&gt; 
    &lt;div class=&quot;paragraph&quot;&gt; 
@@ -1056,7 +1056,7 @@ writer_thread()
   &lt;/div&gt; 
   &lt;div class=&quot;listingblock&quot;&gt; 
    &lt;div class=&quot;content&quot;&gt; 
-    &lt;pre class=&quot;CodeRay highlight&quot;&gt;&lt;code data-lang=&quot;c&quot;&gt;writer_thread.start()
+    &lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code class=&quot;language-c&quot; data-lang=&quot;c&quot;&gt;writer_thread.start()
 reader_thread.start()&lt;/code&gt;&lt;/pre&gt; 
    &lt;/div&gt; 
   &lt;/div&gt; 
@@ -1330,15 +1330,15 @@ reader_thread.start()&lt;/code&gt;&lt;/pre&gt;
   &lt;/div&gt; 
   &lt;div class=&quot;listingblock&quot;&gt; 
    &lt;div class=&quot;content&quot;&gt; 
-    &lt;pre class=&quot;CodeRay highlight&quot;&gt;&lt;code data-lang=&quot;java&quot;&gt;&lt;span style=&quot;color:#777&quot;&gt;// HashMap&lt;/span&gt;
-&lt;span style=&quot;color:#0a8;font-weight:bold&quot;&gt;Map&lt;/span&gt;&amp;lt;&lt;span style=&quot;color:#0a8;font-weight:bold&quot;&gt;String&lt;/span&gt;, &lt;span style=&quot;color:#0a8;font-weight:bold&quot;&gt;String&lt;/span&gt;&amp;gt; map = &lt;span style=&quot;color:#080;font-weight:bold&quot;&gt;new&lt;/span&gt; &lt;span style=&quot;color:#0a8;font-weight:bold&quot;&gt;HashMap&lt;/span&gt;&amp;lt;&amp;gt;();
-map.put(&lt;span style=&quot;color:#069&quot;&gt;null&lt;/span&gt;, &lt;span style=&quot;color:#069&quot;&gt;null&lt;/span&gt;);
-&lt;span style=&quot;color:#080;font-weight:bold&quot;&gt;assert&lt;/span&gt;(&lt;span style=&quot;color:#00D&quot;&gt;1&lt;/span&gt; == map.size());
+    &lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code class=&quot;language-java&quot; data-lang=&quot;java&quot;&gt;// HashMap
+Map&amp;lt;String, String&amp;gt; map = new HashMap&amp;lt;&amp;gt;();
+map.put(null, null);
+assert(1 == map.size());
 
-&lt;span style=&quot;color:#777&quot;&gt;// HashSet&lt;/span&gt;
-&lt;span style=&quot;color:#0a8;font-weight:bold&quot;&gt;Set&lt;/span&gt;&amp;lt;&lt;span style=&quot;color:#0a8;font-weight:bold&quot;&gt;String&lt;/span&gt;&amp;gt; set = &lt;span style=&quot;color:#080;font-weight:bold&quot;&gt;new&lt;/span&gt; &lt;span style=&quot;color:#0a8;font-weight:bold&quot;&gt;HashSet&lt;/span&gt;&amp;lt;&amp;gt;();
-set.add(&lt;span style=&quot;color:#069&quot;&gt;null&lt;/span&gt;);
-&lt;span style=&quot;color:#080;font-weight:bold&quot;&gt;assert&lt;/span&gt;(&lt;span style=&quot;color:#00D&quot;&gt;1&lt;/span&gt; == set.size());&lt;/code&gt;&lt;/pre&gt; 
+// HashSet
+Set&amp;lt;String&amp;gt; set = new HashSet&amp;lt;&amp;gt;();
+set.add(null);
+assert(1 == set.size());&lt;/code&gt;&lt;/pre&gt; 
    &lt;/div&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
@@ -1386,7 +1386,7 @@ set.add(&lt;span style=&quot;color:#069&quot;&gt;null&lt;/span&gt;);
   &lt;/div&gt; 
   &lt;div class=&quot;listingblock&quot;&gt; 
    &lt;div class=&quot;content&quot;&gt; 
-    &lt;pre class=&quot;CodeRay highlight&quot;&gt;&lt;code data-lang=&quot;thrift&quot;&gt;service UserService{
+    &lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code class=&quot;language-thrift&quot; data-lang=&quot;thrift&quot;&gt;service UserService{
   bool checkNickname(1:string nickname);
 }&lt;/code&gt;&lt;/pre&gt; 
    &lt;/div&gt; 
@@ -1396,7 +1396,7 @@ set.add(&lt;span style=&quot;color:#069&quot;&gt;null&lt;/span&gt;);
   &lt;/div&gt; 
   &lt;div class=&quot;listingblock&quot;&gt; 
    &lt;div class=&quot;content&quot;&gt; 
-    &lt;pre class=&quot;CodeRay highlight&quot;&gt;&lt;code data-lang=&quot;thrift&quot;&gt;struct NickNameRequest {
+    &lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code class=&quot;language-thrift&quot; data-lang=&quot;thrift&quot;&gt;struct NickNameRequest {
   1: string nickname,
   2: string authUser,
 }
