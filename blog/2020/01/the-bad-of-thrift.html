@@ -7,7 +7,7 @@
     <meta name="description" content="REPLoop，在脚本编程语言中经常能看到REPL，也就是Read-Evaluate-Print-Loop，意思是读取源代码，评估执行，打印结果的循环。这个过程能够快速的学习实践然后得到结果。非常像一个学习成长的过程：输入信息，消化吸收，输出知识并用于实践，然后持之以恒的坚持。4个环节缺一不可，而且最难做到的大概是持之以恒了。">
     <meta name="author" content="georgecao">
     <meta name="keywords" content="thrift,protobuf">
-    <meta name="generator" content="JBake v2.7.0-SNAPSHOT">
+    <meta name="generator" content="JBake v2.7.0.0">
 
     <!-- Le styles -->
     <link href="../../../css/bootstrap.min.css" rel="stylesheet">
@@ -25,12 +25,11 @@
     <link rel="apple-touch-icon-precomposed" sizes="114x114" href="../assets/ico/apple-touch-icon-114-precomposed.png">
     <link rel="apple-touch-icon-precomposed" sizes="72x72" href="../assets/ico/apple-touch-icon-72-precomposed.png">
     <link rel="apple-touch-icon-precomposed" href="../assets/ico/apple-touch-icon-57-precomposed.png">-->
-    <link rel="shortcut icon" href="../../../favicon.ico">
+    <link rel="shortcut icon" href="../../../img/favicon.png">
     <script data-ad-client="ca-pub-2350040335860411" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
   </head>
   <body onload="prettyPrint()">
-    <div id="wrap">
-	
+    <div id="wrap">	
 	<!-- Fixed navbar -->
     <div class="navbar navbar-default navbar-fixed-top" role="navigation">
       <div class="container">
@@ -74,7 +73,7 @@
   </div> 
   <div class="imageblock"> 
    <div class="content"> 
-    <img src="http://reploop.org/blog/2020/01/images/Apache_Thrift_Architecture.png" alt="Thrift结构图"> 
+    <img src="http://localhost:8820/blog/2020/01/images/Apache_Thrift_Architecture.png" alt="Thrift结构图"> 
    </div> 
    <div class="title">
     Figure 1. Thrift结构图, 来自Wikipedia
@@ -93,7 +92,7 @@
   </div> 
   <div class="listingblock"> 
    <div class="content"> 
-    <pre class="prettyprint highlight"><code class="language-java" data-lang="java">// HashMap
+    <pre class="prettyprint highlight"><code data-lang="java">// HashMap
 Map&lt;String, String&gt; map = new HashMap&lt;&gt;();
 map.put(null, null);
 assert(1 == map.size());
@@ -149,7 +148,7 @@ assert(1 == set.size());</code></pre>
   </div> 
   <div class="listingblock"> 
    <div class="content"> 
-    <pre class="prettyprint highlight"><code class="language-thrift" data-lang="thrift">service UserService{
+    <pre class="prettyprint highlight"><code data-lang="thrift">service UserService{
   bool checkNickname(1:string nickname);
 }</code></pre> 
    </div> 
@@ -159,7 +158,7 @@ assert(1 == set.size());</code></pre>
   </div> 
   <div class="listingblock"> 
    <div class="content"> 
-    <pre class="prettyprint highlight"><code class="language-thrift" data-lang="thrift">struct NickNameRequest {
+    <pre class="prettyprint highlight"><code data-lang="thrift">struct NickNameRequest {
   1: string nickname,
   2: string authUser,
 }
@@ -207,7 +206,7 @@ service UserService{
     
     <div id="footer">
       <div class="container">
-        <p class="muted credit">&copy; 2020 | Mixed with <a href="http://getbootstrap.com/">Bootstrap v3.1.1</a> | Baked with <a href="http://jbake.org">JBake v2.7.0-SNAPSHOT</a></p>
+        <p class="muted credit">&copy; 2020 | Mixed with <a href="http://getbootstrap.com/">Bootstrap v3.1.1</a> | Baked with <a href="http://jbake.org">JBake v2.7.0.0</a></p>
       </div>
     </div>
     
