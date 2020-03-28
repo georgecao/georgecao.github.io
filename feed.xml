@@ -1,37 +1,37 @@
 <?xml version="1.0"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
-  <channel>
-    <title>JBake</title>
-    <link>http://localhost:8820</link>
-    <atom:link href="http://localhost:8820/feed.xml" rel="self" type="application/rss+xml" />
-    <description>JBake Bootstrap Template</description>
-    <language>en-gb</language>
-    <pubDate>Fri, 27 Mar 2020 13:18:49 +0800</pubDate>
-    <lastBuildDate>Fri, 27 Mar 2020 13:18:49 +0800</lastBuildDate>
+    <channel>
+        <title>JBake</title>
+        <link>http://reploop.org</link>
+        <atom:link href="http://reploop.org/feed.xml" rel="self" type="application/rss+xml"/>
+        <description>JBake Bootstrap Template</description>
+        <language>en-gb</language>
+        <pubDate>Sat, 28 Mar 2020 14:04:11 +0800</pubDate>
+        <lastBuildDate>Sat, 28 Mar 2020 14:04:11 +0800</lastBuildDate>
 
-    <item>
-      <title>理解内存重排序以及为什写无锁多线程代码时很重要</title>
-      <link>http://localhost:8820/blog/2020/02/understanding-memory-reordering.html</link>
-      <pubDate>Sat, 29 Feb 2020 00:00:00 +0800</pubDate>
-      <guid isPermaLink="false">blog/2020/02/understanding-memory-reordering.html</guid>
-      	<description>
-	&lt;div id=&quot;preamble&quot;&gt; 
+            <item>
+                <title>理解内存重排序以及为什写无锁多线程代码时很重要</title>
+                <link>http://reploop.org/blog/2020/02/understanding-memory-reordering.html</link>
+                <pubDate>Sat, 29 Feb 2020 00:00:00 +0800</pubDate>
+                <guid isPermaLink="false">blog/2020/02/understanding-memory-reordering.html</guid>
+                <description>
+                        &lt;div id=&quot;preamble&quot;&gt; 
  &lt;div class=&quot;sectionbody&quot;&gt; 
   &lt;div class=&quot;ulist&quot;&gt; 
    &lt;div class=&quot;title&quot;&gt;
     本系列中的其他文章
    &lt;/div&gt; 
    &lt;ul&gt; 
-    &lt;li&gt; &lt;p&gt;&lt;a href=&quot;http://localhost:8820/blog/2020/02/a-gentle-introduction-to-multithreading.html&quot;&gt;多线程简介&lt;/a&gt; - 一步一步走进并发的世界&lt;/p&gt; &lt;/li&gt; 
-    &lt;li&gt; &lt;p&gt;&lt;a href=&quot;http://localhost:8820/blog/2020/02/introduction-to-thread-synchronization.html&quot;&gt;线程同步简介&lt;/a&gt; - 多线程应用中最常见的并发控制方法之一&lt;/p&gt; &lt;/li&gt; 
-    &lt;li&gt; &lt;p&gt;&lt;a href=&quot;http://localhost:8820/blog/2020/02/lock-free-multithreading-with-atomic-operations.html&quot;&gt;用原子操作实现无锁多线程&lt;/a&gt; - 底层线程同步&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;&lt;a href=&quot;http://reploop.org/blog/2020/02/a-gentle-introduction-to-multithreading.html&quot;&gt;多线程简介&lt;/a&gt; - 一步一步走进并发的世界&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;&lt;a href=&quot;http://reploop.org/blog/2020/02/introduction-to-thread-synchronization.html&quot;&gt;线程同步简介&lt;/a&gt; - 多线程应用中最常见的并发控制方法之一&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;&lt;a href=&quot;http://reploop.org/blog/2020/02/lock-free-multithreading-with-atomic-operations.html&quot;&gt;用原子操作实现无锁多线程&lt;/a&gt; - 底层线程同步&lt;/p&gt; &lt;/li&gt; 
    &lt;/ul&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
-   &lt;p&gt;此系列前一篇文章中，&lt;a href=&quot;http://localhost:8820/blog/2020/02/lock-free-multithreading-with-atomic-operations.html&quot;&gt;用原子操作实现无锁多线程&lt;/a&gt;，我介绍了无锁多线程：并发软件中线程同步的底层机制。&lt;/p&gt; 
+   &lt;p&gt;此系列前一篇文章中，&lt;a href=&quot;http://reploop.org/blog/2020/02/lock-free-multithreading-with-atomic-operations.html&quot;&gt;用原子操作实现无锁多线程&lt;/a&gt;，我介绍了无锁多线程：并发软件中线程同步的底层机制。&lt;/p&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
-   &lt;p&gt;基于 &lt;strong&gt;原子操作&lt;/strong&gt;，也就是CPU直接执行的不能细分为更小步骤的机器指令，相比传统的同步原语如&lt;a href=&quot;http://localhost:8820/blog/2020/02/introduction-to-thread-synchronization.html&quot;&gt;互斥锁和信号量&lt;/a&gt;，无锁多线程提供了更快和更细粒度控制的同步机制。&lt;/p&gt; 
+   &lt;p&gt;基于 &lt;strong&gt;原子操作&lt;/strong&gt;，也就是CPU直接执行的不能细分为更小步骤的机器指令，相比传统的同步原语如&lt;a href=&quot;http://reploop.org/blog/2020/02/introduction-to-thread-synchronization.html&quot;&gt;互斥锁和信号量&lt;/a&gt;，无锁多线程提供了更快和更细粒度控制的同步机制。&lt;/p&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
    &lt;p&gt;一如既往的，能力越大，责任越大。无锁编码中你更接近本质，因此理解机器是如何工作的以及机器的特性是非常有益的。&lt;/p&gt; 
@@ -75,7 +75,7 @@
   &lt;/div&gt; 
   &lt;div class=&quot;imageblock&quot;&gt; 
    &lt;div class=&quot;content&quot;&gt; 
-    &lt;img src=&quot;http://localhost:8820/blog/2020/02/images/cpu-cache-main-memory.png&quot; alt=&quot;CPU&quot; width=&quot;cache and main memory&quot;&gt; 
+    &lt;img src=&quot;http://reploop.org/blog/2020/02/images/cpu-cache-main-memory.png&quot; alt=&quot;CPU&quot; width=&quot;cache and main memory&quot;&gt; 
    &lt;/div&gt; 
    &lt;div class=&quot;title&quot;&gt;
     Figure 1. 多个核心通过缓存和主内存交互的简化模型。这也叫做共享内存系统，因为主内存被多个实体访问。
@@ -137,10 +137,10 @@ thread_two():
    &lt;p&gt;这个规则也适用于多核场景下的每个单核，但不适用于不同操作同时跑在独立的硬件上的情况（ &lt;a href=&quot;https://internalpointers.com/post/gentle-introduction-multithreading#what-threads-are-used-for&quot;&gt;真并行(true parallelism)&lt;/a&gt;）。让你的线程跑在两个物理内核上，你就会碰到上面样例中的各种诡异问题，更不用说让编译器和虚拟机执行重排序了。&lt;/p&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
-   &lt;p&gt;常规的如互斥锁和信号量等&lt;a href=&quot;http://localhost:8820/blog/2020/02/introduction-to-thread-synchronization.html&quot;&gt;锁同步机制&lt;/a&gt;是设计用来处理硬件和软件层面的内存重排序的。毕竟他们是上层技术。&lt;/p&gt; 
+   &lt;p&gt;常规的如互斥锁和信号量等&lt;a href=&quot;http://reploop.org/blog/2020/02/introduction-to-thread-synchronization.html&quot;&gt;锁同步机制&lt;/a&gt;是设计用来处理硬件和软件层面的内存重排序的。毕竟他们是上层技术。&lt;/p&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
-   &lt;p&gt;不过，应用无锁方案的多线程程序更接近底层：就像&lt;a href=&quot;http://localhost:8820/blog/2020/02/lock-free-multithreading-with-atomic-operations.html&quot;&gt;上一篇文章&lt;/a&gt;看到的，它利用存储和加载原子指令来同步线程。 搞笑的是这些操作可能被重排序，从而破坏了你的严谨计划。&lt;/p&gt; 
+   &lt;p&gt;不过，应用无锁方案的多线程程序更接近底层：就像&lt;a href=&quot;http://reploop.org/blog/2020/02/lock-free-multithreading-with-atomic-operations.html&quot;&gt;上一篇文章&lt;/a&gt;看到的，它利用存储和加载原子指令来同步线程。 搞笑的是这些操作可能被重排序，从而破坏了你的严谨计划。&lt;/p&gt; 
   &lt;/div&gt; 
  &lt;/div&gt; 
 &lt;/div&gt; 
@@ -296,24 +296,24 @@ thread_D:
   &lt;/div&gt; 
  &lt;/div&gt; 
 &lt;/div&gt;
-	</description>
-    </item>
-    <item>
-      <title>用原子操作实现无锁多线程：底层线程同步</title>
-      <link>http://localhost:8820/blog/2020/02/lock-free-multithreading-with-atomic-operations.html</link>
-      <pubDate>Thu, 27 Feb 2020 00:00:00 +0800</pubDate>
-      <guid isPermaLink="false">blog/2020/02/lock-free-multithreading-with-atomic-operations.html</guid>
-      	<description>
-	&lt;div id=&quot;preamble&quot;&gt; 
+                </description>
+            </item>
+            <item>
+                <title>用原子操作实现无锁多线程：底层线程同步</title>
+                <link>http://reploop.org/blog/2020/02/lock-free-multithreading-with-atomic-operations.html</link>
+                <pubDate>Thu, 27 Feb 2020 00:00:00 +0800</pubDate>
+                <guid isPermaLink="false">blog/2020/02/lock-free-multithreading-with-atomic-operations.html</guid>
+                <description>
+                        &lt;div id=&quot;preamble&quot;&gt; 
  &lt;div class=&quot;sectionbody&quot;&gt; 
   &lt;div class=&quot;ulist&quot;&gt; 
    &lt;div class=&quot;title&quot;&gt;
     本系列中的其他文章
    &lt;/div&gt; 
    &lt;ul&gt; 
-    &lt;li&gt; &lt;p&gt;&lt;a href=&quot;http://localhost:8820/blog/2020/02/a-gentle-introduction-to-multithreading.html&quot;&gt;多线程简介&lt;/a&gt; - 一步一步走进并发的世界&lt;/p&gt; &lt;/li&gt; 
-    &lt;li&gt; &lt;p&gt;&lt;a href=&quot;http://localhost:8820/blog/2020/02/introduction-to-thread-synchronization.html&quot;&gt;线程同步简介&lt;/a&gt; - 多线程应用中最常见的并发控制方法之一&lt;/p&gt; &lt;/li&gt; 
-    &lt;li&gt; &lt;p&gt;&lt;a href=&quot;http://localhost:8820/blog/2020/02/understanding-memory-reordering.html&quot;&gt;理解内存重排序&lt;/a&gt; - 为什写无锁多线程代码时它很重要&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;&lt;a href=&quot;http://reploop.org/blog/2020/02/a-gentle-introduction-to-multithreading.html&quot;&gt;多线程简介&lt;/a&gt; - 一步一步走进并发的世界&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;&lt;a href=&quot;http://reploop.org/blog/2020/02/introduction-to-thread-synchronization.html&quot;&gt;线程同步简介&lt;/a&gt; - 多线程应用中最常见的并发控制方法之一&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;&lt;a href=&quot;http://reploop.org/blog/2020/02/understanding-memory-reordering.html&quot;&gt;理解内存重排序&lt;/a&gt; - 为什写无锁多线程代码时它很重要&lt;/p&gt; &lt;/li&gt; 
    &lt;/ul&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
@@ -323,10 +323,10 @@ thread_D:
    &lt;p&gt;&quot;atom&quot;在希腊语中拾不可再分割的意思。在计算机中一个任务被称为原子的是指他不能再细分了：它不能再拆分为更小的执行步骤了。&lt;/p&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
-   &lt;p&gt;&lt;em&gt;原子性&lt;/em&gt; 是多线程操作的一个重要特征：因为原子操作是不可在细分的，所以一个线程是不可能干扰另一个正在并发执行原子操作的线程的。例如，当一个线程原子写入共享数据，其他线程是没有办法读取到未完成的数据。相反的，当一个线程原子读取共享数据，这个数据就像是单个时间点上的数据。换句话说，就是没有&lt;a href=&quot;http://localhost:8820/blog/2020/02/a-gentle-introduction-to-multithreading.html&quot;&gt;数据竞争&lt;/a&gt;的风险。&lt;/p&gt; 
+   &lt;p&gt;&lt;em&gt;原子性&lt;/em&gt; 是多线程操作的一个重要特征：因为原子操作是不可在细分的，所以一个线程是不可能干扰另一个正在并发执行原子操作的线程的。例如，当一个线程原子写入共享数据，其他线程是没有办法读取到未完成的数据。相反的，当一个线程原子读取共享数据，这个数据就像是单个时间点上的数据。换句话说，就是没有&lt;a href=&quot;http://reploop.org/blog/2020/02/a-gentle-introduction-to-multithreading.html&quot;&gt;数据竞争&lt;/a&gt;的风险。&lt;/p&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
-   &lt;p&gt;在&lt;a href=&quot;http://localhost:8820/blog/2020/02/introduction-to-thread-synchronization.html&quot;&gt;上一篇文章&lt;/a&gt;中，我介绍了所谓的 &lt;strong&gt;同步原语&lt;/strong&gt;，也就是最常用的线程同步工具。他们是用来为多线程间处理共享数据的操作提供原子性的。怎么做到的呢？其实就是直接让单个线程执行并发任务，同时操作系统阻塞了其他线程直到第一个线程完成它的工作。这么做的原因是一个被阻塞的线程对其他线程是无害的。考虑到阻塞线程的能力，同步原语也称为 &lt;strong&gt;阻塞机制&lt;/strong&gt;。&lt;/p&gt; 
+   &lt;p&gt;在&lt;a href=&quot;http://reploop.org/blog/2020/02/introduction-to-thread-synchronization.html&quot;&gt;上一篇文章&lt;/a&gt;中，我介绍了所谓的 &lt;strong&gt;同步原语&lt;/strong&gt;，也就是最常用的线程同步工具。他们是用来为多线程间处理共享数据的操作提供原子性的。怎么做到的呢？其实就是直接让单个线程执行并发任务，同时操作系统阻塞了其他线程直到第一个线程完成它的工作。这么做的原因是一个被阻塞的线程对其他线程是无害的。考虑到阻塞线程的能力，同步原语也称为 &lt;strong&gt;阻塞机制&lt;/strong&gt;。&lt;/p&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
    &lt;p&gt;上一篇文章中的任意一种阻塞机制对大多数应用来说能够很好的工作。如果能够正确的使用，他们也是快速的和可靠的。尽管如此，他们还是有一些你可能需要考虑的缺点：&lt;/p&gt; 
@@ -365,7 +365,7 @@ thread_D:
   &lt;/div&gt; 
   &lt;div class=&quot;imageblock&quot;&gt; 
    &lt;div class=&quot;content&quot;&gt; 
-    &lt;img src=&quot;http://localhost:8820/blog/2020/02/images/software-hardware-layers.png&quot; alt=&quot;Software - hardware layers&quot;&gt; 
+    &lt;img src=&quot;http://reploop.org/blog/2020/02/images/software-hardware-layers.png&quot; alt=&quot;Software - hardware layers&quot;&gt; 
    &lt;/div&gt; 
    &lt;div class=&quot;title&quot;&gt;
     Figure 1. 计算机程序的不同层次。虚线代表软件层次，实线代表硬件层次。
@@ -412,7 +412,7 @@ thread_D:
   &lt;/div&gt; 
   &lt;div class=&quot;imageblock&quot;&gt; 
    &lt;div class=&quot;content&quot;&gt; 
-    &lt;img src=&quot;http://localhost:8820/blog/2020/02/images/atomics-levels.png&quot; alt=&quot;Three levels of atomic instructions&quot;&gt; 
+    &lt;img src=&quot;http://reploop.org/blog/2020/02/images/atomics-levels.png&quot; alt=&quot;Three levels of atomic instructions&quot;&gt; 
    &lt;/div&gt; 
    &lt;div class=&quot;title&quot;&gt;
     Figure 2. 原子指令和操作的层级。虚线代表软件层次，实线代表硬件层次。
@@ -580,7 +580,7 @@ writer_thread()
   &lt;/div&gt; 
   &lt;div class=&quot;imageblock&quot;&gt; 
    &lt;div class=&quot;content&quot;&gt; 
-    &lt;img src=&quot;http://localhost:8820/blog/2020/02/images/lock-free-wait-free.png&quot; alt=&quot;Lock-free&quot; width=&quot;wait-free&quot;&gt; 
+    &lt;img src=&quot;http://reploop.org/blog/2020/02/images/lock-free-wait-free.png&quot; alt=&quot;Lock-free&quot; width=&quot;wait-free&quot;&gt; 
    &lt;/div&gt; 
    &lt;div class=&quot;title&quot;&gt;
     Figure 3. 无等待算法是无锁算法的子集
@@ -634,31 +634,31 @@ writer_thread()
   &lt;/div&gt; 
  &lt;/div&gt; 
 &lt;/div&gt;
-	</description>
-    </item>
-    <item>
-      <title>线程同步: 多线程应用中最常见的并发控制方法之一</title>
-      <link>http://localhost:8820/blog/2020/02/introduction-to-thread-synchronization.html</link>
-      <pubDate>Sun, 23 Feb 2020 00:00:00 +0800</pubDate>
-      <guid isPermaLink="false">blog/2020/02/introduction-to-thread-synchronization.html</guid>
-      	<description>
-	&lt;div id=&quot;preamble&quot;&gt; 
+                </description>
+            </item>
+            <item>
+                <title>线程同步: 多线程应用中最常见的并发控制方法之一</title>
+                <link>http://reploop.org/blog/2020/02/introduction-to-thread-synchronization.html</link>
+                <pubDate>Sun, 23 Feb 2020 00:00:00 +0800</pubDate>
+                <guid isPermaLink="false">blog/2020/02/introduction-to-thread-synchronization.html</guid>
+                <description>
+                        &lt;div id=&quot;preamble&quot;&gt; 
  &lt;div class=&quot;sectionbody&quot;&gt; 
   &lt;div class=&quot;ulist&quot;&gt; 
    &lt;div class=&quot;title&quot;&gt;
     本系列中的其他文章
    &lt;/div&gt; 
    &lt;ul&gt; 
-    &lt;li&gt; &lt;p&gt;&lt;a href=&quot;http://localhost:8820/blog/2020/02/a-gentle-introduction-to-multithreading.html&quot;&gt;多线程简介&lt;/a&gt; - 一步一步走进并发的世界&lt;/p&gt; &lt;/li&gt; 
-    &lt;li&gt; &lt;p&gt;&lt;a href=&quot;http://localhost:8820/blog/2020/02/lock-free-multithreading-with-atomic-operations.html&quot;&gt;用原子操作实现无锁多线程&lt;/a&gt; - 底层线程同步&lt;/p&gt; &lt;/li&gt; 
-    &lt;li&gt; &lt;p&gt;&lt;a href=&quot;http://localhost:8820/blog/2020/02/understanding-memory-reordering.html&quot;&gt;理解内存重排序&lt;/a&gt; - 为什写无锁多线程代码时它很重要&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;&lt;a href=&quot;http://reploop.org/blog/2020/02/a-gentle-introduction-to-multithreading.html&quot;&gt;多线程简介&lt;/a&gt; - 一步一步走进并发的世界&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;&lt;a href=&quot;http://reploop.org/blog/2020/02/lock-free-multithreading-with-atomic-operations.html&quot;&gt;用原子操作实现无锁多线程&lt;/a&gt; - 底层线程同步&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;&lt;a href=&quot;http://reploop.org/blog/2020/02/understanding-memory-reordering.html&quot;&gt;理解内存重排序&lt;/a&gt; - 为什写无锁多线程代码时它很重要&lt;/p&gt; &lt;/li&gt; 
    &lt;/ul&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
    &lt;p&gt;本文讨论的是多线程应用中最常见的并发控制方法之一。&lt;/p&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
-   &lt;p&gt;就像我&lt;a href=&quot;http://localhost:8820/blog/2020/02/a-gentle-introduction-to-multithreading.html&quot;&gt;前一篇文章&lt;/a&gt;所阐述的，开发并发代码需要技巧的。 会遇到两个大问题：数据竞争，当一个写线程在修改内存数据的同时一个读线程正在从中读取数据和竞争条件，当2个或以上的线程以不可预知的顺序执行任务的时候会发生。幸运的是我们有一些办法来避免这类错误：这篇文章我们就来看一个最常用的办法：&lt;strong&gt;同步(synchronization)&lt;/strong&gt;。&lt;/p&gt; 
+   &lt;p&gt;就像我&lt;a href=&quot;http://reploop.org/blog/2020/02/a-gentle-introduction-to-multithreading.html&quot;&gt;前一篇文章&lt;/a&gt;所阐述的，开发并发代码需要技巧的。 会遇到两个大问题：数据竞争，当一个写线程在修改内存数据的同时一个读线程正在从中读取数据和竞争条件，当2个或以上的线程以不可预知的顺序执行任务的时候会发生。幸运的是我们有一些办法来避免这类错误：这篇文章我们就来看一个最常用的办法：&lt;strong&gt;同步(synchronization)&lt;/strong&gt;。&lt;/p&gt; 
   &lt;/div&gt; 
  &lt;/div&gt; 
 &lt;/div&gt; 
@@ -670,7 +670,7 @@ writer_thread()
   &lt;/div&gt; 
   &lt;div class=&quot;olist arabic&quot;&gt; 
    &lt;ol class=&quot;arabic&quot;&gt; 
-    &lt;li&gt; &lt;p&gt;&lt;strong&gt;原子性&lt;/strong&gt; - 如果你的代码包含多个线程操作共享数据的指令，不受控制的并发访问共享数据可触发数据竞争。包含此类指令的代码块称为关键区块。你要确保关键区块要原子执行：如前文所定义的，一个&lt;a href=&quot;http://localhost:8820/blog/2020/02/a-gentle-introduction-to-multithreading.html&quot;&gt;原子操作&lt;/a&gt;不能在细分为更小的操作了，因此当一个线程在执行原子代码块的时候，就不会受到其他线程的干扰；&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;&lt;strong&gt;原子性&lt;/strong&gt; - 如果你的代码包含多个线程操作共享数据的指令，不受控制的并发访问共享数据可触发数据竞争。包含此类指令的代码块称为关键区块。你要确保关键区块要原子执行：如前文所定义的，一个&lt;a href=&quot;http://reploop.org/blog/2020/02/a-gentle-introduction-to-multithreading.html&quot;&gt;原子操作&lt;/a&gt;不能在细分为更小的操作了，因此当一个线程在执行原子代码块的时候，就不会受到其他线程的干扰；&lt;/p&gt; &lt;/li&gt; 
     &lt;li&gt; &lt;p&gt;&lt;strong&gt;有序性&lt;/strong&gt; - 有时候你需要2个或以上的线程按照可预测的顺序执行任务，或者限制访问某个资源的线程数。正常情况下你是不能控制这个的，这也可能是竞争条件发生的根本原因。有了同步之后，你就可以根据计划来编排多个线程的执行了。&lt;/p&gt; &lt;/li&gt; 
    &lt;/ol&gt; 
   &lt;/div&gt; 
@@ -828,7 +828,7 @@ writer_thread()
  &lt;h2 id=&quot;下一步&quot;&gt;下一步&lt;/h2&gt; 
  &lt;div class=&quot;sectionbody&quot;&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
-   &lt;p&gt;这些同步问题被研究很多年了，也有很多技术和架构方面的解决方法。严谨的设计和一些实际经验能很大程度上预防问题的发生。鉴于多线程程序的&lt;a href=&quot;http://localhost:8820/blog/2020/02/a-gentle-introduction-to-multithreading.html&quot;&gt;不确定性&lt;/a&gt;(非常难的)性质，也有人开发出来在并发代码中检测错误和潜在缺陷的有趣工具。就像 &lt;a href=&quot;https://github.com/google/sanitizers/wiki/ThreadSanitizerCppManual&quot;&gt;Google的TSan&lt;/a&gt;或者 &lt;a href=&quot;http://valgrind.org/docs/manual/hg-manual.html&quot;&gt;Helgrind&lt;/a&gt;一样。&lt;/p&gt; 
+   &lt;p&gt;这些同步问题被研究很多年了，也有很多技术和架构方面的解决方法。严谨的设计和一些实际经验能很大程度上预防问题的发生。鉴于多线程程序的&lt;a href=&quot;http://reploop.org/blog/2020/02/a-gentle-introduction-to-multithreading.html&quot;&gt;不确定性&lt;/a&gt;(非常难的)性质，也有人开发出来在并发代码中检测错误和潜在缺陷的有趣工具。就像 &lt;a href=&quot;https://github.com/google/sanitizers/wiki/ThreadSanitizerCppManual&quot;&gt;Google的TSan&lt;/a&gt;或者 &lt;a href=&quot;http://valgrind.org/docs/manual/hg-manual.html&quot;&gt;Helgrind&lt;/a&gt;一样。&lt;/p&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
    &lt;p&gt;尽管如此，有时候你可能在多线程应用中采用不同的方法，完全去掉阻塞机制。这意味着进入 &lt;strong&gt;非阻塞&lt;/strong&gt; 领域：这是一个非常底层的领域，线程不会被操作系统休眠，并发是通过 &lt;strong&gt;原子操作&lt;/strong&gt; 和 &lt;strong&gt;无锁数据结构&lt;/strong&gt; 规范的。这是一个充满挑战的领域，并不总是有必要，但是它能够加速你的软件或者对他造成严重的破坏。不过这是下一篇文章的内容。&lt;/p&gt; 
@@ -873,24 +873,24 @@ writer_thread()
   &lt;/div&gt; 
  &lt;/div&gt; 
 &lt;/div&gt;
-	</description>
-    </item>
-    <item>
-      <title>多线程简介: 一步一步走进并发的世界</title>
-      <link>http://localhost:8820/blog/2020/02/a-gentle-introduction-to-multithreading.html</link>
-      <pubDate>Thu, 20 Feb 2020 00:00:00 +0800</pubDate>
-      <guid isPermaLink="false">blog/2020/02/a-gentle-introduction-to-multithreading.html</guid>
-      	<description>
-	&lt;div id=&quot;preamble&quot;&gt; 
+                </description>
+            </item>
+            <item>
+                <title>多线程简介: 一步一步走进并发的世界</title>
+                <link>http://reploop.org/blog/2020/02/a-gentle-introduction-to-multithreading.html</link>
+                <pubDate>Thu, 20 Feb 2020 00:00:00 +0800</pubDate>
+                <guid isPermaLink="false">blog/2020/02/a-gentle-introduction-to-multithreading.html</guid>
+                <description>
+                        &lt;div id=&quot;preamble&quot;&gt; 
  &lt;div class=&quot;sectionbody&quot;&gt; 
   &lt;div class=&quot;ulist&quot;&gt; 
    &lt;div class=&quot;title&quot;&gt;
     本系列中的其他文章
    &lt;/div&gt; 
    &lt;ul&gt; 
-    &lt;li&gt; &lt;p&gt;&lt;a href=&quot;http://localhost:8820/blog/2020/02/introduction-to-thread-synchronization.html&quot;&gt;线程同步简介&lt;/a&gt; - 多线程应用中最常见的并发控制方法之一&lt;/p&gt; &lt;/li&gt; 
-    &lt;li&gt; &lt;p&gt;&lt;a href=&quot;http://localhost:8820/blog/2020/02/lock-free-multithreading-with-atomic-operations.html&quot;&gt;用原子操作实现无锁多线程&lt;/a&gt; - 底层线程同步&lt;/p&gt; &lt;/li&gt; 
-    &lt;li&gt; &lt;p&gt;&lt;a href=&quot;http://localhost:8820/blog/2020/02/understanding-memory-reordering.html&quot;&gt;理解内存重排序&lt;/a&gt; - 为什写无锁多线程代码时它很重要&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;&lt;a href=&quot;http://reploop.org/blog/2020/02/introduction-to-thread-synchronization.html&quot;&gt;线程同步简介&lt;/a&gt; - 多线程应用中最常见的并发控制方法之一&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;&lt;a href=&quot;http://reploop.org/blog/2020/02/lock-free-multithreading-with-atomic-operations.html&quot;&gt;用原子操作实现无锁多线程&lt;/a&gt; - 底层线程同步&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;&lt;a href=&quot;http://reploop.org/blog/2020/02/understanding-memory-reordering.html&quot;&gt;理解内存重排序&lt;/a&gt; - 为什写无锁多线程代码时它很重要&lt;/p&gt; &lt;/li&gt; 
    &lt;/ul&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
@@ -918,7 +918,7 @@ writer_thread()
   &lt;/div&gt; 
   &lt;div class=&quot;imageblock&quot;&gt; 
    &lt;div class=&quot;content&quot;&gt; 
-    &lt;img src=&quot;http://localhost:8820/blog/2020/02/images/processes-threads.png&quot; alt=&quot;Processes vs Threads&quot;&gt; 
+    &lt;img src=&quot;http://reploop.org/blog/2020/02/images/processes-threads.png&quot; alt=&quot;Processes vs Threads&quot;&gt; 
    &lt;/div&gt; 
    &lt;div class=&quot;title&quot;&gt;
     Figure 1. 操作系统可看作高包含多个进程的盒子，而进程则是包含了至少一个线程的盒子
@@ -971,7 +971,7 @@ writer_thread()
   &lt;/div&gt; 
   &lt;div class=&quot;imageblock&quot;&gt; 
    &lt;div class=&quot;content&quot;&gt; 
-    &lt;img src=&quot;http://localhost:8820/blog/2020/02/images/concurrency-parallelism.png&quot; alt=&quot;Concurrency vs Parallelism&quot;&gt; 
+    &lt;img src=&quot;http://reploop.org/blog/2020/02/images/concurrency-parallelism.png&quot; alt=&quot;Concurrency vs Parallelism&quot;&gt; 
    &lt;/div&gt; 
    &lt;div class=&quot;title&quot;&gt;
     Figure 2. 并行是并发的子集。
@@ -1118,15 +1118,15 @@ reader_thread.start()&lt;/code&gt;&lt;/pre&gt;
   &lt;/div&gt; 
  &lt;/div&gt; 
 &lt;/div&gt;
-	</description>
-    </item>
-    <item>
-      <title>“程序员”的成长之路</title>
-      <link>http://localhost:8820/blog/2020/01/share.html</link>
-      <pubDate>Wed, 29 Jan 2020 00:00:00 +0800</pubDate>
-      <guid isPermaLink="false">blog/2020/01/share.html</guid>
-      	<description>
-	&lt;div id=&quot;preamble&quot;&gt; 
+                </description>
+            </item>
+            <item>
+                <title>“程序员”的成长之路</title>
+                <link>http://reploop.org/blog/2020/01/share.html</link>
+                <pubDate>Wed, 29 Jan 2020 00:00:00 +0800</pubDate>
+                <guid isPermaLink="false">blog/2020/01/share.html</guid>
+                <description>
+                        &lt;div id=&quot;preamble&quot;&gt; 
  &lt;div class=&quot;sectionbody&quot;&gt; 
   &lt;div class=&quot;quoteblock abstract&quot;&gt; 
    &lt;blockquote&gt;
@@ -1213,15 +1213,15 @@ reader_thread.start()&lt;/code&gt;&lt;/pre&gt;
   &lt;/div&gt; 
  &lt;/div&gt; 
 &lt;/div&gt;
-	</description>
-    </item>
-    <item>
-      <title>香港开户经历</title>
-      <link>http://localhost:8820/blog/2020/01/bank-account-in-hk.html</link>
-      <pubDate>Sun, 6 May 2018 00:00:00 +0800</pubDate>
-      <guid isPermaLink="false">blog/2020/01/bank-account-in-hk.html</guid>
-      	<description>
-	&lt;div id=&quot;preamble&quot;&gt; 
+                </description>
+            </item>
+            <item>
+                <title>香港开户经历</title>
+                <link>http://reploop.org/blog/2020/01/bank-account-in-hk.html</link>
+                <pubDate>Sun, 6 May 2018 00:00:00 +0800</pubDate>
+                <guid isPermaLink="false">blog/2020/01/bank-account-in-hk.html</guid>
+                <description>
+                        &lt;div id=&quot;preamble&quot;&gt; 
  &lt;div class=&quot;sectionbody&quot;&gt; 
   &lt;div class=&quot;quoteblock abstract&quot;&gt; 
    &lt;blockquote&gt;
@@ -1291,15 +1291,15 @@ reader_thread.start()&lt;/code&gt;&lt;/pre&gt;
   &lt;/div&gt; 
  &lt;/div&gt; 
 &lt;/div&gt;
-	</description>
-    </item>
-    <item>
-      <title>Thrift的坑</title>
-      <link>http://localhost:8820/blog/2020/01/the-bad-of-thrift.html</link>
-      <pubDate>Sat, 3 Jun 2017 00:00:00 +0800</pubDate>
-      <guid isPermaLink="false">blog/2020/01/the-bad-of-thrift.html</guid>
-      	<description>
-	&lt;div id=&quot;preamble&quot;&gt; 
+                </description>
+            </item>
+            <item>
+                <title>Thrift的坑</title>
+                <link>http://reploop.org/blog/2020/01/the-bad-of-thrift.html</link>
+                <pubDate>Sat, 3 Jun 2017 00:00:00 +0800</pubDate>
+                <guid isPermaLink="false">blog/2020/01/the-bad-of-thrift.html</guid>
+                <description>
+                        &lt;div id=&quot;preamble&quot;&gt; 
  &lt;div class=&quot;sectionbody&quot;&gt; 
   &lt;div class=&quot;quoteblock abstract&quot;&gt; 
    &lt;blockquote&gt;
@@ -1311,7 +1311,7 @@ reader_thread.start()&lt;/code&gt;&lt;/pre&gt;
   &lt;/div&gt; 
   &lt;div class=&quot;imageblock&quot;&gt; 
    &lt;div class=&quot;content&quot;&gt; 
-    &lt;img src=&quot;http://localhost:8820/blog/2020/01/images/Apache_Thrift_Architecture.png&quot; alt=&quot;Thrift结构图&quot;&gt; 
+    &lt;img src=&quot;http://reploop.org/blog/2020/01/images/Apache_Thrift_Architecture.png&quot; alt=&quot;Thrift结构图&quot;&gt; 
    &lt;/div&gt; 
    &lt;div class=&quot;title&quot;&gt;
     Figure 1. Thrift结构图, 来自Wikipedia
@@ -1435,8 +1435,8 @@ service UserService{
   &lt;/div&gt; 
  &lt;/div&gt; 
 &lt;/div&gt;
-	</description>
-    </item>
+                </description>
+            </item>
 
-  </channel> 
+    </channel>
 </rss>
