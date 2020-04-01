@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="REPLoop，在脚本编程语言中经常能看到REPL，也就是Read-Evaluate-Print-Loop，意思是读取源代码，评估执行，打印结果的循环。这个过程能够快速的学习实践然后得到结果。非常像一个学习成长的过程：输入信息，消化吸收，输出知识并用于实践，然后持之以恒的坚持。4个环节缺一不可，而且最难做到的大概是持之以恒了。">
     <meta name="author" content="georgecao">
-    <meta name="keywords" content="REPLoop,JBake,Theme,进程,线程">
+    <meta name="keywords" content="REPLoop,JBake,主题,Asciidoctor,Pandoc">
     <meta name="generator" content="JBake v2.7.0.0">
 
     <!-- Le styles -->
@@ -57,20 +57,38 @@
 			<h1>REPLoop使用到的工具链</h1>
 		</div>
 
-	<p><em>2020年02月20日</em>
+	<p><em>2020年03月22日</em>
 				<span class="badge badge-dark">REPLoop</span>
 				<span class="badge badge-dark">JBake</span>
-				<span class="badge badge-dark">Theme</span>
-				<span class="badge badge-dark">进程</span>
-				<span class="badge badge-dark">线程</span>
+				<span class="badge badge-dark">主题</span>
+				<span class="badge badge-dark">Asciidoctor</span>
+				<span class="badge badge-dark">Pandoc</span>
 	</p>
-	<p><div class="sect1"> 
- <h2 id="jbake">JBake</h2> 
+	<p><div id="preamble"> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>从Github Pages开始，静态资源建站开始流行起来了。如果你仅仅是想写点东西，那这就完全够用了。所以现在弄个小站，根本不需要服务器(如Linux)，数据库(如MySQL)，应用程序(比如Tomcat，Apache，Nginx等)，编程语言(如JSP，PHP，SpringMVC等)等等统统都可以不需要学，也不需要会。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>LAMP vs SSM</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>云时代对小不点的企业或者个人来说啥都可以找到云解决方案，比如给网站加个评论那就用 <a href="https://disqus.com/">DISQUS</a>，想有个统计那就用 <a href="https://analytics.google.com/analytics/web/">Google Analytics</a>，想上个CDN加速那就用 <a href="https://www.cloudflare.com/">Cloudflare</a>，域名也可以不用操心，就用Github Pages的，有自己域名的也可以用。HTTPS证书也有免费的 <a href="https://letsencrypt.org/">Let’s Encrypt</a>。只要搭好架子，剩下的就是使用熟悉的格式如 <a href="https://www.markdownguide.org/">Markdown</a>或者 <a href="https://asciidoctor.org/">Asciidoctor</a>等开始写就可以了。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="github_pages">Github Pages</h2> 
  <div class="sectionbody"> 
  </div> 
 </div> 
 <div class="sect1"> 
- <h2 id="问题">问题</h2> 
+ <h2 id="静态网站生成">静态网站生成</h2> 
+ <div class="sectionbody"> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="asciidoctor">Asciidoctor</h2> 
  <div class="sectionbody"> 
  </div> 
 </div> 
@@ -79,6 +97,54 @@
  <div class="sectionbody"> 
   <div class="paragraph"> 
    <p><a href="https://themes.asciidoctor.org/preview/" class="bare">https://themes.asciidoctor.org/preview/</a></p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="图片资源">图片资源</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>TBD</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="草稿箱">草稿箱</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p><a href="https://www.vogella.com/tutorials/AsciiDoc/article.html#install-the-asciidoctor-toolchain" class="bare">https://www.vogella.com/tutorials/AsciiDoc/article.html#install-the-asciidoctor-toolchain</a></p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="jbake">JBake</h2> 
+ <div class="sectionbody"> 
+  <div class="sect2"> 
+   <h3 id="本地测试">本地测试</h3> 
+   <div class="paragraph"> 
+    <p>执行以下命令，并启动本地Jetty服务器，方便在浏览器中预览。</p> 
+   </div> 
+   <div class="listingblock"> 
+    <div class="content"> 
+     <pre class="prettyprint highlight"><code data-lang="bash">jbake -b -s</code></pre> 
+    </div> 
+   </div> 
+   <div class="paragraph"> 
+    <p>但是发布的时候不要 <code>-s</code> 选项， 否则生成的feed.xml文件中的链接地址就会变成 <code><a href="http://localhost:8820/" class="bare">http://localhost:8820/</a></code>。</p> 
+   </div> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="pandoc">pandoc</h2> 
+ <div class="sectionbody"> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="code_hi">code hi</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p><a href="https://github.com/asciidoctor/asciidoctor.org/blob/master/docs/_includes/src-highlightjs.adoc" class="bare">https://github.com/asciidoctor/asciidoctor.org/blob/master/docs/_includes/src-highlightjs.adoc</a> <a href="https://github.com/asciidoctor/asciidoctor/blob/master/lib/asciidoctor/syntax_highlighter/highlightjs.rb" class="bare">https://github.com/asciidoctor/asciidoctor/blob/master/lib/asciidoctor/syntax_highlighter/highlightjs.rb</a></p> 
   </div> 
  </div> 
 </div></p>
