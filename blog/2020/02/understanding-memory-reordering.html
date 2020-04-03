@@ -5,9 +5,9 @@
     <title>理解内存重排序以及为什写无锁多线程代码时很重要</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="REPLoop，在脚本编程语言中经常能看到REPL，也就是Read-Evaluate-Print-Loop，意思是读取源代码，评估执行，打印结果的循环。这个过程能够快速的学习实践然后得到结果。非常像一个学习成长的过程：输入信息，消化吸收，输出知识并用于实践，然后持之以恒的坚持。4个环节缺一不可，而且最难做到的大概是持之以恒了。">
-    <meta name="author" content="georgecao">
+    <meta name="author" content="George Cao">
     <meta name="keywords" content="内存模型,多线程,原子性,多线程,内存重排序">
-    <meta name="generator" content="JBake v2.7.0.0">
+    <meta name="generator" content="JBake v2.7.0.1">
 
     <!-- Le styles -->
     <link href="../../../css/bootstrap.min.css" rel="stylesheet">
@@ -26,6 +26,7 @@
     <link rel="apple-touch-icon-precomposed" sizes="72x72" href="../assets/ico/apple-touch-icon-72-precomposed.png">
     <link rel="apple-touch-icon-precomposed" href="../assets/ico/apple-touch-icon-57-precomposed.png">-->
     <link rel="shortcut icon" href="../../../img/favicon.png">
+      <link rel="canonical" href="https://reploop.org/blog/2020/02/understanding-memory-reordering.html" />
     <script data-ad-client="ca-pub-2350040335860411" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
   </head>
   <body onload="prettyPrint()">
@@ -57,7 +58,7 @@
 			<h1>理解内存重排序以及为什写无锁多线程代码时很重要</h1>
 		</div>
 
-	<p><em>2020年02月29日</em>
+<p><a href="/about.html"><strong>George Cao</strong></a>于2020年02月29日
 				<span class="badge badge-dark">内存模型</span>
 				<span class="badge badge-dark">多线程</span>
 				<span class="badge badge-dark">原子性</span>
@@ -71,16 +72,16 @@
     本系列中的其他文章
    </div> 
    <ul> 
-    <li> <p><a href="http://reploop.org/blog/2020/02/a-gentle-introduction-to-multithreading.html">多线程简介</a> - 一步一步走进并发的世界</p> </li> 
-    <li> <p><a href="http://reploop.org/blog/2020/02/introduction-to-thread-synchronization.html">线程同步简介</a> - 多线程应用中最常见的并发控制方法之一</p> </li> 
-    <li> <p><a href="http://reploop.org/blog/2020/02/lock-free-multithreading-with-atomic-operations.html">用原子操作实现无锁多线程</a> - 底层线程同步</p> </li> 
+    <li> <p><a href="https://reploop.org/blog/2020/02/a-gentle-introduction-to-multithreading.html">多线程简介</a> - 一步一步走进并发的世界</p> </li> 
+    <li> <p><a href="https://reploop.org/blog/2020/02/introduction-to-thread-synchronization.html">线程同步简介</a> - 多线程应用中最常见的并发控制方法之一</p> </li> 
+    <li> <p><a href="https://reploop.org/blog/2020/02/lock-free-multithreading-with-atomic-operations.html">用原子操作实现无锁多线程</a> - 底层线程同步</p> </li> 
    </ul> 
   </div> 
   <div class="paragraph"> 
-   <p>此系列前一篇文章中，<a href="http://reploop.org/blog/2020/02/lock-free-multithreading-with-atomic-operations.html">用原子操作实现无锁多线程</a>，我介绍了无锁多线程：并发软件中线程同步的底层机制。</p> 
+   <p>此系列前一篇文章中，<a href="https://reploop.org/blog/2020/02/lock-free-multithreading-with-atomic-operations.html">用原子操作实现无锁多线程</a>，我介绍了无锁多线程：并发软件中线程同步的底层机制。</p> 
   </div> 
   <div class="paragraph"> 
-   <p>基于 <strong>原子操作</strong>，也就是CPU直接执行的不能细分为更小步骤的机器指令，相比传统的同步原语如<a href="http://reploop.org/blog/2020/02/introduction-to-thread-synchronization.html">互斥锁和信号量</a>，无锁多线程提供了更快和更细粒度控制的同步机制。</p> 
+   <p>基于 <strong>原子操作</strong>，也就是CPU直接执行的不能细分为更小步骤的机器指令，相比传统的同步原语如<a href="https://reploop.org/blog/2020/02/introduction-to-thread-synchronization.html">互斥锁和信号量</a>，无锁多线程提供了更快和更细粒度控制的同步机制。</p> 
   </div> 
   <div class="paragraph"> 
    <p>一如既往的，能力越大，责任越大。无锁编码中你更接近本质，因此理解机器是如何工作的以及机器的特性是非常有益的。</p> 
@@ -124,7 +125,7 @@
   </div> 
   <div class="imageblock"> 
    <div class="content"> 
-    <img src="http://reploop.org/blog/2020/02/images/cpu-cache-main-memory.png" alt="CPU" width="cache and main memory"> 
+    <img src="https://reploop.org/blog/2020/02/images/cpu-cache-main-memory.png" alt="CPU" width="cache and main memory"> 
    </div> 
    <div class="title">
     Figure 1. 多个核心通过缓存和主内存交互的简化模型。这也叫做共享内存系统，因为主内存被多个实体访问。
@@ -186,10 +187,10 @@ thread_two():
    <p>这个规则也适用于多核场景下的每个单核，但不适用于不同操作同时跑在独立的硬件上的情况（ <a href="https://internalpointers.com/post/gentle-introduction-multithreading#what-threads-are-used-for">真并行(true parallelism)</a>）。让你的线程跑在两个物理内核上，你就会碰到上面样例中的各种诡异问题，更不用说让编译器和虚拟机执行重排序了。</p> 
   </div> 
   <div class="paragraph"> 
-   <p>常规的如互斥锁和信号量等<a href="http://reploop.org/blog/2020/02/introduction-to-thread-synchronization.html">锁同步机制</a>是设计用来处理硬件和软件层面的内存重排序的。毕竟他们是上层技术。</p> 
+   <p>常规的如互斥锁和信号量等<a href="https://reploop.org/blog/2020/02/introduction-to-thread-synchronization.html">锁同步机制</a>是设计用来处理硬件和软件层面的内存重排序的。毕竟他们是上层技术。</p> 
   </div> 
   <div class="paragraph"> 
-   <p>不过，应用无锁方案的多线程程序更接近底层：就像<a href="http://reploop.org/blog/2020/02/lock-free-multithreading-with-atomic-operations.html">上一篇文章</a>看到的，它利用存储和加载原子指令来同步线程。 搞笑的是这些操作可能被重排序，从而破坏了你的严谨计划。</p> 
+   <p>不过，应用无锁方案的多线程程序更接近底层：就像<a href="https://reploop.org/blog/2020/02/lock-free-multithreading-with-atomic-operations.html">上一篇文章</a>看到的，它利用存储和加载原子指令来同步线程。 搞笑的是这些操作可能被重排序，从而破坏了你的严谨计划。</p> 
   </div> 
  </div> 
 </div> 
@@ -347,14 +348,32 @@ thread_D:
 </div></p>
 
 	<hr />
-	
+<div id="disqus_thread"></div>
+<script>
+
+    /**
+     *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+     *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
+    var disqus_config = function () {
+        this.page.url = "https://reploop.org/blog/2020/02/understanding-memory-reordering.html";  // Replace PAGE_URL with your page's canonical URL variable
+        this.page.identifier = "https://reploop.org/blog/2020/02/understanding-memory-reordering.html"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+    };
+    (function () { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://reploop.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by
+        Disqus.</a></noscript>
 		</div>
 		<div id="push"></div>
     </div>
     
     <div id="footer">
       <div class="container">
-        <p class="muted credit">&copy; 2020 | Mixed with <a href="http://getbootstrap.com/">Bootstrap v3.1.1</a> | Baked with <a href="http://jbake.org">JBake v2.7.0.0</a></p>
+        <p class="muted credit">&copy; 2020 | Mixed with <a href="http://getbootstrap.com/">Bootstrap v3.1.1</a> | Baked with <a href="http://jbake.org">JBake v2.7.0.1</a></p>
       </div>
     </div>
     

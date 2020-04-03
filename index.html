@@ -5,9 +5,9 @@
     <title>REPLoop</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="REPLoop，在脚本编程语言中经常能看到REPL，也就是Read-Evaluate-Print-Loop，意思是读取源代码，评估执行，打印结果的循环。这个过程能够快速的学习实践然后得到结果。非常像一个学习成长的过程：输入信息，消化吸收，输出知识并用于实践，然后持之以恒的坚持。4个环节缺一不可，而且最难做到的大概是持之以恒了。">
-    <meta name="author" content="georgecao">
-    <meta name="keywords" content="">
-    <meta name="generator" content="JBake v2.7.0.0">
+    <meta name="author" content="乔治">
+    <meta name="keywords" content="REPL,REPLoop,George,乔治">
+    <meta name="generator" content="JBake v2.7.0.1">
 
     <!-- Le styles -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
@@ -55,7 +55,7 @@
     <div class="container">
   		<a href="blog/2020/03/how-https-works.html"><h1>HTTPS如何工作的？</h1></a>
   		<p>
-			2020年03月28日
+			<a href="/about.html"><strong>George Cao</strong></a>于2020年03月28日
 					<span class="badge badge-dark">HTTP</span>
 					<span class="badge badge-dark">HTTPS</span>
 					<span class="badge badge-dark">CA</span>
@@ -74,7 +74,7 @@
   </div> 
   <div class="imageblock"> 
    <div class="content"> 
-    <img src="http://reploop.org/blog/2020/03/images/https-by-chrome.png" alt="HTTPS Encryption by Chrome platform"> 
+    <img src="https://reploop.org/blog/2020/03/images/https-by-chrome.png" alt="HTTPS Encryption by Chrome platform"> 
    </div> 
   </div> 
  </div> 
@@ -167,7 +167,7 @@
 </div></p>
   		<a href="blog/2020/02/understanding-memory-reordering.html"><h1>理解内存重排序以及为什写无锁多线程代码时很重要</h1></a>
   		<p>
-			2020年02月29日
+			<a href="/about.html"><strong>George Cao</strong></a>于2020年02月29日
 					<span class="badge badge-dark">内存模型</span>
 					<span class="badge badge-dark">多线程</span>
 					<span class="badge badge-dark">原子性</span>
@@ -181,16 +181,16 @@
     本系列中的其他文章
    </div> 
    <ul> 
-    <li> <p><a href="http://reploop.org/blog/2020/02/a-gentle-introduction-to-multithreading.html">多线程简介</a> - 一步一步走进并发的世界</p> </li> 
-    <li> <p><a href="http://reploop.org/blog/2020/02/introduction-to-thread-synchronization.html">线程同步简介</a> - 多线程应用中最常见的并发控制方法之一</p> </li> 
-    <li> <p><a href="http://reploop.org/blog/2020/02/lock-free-multithreading-with-atomic-operations.html">用原子操作实现无锁多线程</a> - 底层线程同步</p> </li> 
+    <li> <p><a href="https://reploop.org/blog/2020/02/a-gentle-introduction-to-multithreading.html">多线程简介</a> - 一步一步走进并发的世界</p> </li> 
+    <li> <p><a href="https://reploop.org/blog/2020/02/introduction-to-thread-synchronization.html">线程同步简介</a> - 多线程应用中最常见的并发控制方法之一</p> </li> 
+    <li> <p><a href="https://reploop.org/blog/2020/02/lock-free-multithreading-with-atomic-operations.html">用原子操作实现无锁多线程</a> - 底层线程同步</p> </li> 
    </ul> 
   </div> 
   <div class="paragraph"> 
-   <p>此系列前一篇文章中，<a href="http://reploop.org/blog/2020/02/lock-free-multithreading-with-atomic-operations.html">用原子操作实现无锁多线程</a>，我介绍了无锁多线程：并发软件中线程同步的底层机制。</p> 
+   <p>此系列前一篇文章中，<a href="https://reploop.org/blog/2020/02/lock-free-multithreading-with-atomic-operations.html">用原子操作实现无锁多线程</a>，我介绍了无锁多线程：并发软件中线程同步的底层机制。</p> 
   </div> 
   <div class="paragraph"> 
-   <p>基于 <strong>原子操作</strong>，也就是CPU直接执行的不能细分为更小步骤的机器指令，相比传统的同步原语如<a href="http://reploop.org/blog/2020/02/introduction-to-thread-synchronization.html">互斥锁和信号量</a>，无锁多线程提供了更快和更细粒度控制的同步机制。</p> 
+   <p>基于 <strong>原子操作</strong>，也就是CPU直接执行的不能细分为更小步骤的机器指令，相比传统的同步原语如<a href="https://reploop.org/blog/2020/02/introduction-to-thread-synchronization.html">互斥锁和信号量</a>，无锁多线程提供了更快和更细粒度控制的同步机制。</p> 
   </div> 
   <div class="paragraph"> 
    <p>一如既往的，能力越大，责任越大。无锁编码中你更接近本质，因此理解机器是如何工作的以及机器的特性是非常有益的。</p> 
@@ -234,7 +234,7 @@
   </div> 
   <div class="imageblock"> 
    <div class="content"> 
-    <img src="http://reploop.org/blog/2020/02/images/cpu-cache-main-memory.png" alt="CPU" width="cache and main memory"> 
+    <img src="https://reploop.org/blog/2020/02/images/cpu-cache-main-memory.png" alt="CPU" width="cache and main memory"> 
    </div> 
    <div class="title">
     Figure 1. 多个核心通过缓存和主内存交互的简化模型。这也叫做共享内存系统，因为主内存被多个实体访问。
@@ -296,10 +296,10 @@ thread_two():
    <p>这个规则也适用于多核场景下的每个单核，但不适用于不同操作同时跑在独立的硬件上的情况（ <a href="https://internalpointers.com/post/gentle-introduction-multithreading#what-threads-are-used-for">真并行(true parallelism)</a>）。让你的线程跑在两个物理内核上，你就会碰到上面样例中的各种诡异问题，更不用说让编译器和虚拟机执行重排序了。</p> 
   </div> 
   <div class="paragraph"> 
-   <p>常规的如互斥锁和信号量等<a href="http://reploop.org/blog/2020/02/introduction-to-thread-synchronization.html">锁同步机制</a>是设计用来处理硬件和软件层面的内存重排序的。毕竟他们是上层技术。</p> 
+   <p>常规的如互斥锁和信号量等<a href="https://reploop.org/blog/2020/02/introduction-to-thread-synchronization.html">锁同步机制</a>是设计用来处理硬件和软件层面的内存重排序的。毕竟他们是上层技术。</p> 
   </div> 
   <div class="paragraph"> 
-   <p>不过，应用无锁方案的多线程程序更接近底层：就像<a href="http://reploop.org/blog/2020/02/lock-free-multithreading-with-atomic-operations.html">上一篇文章</a>看到的，它利用存储和加载原子指令来同步线程。 搞笑的是这些操作可能被重排序，从而破坏了你的严谨计划。</p> 
+   <p>不过，应用无锁方案的多线程程序更接近底层：就像<a href="https://reploop.org/blog/2020/02/lock-free-multithreading-with-atomic-operations.html">上一篇文章</a>看到的，它利用存储和加载原子指令来同步线程。 搞笑的是这些操作可能被重排序，从而破坏了你的严谨计划。</p> 
   </div> 
  </div> 
 </div> 
@@ -457,7 +457,7 @@ thread_D:
 </div></p>
   		<a href="blog/2020/02/lock-free-multithreading-with-atomic-operations.html"><h1>用原子操作实现无锁多线程：底层线程同步</h1></a>
   		<p>
-			2020年02月27日
+			<a href="/about.html"><strong>George Cao</strong></a>于2020年02月27日
 					<span class="badge badge-dark">原子指令</span>
 					<span class="badge badge-dark">多线程</span>
 					<span class="badge badge-dark">无锁</span>
@@ -472,9 +472,9 @@ thread_D:
     本系列中的其他文章
    </div> 
    <ul> 
-    <li> <p><a href="http://reploop.org/blog/2020/02/a-gentle-introduction-to-multithreading.html">多线程简介</a> - 一步一步走进并发的世界</p> </li> 
-    <li> <p><a href="http://reploop.org/blog/2020/02/introduction-to-thread-synchronization.html">线程同步简介</a> - 多线程应用中最常见的并发控制方法之一</p> </li> 
-    <li> <p><a href="http://reploop.org/blog/2020/02/understanding-memory-reordering.html">理解内存重排序</a> - 为什写无锁多线程代码时它很重要</p> </li> 
+    <li> <p><a href="https://reploop.org/blog/2020/02/a-gentle-introduction-to-multithreading.html">多线程简介</a> - 一步一步走进并发的世界</p> </li> 
+    <li> <p><a href="https://reploop.org/blog/2020/02/introduction-to-thread-synchronization.html">线程同步简介</a> - 多线程应用中最常见的并发控制方法之一</p> </li> 
+    <li> <p><a href="https://reploop.org/blog/2020/02/understanding-memory-reordering.html">理解内存重排序</a> - 为什写无锁多线程代码时它很重要</p> </li> 
    </ul> 
   </div> 
   <div class="paragraph"> 
@@ -484,10 +484,10 @@ thread_D:
    <p>"atom"在希腊语中拾不可再分割的意思。在计算机中一个任务被称为原子的是指他不能再细分了：它不能再拆分为更小的执行步骤了。</p> 
   </div> 
   <div class="paragraph"> 
-   <p><em>原子性</em> 是多线程操作的一个重要特征：因为原子操作是不可在细分的，所以一个线程是不可能干扰另一个正在并发执行原子操作的线程的。例如，当一个线程原子写入共享数据，其他线程是没有办法读取到未完成的数据。相反的，当一个线程原子读取共享数据，这个数据就像是单个时间点上的数据。换句话说，就是没有<a href="http://reploop.org/blog/2020/02/a-gentle-introduction-to-multithreading.html">数据竞争</a>的风险。</p> 
+   <p><em>原子性</em> 是多线程操作的一个重要特征：因为原子操作是不可在细分的，所以一个线程是不可能干扰另一个正在并发执行原子操作的线程的。例如，当一个线程原子写入共享数据，其他线程是没有办法读取到未完成的数据。相反的，当一个线程原子读取共享数据，这个数据就像是单个时间点上的数据。换句话说，就是没有<a href="https://reploop.org/blog/2020/02/a-gentle-introduction-to-multithreading.html">数据竞争</a>的风险。</p> 
   </div> 
   <div class="paragraph"> 
-   <p>在<a href="http://reploop.org/blog/2020/02/introduction-to-thread-synchronization.html">上一篇文章</a>中，我介绍了所谓的 <strong>同步原语</strong>，也就是最常用的线程同步工具。他们是用来为多线程间处理共享数据的操作提供原子性的。怎么做到的呢？其实就是直接让单个线程执行并发任务，同时操作系统阻塞了其他线程直到第一个线程完成它的工作。这么做的原因是一个被阻塞的线程对其他线程是无害的。考虑到阻塞线程的能力，同步原语也称为 <strong>阻塞机制</strong>。</p> 
+   <p>在<a href="https://reploop.org/blog/2020/02/introduction-to-thread-synchronization.html">上一篇文章</a>中，我介绍了所谓的 <strong>同步原语</strong>，也就是最常用的线程同步工具。他们是用来为多线程间处理共享数据的操作提供原子性的。怎么做到的呢？其实就是直接让单个线程执行并发任务，同时操作系统阻塞了其他线程直到第一个线程完成它的工作。这么做的原因是一个被阻塞的线程对其他线程是无害的。考虑到阻塞线程的能力，同步原语也称为 <strong>阻塞机制</strong>。</p> 
   </div> 
   <div class="paragraph"> 
    <p>上一篇文章中的任意一种阻塞机制对大多数应用来说能够很好的工作。如果能够正确的使用，他们也是快速的和可靠的。尽管如此，他们还是有一些你可能需要考虑的缺点：</p> 
@@ -526,7 +526,7 @@ thread_D:
   </div> 
   <div class="imageblock"> 
    <div class="content"> 
-    <img src="http://reploop.org/blog/2020/02/images/software-hardware-layers.png" alt="Software - hardware layers"> 
+    <img src="https://reploop.org/blog/2020/02/images/software-hardware-layers.png" alt="Software - hardware layers"> 
    </div> 
    <div class="title">
     Figure 1. 计算机程序的不同层次。虚线代表软件层次，实线代表硬件层次。
@@ -573,7 +573,7 @@ thread_D:
   </div> 
   <div class="imageblock"> 
    <div class="content"> 
-    <img src="http://reploop.org/blog/2020/02/images/atomics-levels.png" alt="Three levels of atomic instructions"> 
+    <img src="https://reploop.org/blog/2020/02/images/atomics-levels.png" alt="Three levels of atomic instructions"> 
    </div> 
    <div class="title">
     Figure 2. 原子指令和操作的层级。虚线代表软件层次，实线代表硬件层次。
@@ -741,7 +741,7 @@ writer_thread()
   </div> 
   <div class="imageblock"> 
    <div class="content"> 
-    <img src="http://reploop.org/blog/2020/02/images/lock-free-wait-free.png" alt="Lock-free" width="wait-free"> 
+    <img src="https://reploop.org/blog/2020/02/images/lock-free-wait-free.png" alt="Lock-free" width="wait-free"> 
    </div> 
    <div class="title">
     Figure 3. 无等待算法是无锁算法的子集
@@ -806,7 +806,7 @@ writer_thread()
     
     <div id="footer">
       <div class="container">
-        <p class="muted credit">&copy; 2020 | Mixed with <a href="http://getbootstrap.com/">Bootstrap v3.1.1</a> | Baked with <a href="http://jbake.org">JBake v2.7.0.0</a></p>
+        <p class="muted credit">&copy; 2020 | Mixed with <a href="http://getbootstrap.com/">Bootstrap v3.1.1</a> | Baked with <a href="http://jbake.org">JBake v2.7.0.1</a></p>
       </div>
     </div>
     

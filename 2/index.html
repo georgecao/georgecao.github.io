@@ -5,9 +5,9 @@
     <title>REPLoop</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="REPLoop，在脚本编程语言中经常能看到REPL，也就是Read-Evaluate-Print-Loop，意思是读取源代码，评估执行，打印结果的循环。这个过程能够快速的学习实践然后得到结果。非常像一个学习成长的过程：输入信息，消化吸收，输出知识并用于实践，然后持之以恒的坚持。4个环节缺一不可，而且最难做到的大概是持之以恒了。">
-    <meta name="author" content="georgecao">
-    <meta name="keywords" content="">
-    <meta name="generator" content="JBake v2.7.0.0">
+    <meta name="author" content="乔治">
+    <meta name="keywords" content="REPL,REPLoop,George,乔治">
+    <meta name="generator" content="JBake v2.7.0.1">
 
     <!-- Le styles -->
     <link href="../css/bootstrap.min.css" rel="stylesheet">
@@ -55,7 +55,7 @@
     <div class="container">
   		<a href="blog/2020/02/introduction-to-thread-synchronization.html"><h1>线程同步: 多线程应用中最常见的并发控制方法之一</h1></a>
   		<p>
-			2020年02月23日
+			<a href="/about.html"><strong>George Cao</strong></a>于2020年02月23日
 					<span class="badge badge-dark">互斥锁</span>
 					<span class="badge badge-dark">信号量</span>
 					<span class="badge badge-dark">同步</span>
@@ -71,16 +71,16 @@
     本系列中的其他文章
    </div> 
    <ul> 
-    <li> <p><a href="http://reploop.org/blog/2020/02/a-gentle-introduction-to-multithreading.html">多线程简介</a> - 一步一步走进并发的世界</p> </li> 
-    <li> <p><a href="http://reploop.org/blog/2020/02/lock-free-multithreading-with-atomic-operations.html">用原子操作实现无锁多线程</a> - 底层线程同步</p> </li> 
-    <li> <p><a href="http://reploop.org/blog/2020/02/understanding-memory-reordering.html">理解内存重排序</a> - 为什写无锁多线程代码时它很重要</p> </li> 
+    <li> <p><a href="https://reploop.org/blog/2020/02/a-gentle-introduction-to-multithreading.html">多线程简介</a> - 一步一步走进并发的世界</p> </li> 
+    <li> <p><a href="https://reploop.org/blog/2020/02/lock-free-multithreading-with-atomic-operations.html">用原子操作实现无锁多线程</a> - 底层线程同步</p> </li> 
+    <li> <p><a href="https://reploop.org/blog/2020/02/understanding-memory-reordering.html">理解内存重排序</a> - 为什写无锁多线程代码时它很重要</p> </li> 
    </ul> 
   </div> 
   <div class="paragraph"> 
    <p>本文讨论的是多线程应用中最常见的并发控制方法之一。</p> 
   </div> 
   <div class="paragraph"> 
-   <p>就像我<a href="http://reploop.org/blog/2020/02/a-gentle-introduction-to-multithreading.html">前一篇文章</a>所阐述的，开发并发代码需要技巧的。 会遇到两个大问题：数据竞争，当一个写线程在修改内存数据的同时一个读线程正在从中读取数据和竞争条件，当2个或以上的线程以不可预知的顺序执行任务的时候会发生。幸运的是我们有一些办法来避免这类错误：这篇文章我们就来看一个最常用的办法：<strong>同步(synchronization)</strong>。</p> 
+   <p>就像我<a href="https://reploop.org/blog/2020/02/a-gentle-introduction-to-multithreading.html">前一篇文章</a>所阐述的，开发并发代码需要技巧的。 会遇到两个大问题：数据竞争，当一个写线程在修改内存数据的同时一个读线程正在从中读取数据和竞争条件，当2个或以上的线程以不可预知的顺序执行任务的时候会发生。幸运的是我们有一些办法来避免这类错误：这篇文章我们就来看一个最常用的办法：<strong>同步(synchronization)</strong>。</p> 
   </div> 
  </div> 
 </div> 
@@ -92,7 +92,7 @@
   </div> 
   <div class="olist arabic"> 
    <ol class="arabic"> 
-    <li> <p><strong>原子性</strong> - 如果你的代码包含多个线程操作共享数据的指令，不受控制的并发访问共享数据可触发数据竞争。包含此类指令的代码块称为关键区块。你要确保关键区块要原子执行：如前文所定义的，一个<a href="http://reploop.org/blog/2020/02/a-gentle-introduction-to-multithreading.html">原子操作</a>不能在细分为更小的操作了，因此当一个线程在执行原子代码块的时候，就不会受到其他线程的干扰；</p> </li> 
+    <li> <p><strong>原子性</strong> - 如果你的代码包含多个线程操作共享数据的指令，不受控制的并发访问共享数据可触发数据竞争。包含此类指令的代码块称为关键区块。你要确保关键区块要原子执行：如前文所定义的，一个<a href="https://reploop.org/blog/2020/02/a-gentle-introduction-to-multithreading.html">原子操作</a>不能在细分为更小的操作了，因此当一个线程在执行原子代码块的时候，就不会受到其他线程的干扰；</p> </li> 
     <li> <p><strong>有序性</strong> - 有时候你需要2个或以上的线程按照可预测的顺序执行任务，或者限制访问某个资源的线程数。正常情况下你是不能控制这个的，这也可能是竞争条件发生的根本原因。有了同步之后，你就可以根据计划来编排多个线程的执行了。</p> </li> 
    </ol> 
   </div> 
@@ -250,7 +250,7 @@
  <h2 id="下一步">下一步</h2> 
  <div class="sectionbody"> 
   <div class="paragraph"> 
-   <p>这些同步问题被研究很多年了，也有很多技术和架构方面的解决方法。严谨的设计和一些实际经验能很大程度上预防问题的发生。鉴于多线程程序的<a href="http://reploop.org/blog/2020/02/a-gentle-introduction-to-multithreading.html">不确定性</a>(非常难的)性质，也有人开发出来在并发代码中检测错误和潜在缺陷的有趣工具。就像 <a href="https://github.com/google/sanitizers/wiki/ThreadSanitizerCppManual">Google的TSan</a>或者 <a href="http://valgrind.org/docs/manual/hg-manual.html">Helgrind</a>一样。</p> 
+   <p>这些同步问题被研究很多年了，也有很多技术和架构方面的解决方法。严谨的设计和一些实际经验能很大程度上预防问题的发生。鉴于多线程程序的<a href="https://reploop.org/blog/2020/02/a-gentle-introduction-to-multithreading.html">不确定性</a>(非常难的)性质，也有人开发出来在并发代码中检测错误和潜在缺陷的有趣工具。就像 <a href="https://github.com/google/sanitizers/wiki/ThreadSanitizerCppManual">Google的TSan</a>或者 <a href="http://valgrind.org/docs/manual/hg-manual.html">Helgrind</a>一样。</p> 
   </div> 
   <div class="paragraph"> 
    <p>尽管如此，有时候你可能在多线程应用中采用不同的方法，完全去掉阻塞机制。这意味着进入 <strong>非阻塞</strong> 领域：这是一个非常底层的领域，线程不会被操作系统休眠，并发是通过 <strong>原子操作</strong> 和 <strong>无锁数据结构</strong> 规范的。这是一个充满挑战的领域，并不总是有必要，但是它能够加速你的软件或者对他造成严重的破坏。不过这是下一篇文章的内容。</p> 
@@ -297,7 +297,7 @@
 </div></p>
   		<a href="blog/2020/02/a-gentle-introduction-to-multithreading.html"><h1>多线程简介: 一步一步走进并发的世界</h1></a>
   		<p>
-			2020年02月20日
+			<a href="/about.html"><strong>George Cao</strong></a>于2020年02月20日
 					<span class="badge badge-dark">并行</span>
 					<span class="badge badge-dark">并发</span>
 					<span class="badge badge-dark">多线程</span>
@@ -311,9 +311,9 @@
     本系列中的其他文章
    </div> 
    <ul> 
-    <li> <p><a href="http://reploop.org/blog/2020/02/introduction-to-thread-synchronization.html">线程同步简介</a> - 多线程应用中最常见的并发控制方法之一</p> </li> 
-    <li> <p><a href="http://reploop.org/blog/2020/02/lock-free-multithreading-with-atomic-operations.html">用原子操作实现无锁多线程</a> - 底层线程同步</p> </li> 
-    <li> <p><a href="http://reploop.org/blog/2020/02/understanding-memory-reordering.html">理解内存重排序</a> - 为什写无锁多线程代码时它很重要</p> </li> 
+    <li> <p><a href="https://reploop.org/blog/2020/02/introduction-to-thread-synchronization.html">线程同步简介</a> - 多线程应用中最常见的并发控制方法之一</p> </li> 
+    <li> <p><a href="https://reploop.org/blog/2020/02/lock-free-multithreading-with-atomic-operations.html">用原子操作实现无锁多线程</a> - 底层线程同步</p> </li> 
+    <li> <p><a href="https://reploop.org/blog/2020/02/understanding-memory-reordering.html">理解内存重排序</a> - 为什写无锁多线程代码时它很重要</p> </li> 
    </ul> 
   </div> 
   <div class="paragraph"> 
@@ -341,7 +341,7 @@
   </div> 
   <div class="imageblock"> 
    <div class="content"> 
-    <img src="http://reploop.org/blog/2020/02/images/processes-threads.png" alt="Processes vs Threads"> 
+    <img src="https://reploop.org/blog/2020/02/images/processes-threads.png" alt="Processes vs Threads"> 
    </div> 
    <div class="title">
     Figure 1. 操作系统可看作高包含多个进程的盒子，而进程则是包含了至少一个线程的盒子
@@ -394,7 +394,7 @@
   </div> 
   <div class="imageblock"> 
    <div class="content"> 
-    <img src="http://reploop.org/blog/2020/02/images/concurrency-parallelism.png" alt="Concurrency vs Parallelism"> 
+    <img src="https://reploop.org/blog/2020/02/images/concurrency-parallelism.png" alt="Concurrency vs Parallelism"> 
    </div> 
    <div class="title">
     Figure 2. 并行是并发的子集。
@@ -543,7 +543,7 @@ reader_thread.start()</code></pre>
 </div></p>
   		<a href="blog/2020/01/share.html"><h1>“程序员”的成长之路</h1></a>
   		<p>
-			2020年01月29日
+			<a href="/about.html"><strong>George Cao</strong></a>于2020年01月29日
 					<span class="badge badge-dark">鸟哥</span>
 					<span class="badge badge-dark">程序员</span>
 					<span class="badge badge-dark">成长</span>
@@ -646,7 +646,7 @@ reader_thread.start()</code></pre>
     
     <div id="footer">
       <div class="container">
-        <p class="muted credit">&copy; 2020 | Mixed with <a href="http://getbootstrap.com/">Bootstrap v3.1.1</a> | Baked with <a href="http://jbake.org">JBake v2.7.0.0</a></p>
+        <p class="muted credit">&copy; 2020 | Mixed with <a href="http://getbootstrap.com/">Bootstrap v3.1.1</a> | Baked with <a href="http://jbake.org">JBake v2.7.0.1</a></p>
       </div>
     </div>
     

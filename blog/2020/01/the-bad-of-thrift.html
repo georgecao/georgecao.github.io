@@ -5,9 +5,9 @@
     <title>Thrift的坑</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="REPLoop，在脚本编程语言中经常能看到REPL，也就是Read-Evaluate-Print-Loop，意思是读取源代码，评估执行，打印结果的循环。这个过程能够快速的学习实践然后得到结果。非常像一个学习成长的过程：输入信息，消化吸收，输出知识并用于实践，然后持之以恒的坚持。4个环节缺一不可，而且最难做到的大概是持之以恒了。">
-    <meta name="author" content="georgecao">
+    <meta name="author" content="George Cao">
     <meta name="keywords" content="thrift,protobuf">
-    <meta name="generator" content="JBake v2.7.0.0">
+    <meta name="generator" content="JBake v2.7.0.1">
 
     <!-- Le styles -->
     <link href="../../../css/bootstrap.min.css" rel="stylesheet">
@@ -26,6 +26,7 @@
     <link rel="apple-touch-icon-precomposed" sizes="72x72" href="../assets/ico/apple-touch-icon-72-precomposed.png">
     <link rel="apple-touch-icon-precomposed" href="../assets/ico/apple-touch-icon-57-precomposed.png">-->
     <link rel="shortcut icon" href="../../../img/favicon.png">
+      <link rel="canonical" href="https://reploop.org/blog/2020/01/the-bad-of-thrift.html" />
     <script data-ad-client="ca-pub-2350040335860411" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
   </head>
   <body onload="prettyPrint()">
@@ -57,7 +58,7 @@
 			<h1>Thrift的坑</h1>
 		</div>
 
-	<p><em>2017年06月03日</em>
+<p><a href="/about.html"><strong>George Cao</strong></a>于2017年06月03日
 				<span class="badge badge-dark">thrift</span>
 				<span class="badge badge-dark">protobuf</span>
 	</p>
@@ -73,7 +74,7 @@
   </div> 
   <div class="imageblock"> 
    <div class="content"> 
-    <img src="http://reploop.org/blog/2020/01/images/Apache_Thrift_Architecture.png" alt="Thrift结构图"> 
+    <img src="https://reploop.org/blog/2020/01/images/Apache_Thrift_Architecture.png" alt="Thrift结构图"> 
    </div> 
    <div class="title">
     Figure 1. Thrift结构图, 来自Wikipedia
@@ -199,14 +200,32 @@ service UserService{
 </div></p>
 
 	<hr />
-	
+<div id="disqus_thread"></div>
+<script>
+
+    /**
+     *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+     *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
+    var disqus_config = function () {
+        this.page.url = "https://reploop.org/blog/2020/01/the-bad-of-thrift.html";  // Replace PAGE_URL with your page's canonical URL variable
+        this.page.identifier = "https://reploop.org/blog/2020/01/the-bad-of-thrift.html"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+    };
+    (function () { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://reploop.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by
+        Disqus.</a></noscript>
 		</div>
 		<div id="push"></div>
     </div>
     
     <div id="footer">
       <div class="container">
-        <p class="muted credit">&copy; 2020 | Mixed with <a href="http://getbootstrap.com/">Bootstrap v3.1.1</a> | Baked with <a href="http://jbake.org">JBake v2.7.0.0</a></p>
+        <p class="muted credit">&copy; 2020 | Mixed with <a href="http://getbootstrap.com/">Bootstrap v3.1.1</a> | Baked with <a href="http://jbake.org">JBake v2.7.0.1</a></p>
       </div>
     </div>
     
