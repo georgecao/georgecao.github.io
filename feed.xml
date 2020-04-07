@@ -6,8 +6,8 @@
         <atom:link href="https://reploop.org/feed.xml" rel="self" type="application/rss+xml"/>
         <description>REPLoop，在脚本编程语言中经常能看到REPL，也就是Read-Evaluate-Print-Loop，意思是读取源代码，评估执行，打印结果的循环。这个过程能够快速的学习实践然后得到结果。非常像一个学习成长的过程：输入信息，消化吸收，输出知识并用于实践，然后持之以恒的坚持。4个环节缺一不可，而且最难做到的大概是持之以恒了。</description>
         <language>en-gb</language>
-        <pubDate>Sun, 5 Apr 2020 00:03:29 +0800</pubDate>
-        <lastBuildDate>Sun, 5 Apr 2020 00:03:29 +0800</lastBuildDate>
+        <pubDate>Tue, 7 Apr 2020 08:50:28 +0800</pubDate>
+        <lastBuildDate>Tue, 7 Apr 2020 08:50:28 +0800</lastBuildDate>
 
             <item>
                 <title>nginx配置文件中的location匹配规则</title>
@@ -220,16 +220,6 @@ location ~ /uri/\d{1,}/ {}&lt;/code&gt;&lt;/pre&gt;
                 <description>
                         &lt;div id=&quot;preamble&quot;&gt; 
  &lt;div class=&quot;sectionbody&quot;&gt; 
-  &lt;div class=&quot;ulist&quot;&gt; 
-   &lt;div class=&quot;title&quot;&gt;
-    本系列中的其他文章
-   &lt;/div&gt; 
-   &lt;ul&gt; 
-    &lt;li&gt; &lt;p&gt;&lt;a href=&quot;https://reploop.org/blog/2020/02/a-gentle-introduction-to-multithreading.html&quot;&gt;多线程简介&lt;/a&gt; - 一步一步走进并发的世界&lt;/p&gt; &lt;/li&gt; 
-    &lt;li&gt; &lt;p&gt;&lt;a href=&quot;https://reploop.org/blog/2020/02/introduction-to-thread-synchronization.html&quot;&gt;线程同步简介&lt;/a&gt; - 多线程应用中最常见的并发控制方法之一&lt;/p&gt; &lt;/li&gt; 
-    &lt;li&gt; &lt;p&gt;&lt;a href=&quot;https://reploop.org/blog/2020/02/lock-free-multithreading-with-atomic-operations.html&quot;&gt;用原子操作实现无锁多线程&lt;/a&gt; - 底层线程同步&lt;/p&gt; &lt;/li&gt; 
-   &lt;/ul&gt; 
-  &lt;/div&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
    &lt;p&gt;此系列前一篇文章中，&lt;a href=&quot;https://reploop.org/blog/2020/02/lock-free-multithreading-with-atomic-operations.html&quot;&gt;用原子操作实现无锁多线程&lt;/a&gt;，我介绍了无锁多线程：并发软件中线程同步的底层机制。&lt;/p&gt; 
   &lt;/div&gt; 
@@ -241,6 +231,16 @@ location ~ /uri/\d{1,}/ {}&lt;/code&gt;&lt;/pre&gt;
   &lt;/div&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
    &lt;p&gt;本文中我会介绍一些硬件（和软件）对无锁代码产生的非常重要的副作用。这也是惊叹计算机内部小型世界的复杂性的机会。&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;ulist&quot;&gt; 
+   &lt;div class=&quot;title&quot;&gt;
+    本系列中的其他文章
+   &lt;/div&gt; 
+   &lt;ul&gt; 
+    &lt;li&gt; &lt;p&gt;&lt;a href=&quot;https://reploop.org/blog/2020/02/a-gentle-introduction-to-multithreading.html&quot;&gt;多线程简介&lt;/a&gt; - 一步一步走进并发的世界&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;&lt;a href=&quot;https://reploop.org/blog/2020/02/introduction-to-thread-synchronization.html&quot;&gt;线程同步简介&lt;/a&gt; - 多线程应用中最常见的并发控制方法之一&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;&lt;a href=&quot;https://reploop.org/blog/2020/02/lock-free-multithreading-with-atomic-operations.html&quot;&gt;用原子操作实现无锁多线程&lt;/a&gt; - 底层线程同步&lt;/p&gt; &lt;/li&gt; 
+   &lt;/ul&gt; 
   &lt;/div&gt; 
  &lt;/div&gt; 
 &lt;/div&gt; 
@@ -509,6 +509,15 @@ thread_D:
                 <description>
                         &lt;div id=&quot;preamble&quot;&gt; 
  &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;本文经 &lt;a href=&quot;https://it.linkedin.com/in/federicarinaldi&quot;&gt;Federica Rinaldi&lt;/a&gt;仔细审阅过，谢谢。&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;&quot;atom&quot;在希腊语中拾不可再分割的意思。在计算机中一个任务被称为原子的是指他不能再细分了：它不能再拆分为更小的执行步骤了。&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;&lt;em&gt;原子性&lt;/em&gt; 是多线程操作的一个重要特征：因为原子操作是不可在细分的，所以一个线程是不可能干扰另一个正在并发执行原子操作的线程的。例如，当一个线程原子写入共享数据，其他线程是没有办法读取到未完成的数据。相反的，当一个线程原子读取共享数据，这个数据就像是单个时间点上的数据。换句话说，就是没有&lt;a href=&quot;https://reploop.org/blog/2020/02/a-gentle-introduction-to-multithreading.html&quot;&gt;数据竞争&lt;/a&gt;的风险。&lt;/p&gt; 
+  &lt;/div&gt; 
   &lt;div class=&quot;ulist&quot;&gt; 
    &lt;div class=&quot;title&quot;&gt;
     本系列中的其他文章
@@ -518,15 +527,6 @@ thread_D:
     &lt;li&gt; &lt;p&gt;&lt;a href=&quot;https://reploop.org/blog/2020/02/introduction-to-thread-synchronization.html&quot;&gt;线程同步简介&lt;/a&gt; - 多线程应用中最常见的并发控制方法之一&lt;/p&gt; &lt;/li&gt; 
     &lt;li&gt; &lt;p&gt;&lt;a href=&quot;https://reploop.org/blog/2020/02/understanding-memory-reordering.html&quot;&gt;理解内存重排序&lt;/a&gt; - 为什写无锁多线程代码时它很重要&lt;/p&gt; &lt;/li&gt; 
    &lt;/ul&gt; 
-  &lt;/div&gt; 
-  &lt;div class=&quot;paragraph&quot;&gt; 
-   &lt;p&gt;本文经 &lt;a href=&quot;https://it.linkedin.com/in/federicarinaldi&quot;&gt;Federica Rinaldi&lt;/a&gt;仔细审阅过，谢谢。&lt;/p&gt; 
-  &lt;/div&gt; 
-  &lt;div class=&quot;paragraph&quot;&gt; 
-   &lt;p&gt;&quot;atom&quot;在希腊语中拾不可再分割的意思。在计算机中一个任务被称为原子的是指他不能再细分了：它不能再拆分为更小的执行步骤了。&lt;/p&gt; 
-  &lt;/div&gt; 
-  &lt;div class=&quot;paragraph&quot;&gt; 
-   &lt;p&gt;&lt;em&gt;原子性&lt;/em&gt; 是多线程操作的一个重要特征：因为原子操作是不可在细分的，所以一个线程是不可能干扰另一个正在并发执行原子操作的线程的。例如，当一个线程原子写入共享数据，其他线程是没有办法读取到未完成的数据。相反的，当一个线程原子读取共享数据，这个数据就像是单个时间点上的数据。换句话说，就是没有&lt;a href=&quot;https://reploop.org/blog/2020/02/a-gentle-introduction-to-multithreading.html&quot;&gt;数据竞争&lt;/a&gt;的风险。&lt;/p&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
    &lt;p&gt;在&lt;a href=&quot;https://reploop.org/blog/2020/02/introduction-to-thread-synchronization.html&quot;&gt;上一篇文章&lt;/a&gt;中，我介绍了所谓的 &lt;strong&gt;同步原语&lt;/strong&gt;，也就是最常用的线程同步工具。他们是用来为多线程间处理共享数据的操作提供原子性的。怎么做到的呢？其实就是直接让单个线程执行并发任务，同时操作系统阻塞了其他线程直到第一个线程完成它的工作。这么做的原因是一个被阻塞的线程对其他线程是无害的。考虑到阻塞线程的能力，同步原语也称为 &lt;strong&gt;阻塞机制&lt;/strong&gt;。&lt;/p&gt; 
@@ -847,6 +847,12 @@ writer_thread()
                 <description>
                         &lt;div id=&quot;preamble&quot;&gt; 
  &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;本文讨论的是多线程应用中最常见的并发控制方法之一。&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;就像我&lt;a href=&quot;https://reploop.org/blog/2020/02/a-gentle-introduction-to-multithreading.html&quot;&gt;前一篇文章&lt;/a&gt;所阐述的，开发并发代码需要技巧的。 会遇到两个大问题：数据竞争，当一个写线程在修改内存数据的同时一个读线程正在从中读取数据和竞争条件，当2个或以上的线程以不可预知的顺序执行任务的时候会发生。幸运的是我们有一些办法来避免这类错误：这篇文章我们就来看一个最常用的办法：&lt;strong&gt;同步(synchronization)&lt;/strong&gt;。&lt;/p&gt; 
+  &lt;/div&gt; 
   &lt;div class=&quot;ulist&quot;&gt; 
    &lt;div class=&quot;title&quot;&gt;
     本系列中的其他文章
@@ -856,12 +862,6 @@ writer_thread()
     &lt;li&gt; &lt;p&gt;&lt;a href=&quot;https://reploop.org/blog/2020/02/lock-free-multithreading-with-atomic-operations.html&quot;&gt;用原子操作实现无锁多线程&lt;/a&gt; - 底层线程同步&lt;/p&gt; &lt;/li&gt; 
     &lt;li&gt; &lt;p&gt;&lt;a href=&quot;https://reploop.org/blog/2020/02/understanding-memory-reordering.html&quot;&gt;理解内存重排序&lt;/a&gt; - 为什写无锁多线程代码时它很重要&lt;/p&gt; &lt;/li&gt; 
    &lt;/ul&gt; 
-  &lt;/div&gt; 
-  &lt;div class=&quot;paragraph&quot;&gt; 
-   &lt;p&gt;本文讨论的是多线程应用中最常见的并发控制方法之一。&lt;/p&gt; 
-  &lt;/div&gt; 
-  &lt;div class=&quot;paragraph&quot;&gt; 
-   &lt;p&gt;就像我&lt;a href=&quot;https://reploop.org/blog/2020/02/a-gentle-introduction-to-multithreading.html&quot;&gt;前一篇文章&lt;/a&gt;所阐述的，开发并发代码需要技巧的。 会遇到两个大问题：数据竞争，当一个写线程在修改内存数据的同时一个读线程正在从中读取数据和竞争条件，当2个或以上的线程以不可预知的顺序执行任务的时候会发生。幸运的是我们有一些办法来避免这类错误：这篇文章我们就来看一个最常用的办法：&lt;strong&gt;同步(synchronization)&lt;/strong&gt;。&lt;/p&gt; 
   &lt;/div&gt; 
  &lt;/div&gt; 
 &lt;/div&gt; 
@@ -1086,6 +1086,12 @@ writer_thread()
                 <description>
                         &lt;div id=&quot;preamble&quot;&gt; 
  &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;现代计算机有同时执行多个任务的能力。在高级硬件和更智能的操作系统的支持下，计算机的这个能力能够让你的程序在执行时间和响应速度两方面体现的更快。&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;开发利用这个能力的软件是既有趣又需要技巧：它要求你理解计算机的底层细节。在本系列的第一篇文章中，我尝试浅显介绍一下 &lt;strong&gt;线程（thread）&lt;/strong&gt;。操作系统为做到同时执行多个任务提供了很多工具，线程是其一。&lt;/p&gt; 
+  &lt;/div&gt; 
   &lt;div class=&quot;ulist&quot;&gt; 
    &lt;div class=&quot;title&quot;&gt;
     本系列中的其他文章
@@ -1095,12 +1101,6 @@ writer_thread()
     &lt;li&gt; &lt;p&gt;&lt;a href=&quot;https://reploop.org/blog/2020/02/lock-free-multithreading-with-atomic-operations.html&quot;&gt;用原子操作实现无锁多线程&lt;/a&gt; - 底层线程同步&lt;/p&gt; &lt;/li&gt; 
     &lt;li&gt; &lt;p&gt;&lt;a href=&quot;https://reploop.org/blog/2020/02/understanding-memory-reordering.html&quot;&gt;理解内存重排序&lt;/a&gt; - 为什写无锁多线程代码时它很重要&lt;/p&gt; &lt;/li&gt; 
    &lt;/ul&gt; 
-  &lt;/div&gt; 
-  &lt;div class=&quot;paragraph&quot;&gt; 
-   &lt;p&gt;现代计算机有同时执行多个任务的能力。在高级硬件和更智能的操作系统的支持下，计算机的这个能力能够让你的程序在执行时间和响应速度两方面体现的更快。&lt;/p&gt; 
-  &lt;/div&gt; 
-  &lt;div class=&quot;paragraph&quot;&gt; 
-   &lt;p&gt;开发利用这个能力的软件是既有趣又需要技巧：它要求你理解计算机的底层细节。在本系列的第一篇文章中，我尝试浅显介绍一下 &lt;strong&gt;线程（thread）&lt;/strong&gt;。操作系统为做到同时执行多个任务提供了很多工具，线程是其一。&lt;/p&gt; 
   &lt;/div&gt; 
  &lt;/div&gt; 
 &lt;/div&gt; 
@@ -1331,10 +1331,8 @@ reader_thread.start()&lt;/code&gt;&lt;/pre&gt;
                 <description>
                         &lt;div id=&quot;preamble&quot;&gt; 
  &lt;div class=&quot;sectionbody&quot;&gt; 
-  &lt;div class=&quot;quoteblock abstract&quot;&gt; 
-   &lt;blockquote&gt;
-     本文系2017年11月25日“鸟哥”的题为《“程序员”程序员成长之路》的分享结合自身的理解整理而来。这个分享PPT如果硬要规个类别的话，那就是乔布斯或者老罗说相声的PPT的样子，一页上只有一行字，其他的全靠嘴上功夫，然而就这样随性讲了2个小时，过程中轻松愉快，也不乏启发思考的点，是小白个人比较喜欢的风格。 
-   &lt;/blockquote&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;本文系2017年11月25日“鸟哥”的题为《“程序员”程序员成长之路》的分享结合自身的理解整理而来。这个分享PPT如果硬要规个类别的话，那就是乔布斯或者老罗说相声的PPT的样子，一页上只有一行字，其他的全靠嘴上功夫，然而就这样随性讲了2个小时，过程中轻松愉快，也不乏启发思考的点，是小白个人比较喜欢的风格。&lt;/p&gt; 
   &lt;/div&gt; 
  &lt;/div&gt; 
 &lt;/div&gt; 
@@ -1426,10 +1424,8 @@ reader_thread.start()&lt;/code&gt;&lt;/pre&gt;
                 <description>
                         &lt;div id=&quot;preamble&quot;&gt; 
  &lt;div class=&quot;sectionbody&quot;&gt; 
-  &lt;div class=&quot;quoteblock abstract&quot;&gt; 
-   &lt;blockquote&gt;
-     香港金融中心，没有外汇管制，有个香港的账户方便很多。 
-   &lt;/blockquote&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;香港金融中心，没有外汇管制，有个香港的账户方便很多。本文是个人亲身经历，介绍一下肉身到香港开户的过程。&lt;/p&gt; 
   &lt;/div&gt; 
  &lt;/div&gt; 
 &lt;/div&gt; 
@@ -1488,9 +1484,6 @@ reader_thread.start()&lt;/code&gt;&lt;/pre&gt;
  &lt;div class=&quot;sectionbody&quot;&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
    &lt;p&gt;中国银行（香港）出来之后所有的银行都下班了，也算是完成了开户的目标。晚上和一位在香港生活10多年的朋友吃饭，聊到这个事情，建议海外第一个账户选择中资银行，等有了第一个户头以后，再到外资银行说，想把业务转过来，他们就很喜欢了。还有所谓的开户最低存款，只是为了保证账户是有效账户。只要你开了账户，不管里面钱多钱少，只是管理费的问题了。另外，开户用途大陆很多文章说要选择投资理财账户，之所以这样，是因为这种账户客户经理可以提成，所以比较推荐。但是其实只申请一个储蓄账户，什么附加功能都不需要的账户也是可以的。不过，香港存款利率是千分之几，相当的低，所以香港人一般都不会存款的，单纯的存款，由于有管理费的存在，你的钱会越来越少的。&lt;/p&gt; 
-  &lt;/div&gt; 
-  &lt;div class=&quot;paragraph&quot;&gt; 
-   &lt;p&gt;The End.&lt;/p&gt; 
   &lt;/div&gt; 
  &lt;/div&gt; 
 &lt;/div&gt;

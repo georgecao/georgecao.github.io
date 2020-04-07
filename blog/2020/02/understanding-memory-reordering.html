@@ -4,7 +4,7 @@
     <meta charset="utf-8"/>
     <title>理解内存重排序以及为什写无锁多线程代码时很重要</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="REPLoop，在脚本编程语言中经常能看到REPL，也就是Read-Evaluate-Print-Loop，意思是读取源代码，评估执行，打印结果的循环。这个过程能够快速的学习实践然后得到结果。非常像一个学习成长的过程：输入信息，消化吸收，输出知识并用于实践，然后持之以恒的坚持。4个环节缺一不可，而且最难做到的大概是持之以恒了。">
+    <meta name="description" content="">
     <meta name="author" content="George Cao">
     <meta name="keywords" content="内存模型,多线程,原子性,多线程,内存重排序">
     <meta name="generator" content="JBake v2.7.0.1">
@@ -67,16 +67,6 @@
 	</p>
 	<p><div id="preamble"> 
  <div class="sectionbody"> 
-  <div class="ulist"> 
-   <div class="title">
-    本系列中的其他文章
-   </div> 
-   <ul> 
-    <li> <p><a href="https://reploop.org/blog/2020/02/a-gentle-introduction-to-multithreading.html">多线程简介</a> - 一步一步走进并发的世界</p> </li> 
-    <li> <p><a href="https://reploop.org/blog/2020/02/introduction-to-thread-synchronization.html">线程同步简介</a> - 多线程应用中最常见的并发控制方法之一</p> </li> 
-    <li> <p><a href="https://reploop.org/blog/2020/02/lock-free-multithreading-with-atomic-operations.html">用原子操作实现无锁多线程</a> - 底层线程同步</p> </li> 
-   </ul> 
-  </div> 
   <div class="paragraph"> 
    <p>此系列前一篇文章中，<a href="https://reploop.org/blog/2020/02/lock-free-multithreading-with-atomic-operations.html">用原子操作实现无锁多线程</a>，我介绍了无锁多线程：并发软件中线程同步的底层机制。</p> 
   </div> 
@@ -88,6 +78,16 @@
   </div> 
   <div class="paragraph"> 
    <p>本文中我会介绍一些硬件（和软件）对无锁代码产生的非常重要的副作用。这也是惊叹计算机内部小型世界的复杂性的机会。</p> 
+  </div> 
+  <div class="ulist"> 
+   <div class="title">
+    本系列中的其他文章
+   </div> 
+   <ul> 
+    <li> <p><a href="https://reploop.org/blog/2020/02/a-gentle-introduction-to-multithreading.html">多线程简介</a> - 一步一步走进并发的世界</p> </li> 
+    <li> <p><a href="https://reploop.org/blog/2020/02/introduction-to-thread-synchronization.html">线程同步简介</a> - 多线程应用中最常见的并发控制方法之一</p> </li> 
+    <li> <p><a href="https://reploop.org/blog/2020/02/lock-free-multithreading-with-atomic-operations.html">用原子操作实现无锁多线程</a> - 底层线程同步</p> </li> 
+   </ul> 
   </div> 
  </div> 
 </div> 

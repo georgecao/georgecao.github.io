@@ -4,7 +4,7 @@
     <meta charset="utf-8"/>
     <title>REPLoop</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="REPLoop，在脚本编程语言中经常能看到REPL，也就是Read-Evaluate-Print-Loop，意思是读取源代码，评估执行，打印结果的循环。这个过程能够快速的学习实践然后得到结果。非常像一个学习成长的过程：输入信息，消化吸收，输出知识并用于实践，然后持之以恒的坚持。4个环节缺一不可，而且最难做到的大概是持之以恒了。">
+    <meta name="description" content="">
     <meta name="author" content="乔治">
     <meta name="keywords" content="REPL,REPLoop,George,乔治">
     <meta name="generator" content="JBake v2.7.0.1">
@@ -65,6 +65,15 @@
 		</p>
   		<p><div id="preamble"> 
  <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>本文经 <a href="https://it.linkedin.com/in/federicarinaldi">Federica Rinaldi</a>仔细审阅过，谢谢。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>"atom"在希腊语中拾不可再分割的意思。在计算机中一个任务被称为原子的是指他不能再细分了：它不能再拆分为更小的执行步骤了。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p><em>原子性</em> 是多线程操作的一个重要特征：因为原子操作是不可在细分的，所以一个线程是不可能干扰另一个正在并发执行原子操作的线程的。例如，当一个线程原子写入共享数据，其他线程是没有办法读取到未完成的数据。相反的，当一个线程原子读取共享数据，这个数据就像是单个时间点上的数据。换句话说，就是没有<a href="https://reploop.org/blog/2020/02/a-gentle-introduction-to-multithreading.html">数据竞争</a>的风险。</p> 
+  </div> 
   <div class="ulist"> 
    <div class="title">
     本系列中的其他文章
@@ -74,15 +83,6 @@
     <li> <p><a href="https://reploop.org/blog/2020/02/introduction-to-thread-synchronization.html">线程同步简介</a> - 多线程应用中最常见的并发控制方法之一</p> </li> 
     <li> <p><a href="https://reploop.org/blog/2020/02/understanding-memory-reordering.html">理解内存重排序</a> - 为什写无锁多线程代码时它很重要</p> </li> 
    </ul> 
-  </div> 
-  <div class="paragraph"> 
-   <p>本文经 <a href="https://it.linkedin.com/in/federicarinaldi">Federica Rinaldi</a>仔细审阅过，谢谢。</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>"atom"在希腊语中拾不可再分割的意思。在计算机中一个任务被称为原子的是指他不能再细分了：它不能再拆分为更小的执行步骤了。</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p><em>原子性</em> 是多线程操作的一个重要特征：因为原子操作是不可在细分的，所以一个线程是不可能干扰另一个正在并发执行原子操作的线程的。例如，当一个线程原子写入共享数据，其他线程是没有办法读取到未完成的数据。相反的，当一个线程原子读取共享数据，这个数据就像是单个时间点上的数据。换句话说，就是没有<a href="https://reploop.org/blog/2020/02/a-gentle-introduction-to-multithreading.html">数据竞争</a>的风险。</p> 
   </div> 
   <div class="paragraph"> 
    <p>在<a href="https://reploop.org/blog/2020/02/introduction-to-thread-synchronization.html">上一篇文章</a>中，我介绍了所谓的 <strong>同步原语</strong>，也就是最常用的线程同步工具。他们是用来为多线程间处理共享数据的操作提供原子性的。怎么做到的呢？其实就是直接让单个线程执行并发任务，同时操作系统阻塞了其他线程直到第一个线程完成它的工作。这么做的原因是一个被阻塞的线程对其他线程是无害的。考虑到阻塞线程的能力，同步原语也称为 <strong>阻塞机制</strong>。</p> 
@@ -406,6 +406,12 @@ writer_thread()
 		</p>
   		<p><div id="preamble"> 
  <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>本文讨论的是多线程应用中最常见的并发控制方法之一。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>就像我<a href="https://reploop.org/blog/2020/02/a-gentle-introduction-to-multithreading.html">前一篇文章</a>所阐述的，开发并发代码需要技巧的。 会遇到两个大问题：数据竞争，当一个写线程在修改内存数据的同时一个读线程正在从中读取数据和竞争条件，当2个或以上的线程以不可预知的顺序执行任务的时候会发生。幸运的是我们有一些办法来避免这类错误：这篇文章我们就来看一个最常用的办法：<strong>同步(synchronization)</strong>。</p> 
+  </div> 
   <div class="ulist"> 
    <div class="title">
     本系列中的其他文章
@@ -415,12 +421,6 @@ writer_thread()
     <li> <p><a href="https://reploop.org/blog/2020/02/lock-free-multithreading-with-atomic-operations.html">用原子操作实现无锁多线程</a> - 底层线程同步</p> </li> 
     <li> <p><a href="https://reploop.org/blog/2020/02/understanding-memory-reordering.html">理解内存重排序</a> - 为什写无锁多线程代码时它很重要</p> </li> 
    </ul> 
-  </div> 
-  <div class="paragraph"> 
-   <p>本文讨论的是多线程应用中最常见的并发控制方法之一。</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>就像我<a href="https://reploop.org/blog/2020/02/a-gentle-introduction-to-multithreading.html">前一篇文章</a>所阐述的，开发并发代码需要技巧的。 会遇到两个大问题：数据竞争，当一个写线程在修改内存数据的同时一个读线程正在从中读取数据和竞争条件，当2个或以上的线程以不可预知的顺序执行任务的时候会发生。幸运的是我们有一些办法来避免这类错误：这篇文章我们就来看一个最常用的办法：<strong>同步(synchronization)</strong>。</p> 
   </div> 
  </div> 
 </div> 
@@ -646,6 +646,12 @@ writer_thread()
 		</p>
   		<p><div id="preamble"> 
  <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>现代计算机有同时执行多个任务的能力。在高级硬件和更智能的操作系统的支持下，计算机的这个能力能够让你的程序在执行时间和响应速度两方面体现的更快。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>开发利用这个能力的软件是既有趣又需要技巧：它要求你理解计算机的底层细节。在本系列的第一篇文章中，我尝试浅显介绍一下 <strong>线程（thread）</strong>。操作系统为做到同时执行多个任务提供了很多工具，线程是其一。</p> 
+  </div> 
   <div class="ulist"> 
    <div class="title">
     本系列中的其他文章
@@ -655,12 +661,6 @@ writer_thread()
     <li> <p><a href="https://reploop.org/blog/2020/02/lock-free-multithreading-with-atomic-operations.html">用原子操作实现无锁多线程</a> - 底层线程同步</p> </li> 
     <li> <p><a href="https://reploop.org/blog/2020/02/understanding-memory-reordering.html">理解内存重排序</a> - 为什写无锁多线程代码时它很重要</p> </li> 
    </ul> 
-  </div> 
-  <div class="paragraph"> 
-   <p>现代计算机有同时执行多个任务的能力。在高级硬件和更智能的操作系统的支持下，计算机的这个能力能够让你的程序在执行时间和响应速度两方面体现的更快。</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>开发利用这个能力的软件是既有趣又需要技巧：它要求你理解计算机的底层细节。在本系列的第一篇文章中，我尝试浅显介绍一下 <strong>线程（thread）</strong>。操作系统为做到同时执行多个任务提供了很多工具，线程是其一。</p> 
   </div> 
  </div> 
 </div> 

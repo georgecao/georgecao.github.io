@@ -4,7 +4,7 @@
     <meta charset="utf-8"/>
     <title>多线程简介: 一步一步走进并发的世界</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="REPLoop，在脚本编程语言中经常能看到REPL，也就是Read-Evaluate-Print-Loop，意思是读取源代码，评估执行，打印结果的循环。这个过程能够快速的学习实践然后得到结果。非常像一个学习成长的过程：输入信息，消化吸收，输出知识并用于实践，然后持之以恒的坚持。4个环节缺一不可，而且最难做到的大概是持之以恒了。">
+    <meta name="description" content="">
     <meta name="author" content="George Cao">
     <meta name="keywords" content="并行,并发,多线程,进程,线程">
     <meta name="generator" content="JBake v2.7.0.1">
@@ -67,6 +67,12 @@
 	</p>
 	<p><div id="preamble"> 
  <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>现代计算机有同时执行多个任务的能力。在高级硬件和更智能的操作系统的支持下，计算机的这个能力能够让你的程序在执行时间和响应速度两方面体现的更快。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>开发利用这个能力的软件是既有趣又需要技巧：它要求你理解计算机的底层细节。在本系列的第一篇文章中，我尝试浅显介绍一下 <strong>线程（thread）</strong>。操作系统为做到同时执行多个任务提供了很多工具，线程是其一。</p> 
+  </div> 
   <div class="ulist"> 
    <div class="title">
     本系列中的其他文章
@@ -76,12 +82,6 @@
     <li> <p><a href="https://reploop.org/blog/2020/02/lock-free-multithreading-with-atomic-operations.html">用原子操作实现无锁多线程</a> - 底层线程同步</p> </li> 
     <li> <p><a href="https://reploop.org/blog/2020/02/understanding-memory-reordering.html">理解内存重排序</a> - 为什写无锁多线程代码时它很重要</p> </li> 
    </ul> 
-  </div> 
-  <div class="paragraph"> 
-   <p>现代计算机有同时执行多个任务的能力。在高级硬件和更智能的操作系统的支持下，计算机的这个能力能够让你的程序在执行时间和响应速度两方面体现的更快。</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>开发利用这个能力的软件是既有趣又需要技巧：它要求你理解计算机的底层细节。在本系列的第一篇文章中，我尝试浅显介绍一下 <strong>线程（thread）</strong>。操作系统为做到同时执行多个任务提供了很多工具，线程是其一。</p> 
   </div> 
  </div> 
 </div> 
