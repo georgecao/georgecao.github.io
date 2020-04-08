@@ -172,7 +172,7 @@ location ~ /uri/\d{1,}/ {}</code></pre>
   </div> 
   <div class="imageblock"> 
    <div class="content"> 
-    <img src="https://reploop.org/blog/2020/03/images/https-by-chrome.png" alt="HTTPS Encryption by Chrome platform"> 
+    <img src="https://www.reploop.org/blog/2020/03/images/https-by-chrome.png" alt="HTTPS Encryption by Chrome platform"> 
    </div> 
   </div> 
  </div> 
@@ -275,10 +275,10 @@ location ~ /uri/\d{1,}/ {}</code></pre>
   		<p><div id="preamble"> 
  <div class="sectionbody"> 
   <div class="paragraph"> 
-   <p>此系列前一篇文章中，<a href="https://reploop.org/blog/2020/02/lock-free-multithreading-with-atomic-operations.html">用原子操作实现无锁多线程</a>，我介绍了无锁多线程：并发软件中线程同步的底层机制。</p> 
+   <p>此系列前一篇文章中，<a href="https://www.reploop.org/blog/2020/02/lock-free-multithreading-with-atomic-operations.html">用原子操作实现无锁多线程</a>，我介绍了无锁多线程：并发软件中线程同步的底层机制。</p> 
   </div> 
   <div class="paragraph"> 
-   <p>基于 <strong>原子操作</strong>，也就是CPU直接执行的不能细分为更小步骤的机器指令，相比传统的同步原语如<a href="https://reploop.org/blog/2020/02/introduction-to-thread-synchronization.html">互斥锁和信号量</a>，无锁多线程提供了更快和更细粒度控制的同步机制。</p> 
+   <p>基于 <strong>原子操作</strong>，也就是CPU直接执行的不能细分为更小步骤的机器指令，相比传统的同步原语如<a href="https://www.reploop.org/blog/2020/02/introduction-to-thread-synchronization.html">互斥锁和信号量</a>，无锁多线程提供了更快和更细粒度控制的同步机制。</p> 
   </div> 
   <div class="paragraph"> 
    <p>一如既往的，能力越大，责任越大。无锁编码中你更接近本质，因此理解机器是如何工作的以及机器的特性是非常有益的。</p> 
@@ -291,9 +291,9 @@ location ~ /uri/\d{1,}/ {}</code></pre>
     本系列中的其他文章
    </div> 
    <ul> 
-    <li> <p><a href="https://reploop.org/blog/2020/02/a-gentle-introduction-to-multithreading.html">多线程简介</a> - 一步一步走进并发的世界</p> </li> 
-    <li> <p><a href="https://reploop.org/blog/2020/02/introduction-to-thread-synchronization.html">线程同步简介</a> - 多线程应用中最常见的并发控制方法之一</p> </li> 
-    <li> <p><a href="https://reploop.org/blog/2020/02/lock-free-multithreading-with-atomic-operations.html">用原子操作实现无锁多线程</a> - 底层线程同步</p> </li> 
+    <li> <p><a href="https://www.reploop.org/blog/2020/02/a-gentle-introduction-to-multithreading.html">多线程简介</a> - 一步一步走进并发的世界</p> </li> 
+    <li> <p><a href="https://www.reploop.org/blog/2020/02/introduction-to-thread-synchronization.html">线程同步简介</a> - 多线程应用中最常见的并发控制方法之一</p> </li> 
+    <li> <p><a href="https://www.reploop.org/blog/2020/02/lock-free-multithreading-with-atomic-operations.html">用原子操作实现无锁多线程</a> - 底层线程同步</p> </li> 
    </ul> 
   </div> 
  </div> 
@@ -332,7 +332,7 @@ location ~ /uri/\d{1,}/ {}</code></pre>
   </div> 
   <div class="imageblock"> 
    <div class="content"> 
-    <img src="https://reploop.org/blog/2020/02/images/cpu-cache-main-memory.png" alt="CPU" width="cache and main memory"> 
+    <img src="https://www.reploop.org/blog/2020/02/images/cpu-cache-main-memory.png" alt="CPU" width="cache and main memory"> 
    </div> 
    <div class="title">
     Figure 1. 多个核心通过缓存和主内存交互的简化模型。这也叫做共享内存系统，因为主内存被多个实体访问。
@@ -394,10 +394,10 @@ thread_two():
    <p>这个规则也适用于多核场景下的每个单核，但不适用于不同操作同时跑在独立的硬件上的情况（ <a href="https://internalpointers.com/post/gentle-introduction-multithreading#what-threads-are-used-for">真并行(true parallelism)</a>）。让你的线程跑在两个物理内核上，你就会碰到上面样例中的各种诡异问题，更不用说让编译器和虚拟机执行重排序了。</p> 
   </div> 
   <div class="paragraph"> 
-   <p>常规的如互斥锁和信号量等<a href="https://reploop.org/blog/2020/02/introduction-to-thread-synchronization.html">锁同步机制</a>是设计用来处理硬件和软件层面的内存重排序的。毕竟他们是上层技术。</p> 
+   <p>常规的如互斥锁和信号量等<a href="https://www.reploop.org/blog/2020/02/introduction-to-thread-synchronization.html">锁同步机制</a>是设计用来处理硬件和软件层面的内存重排序的。毕竟他们是上层技术。</p> 
   </div> 
   <div class="paragraph"> 
-   <p>不过，应用无锁方案的多线程程序更接近底层：就像<a href="https://reploop.org/blog/2020/02/lock-free-multithreading-with-atomic-operations.html">上一篇文章</a>看到的，它利用存储和加载原子指令来同步线程。 搞笑的是这些操作可能被重排序，从而破坏了你的严谨计划。</p> 
+   <p>不过，应用无锁方案的多线程程序更接近底层：就像<a href="https://www.reploop.org/blog/2020/02/lock-free-multithreading-with-atomic-operations.html">上一篇文章</a>看到的，它利用存储和加载原子指令来同步线程。 搞笑的是这些操作可能被重排序，从而破坏了你的严谨计划。</p> 
   </div> 
  </div> 
 </div> 
