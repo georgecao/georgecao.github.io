@@ -6,9 +6,311 @@
         <atom:link href="https://www.reploop.org/feed.xml" rel="self" type="application/rss+xml"/>
         <description>REPLoop，在脚本编程语言中经常能看到REPL，也就是Read-Evaluate-Print-Loop，意思是读取源代码，评估执行，打印结果的循环。这个过程能够快速的学习实践然后得到结果。非常像一个学习成长的过程：输入信息，消化吸收，输出知识并用于实践，然后持之以恒的坚持。4个环节缺一不可，而且最难做到的大概是持之以恒了。</description>
         <language>en-gb</language>
-        <pubDate>Wed, 8 Apr 2020 13:34:41 +0800</pubDate>
-        <lastBuildDate>Wed, 8 Apr 2020 13:34:41 +0800</lastBuildDate>
+        <pubDate>Mon, 7 Sep 2020 14:16:00 +0800</pubDate>
+        <lastBuildDate>Mon, 7 Sep 2020 14:16:00 +0800</lastBuildDate>
 
+            <item>
+                <title>如何讨论一个问题？</title>
+                <link>https://www.reploop.org/blog/2020/09/discuss-a-problem.html</link>
+                <pubDate>Sat, 5 Sep 2020 00:00:00 +0800</pubDate>
+                <guid isPermaLink="false">blog/2020/09/discuss-a-problem.html</guid>
+                <description>
+                        &lt;div id=&quot;preamble&quot;&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;如何和不同的人讨论一个问题？尤其是两个专业领域不同，背景不一致，坐下来讨论一个共同问题，并最终达成共识，然后在后续的执行过程中能够达到预期的结果，是一个很难的问题。每个人专业领域不一样，看问题的视角也不一样，接受信息的能力或者意愿也不一样，处理信息的方法也不一样，好好讨论问题并达成共识。&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;先看一下看问题的视角。&lt;/p&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;sect1&quot;&gt; 
+ &lt;h2 id=&quot;视角&quot;&gt;视角&lt;/h2&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;从创业公司层面的角度来看，做一个决策可能涉及到的考虑因素有：&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;ulist&quot;&gt; 
+   &lt;ul&gt; 
+    &lt;li&gt; &lt;p&gt;市场&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;运营&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;品牌&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;技术&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;财务&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;公司&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;文化&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;认知&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;用户&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;需求&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;产品&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;经济&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;宏观&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;行业&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;人力&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;商业&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;管理&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;人性&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;信仰&lt;/p&gt; &lt;/li&gt; 
+   &lt;/ul&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;暂时不讨论他们之间的关系，也不把他们归类，只是把他们列出来看看。在这种情况下针对一个问题开始讨论了, 讨论的目的当然是要作出各方都认可的决策。那么可能发生的讨论过程是这样的：&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;ulist&quot;&gt; 
+   &lt;ul&gt; 
+    &lt;li&gt; &lt;p&gt;你按照市场决策，他说财务是关键。&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;你按照技术决策，他说市场不等人。&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;你按照品牌决策，他说产品更重要。&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;依次类推。。。&lt;/p&gt; &lt;/li&gt; 
+   &lt;/ul&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;这种场景最常见的就是某一个领域的下属和横向业务上的领导讨论问题时发生，最后屁股坐的正的说就这么办，之前的讨论就结束了。&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;到了执行环节，下属将信将疑的免强做了动作，最后结果一汇报上去，领导不满意，还说你不专业。结果变成一个双输的局面。&lt;/p&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;sect1&quot;&gt; 
+ &lt;h2 id=&quot;分析&quot;&gt;分析&lt;/h2&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;人们常说&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;quoteblock&quot;&gt; 
+   &lt;blockquote&gt;
+     唯一不变的就是变化。 
+   &lt;/blockquote&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;我个人认为套用在和人相关的事情上都可以。如果你认同这句话，那就是要时刻准备接受变化，比如你读了更多的书，做了更多的项目，和更多的人接触，写了更多的代码，吃了更多的垃圾食品等等。现在让我们回到主题上了，这些变化会影响你看问题的角度，也就是会影响你作出决策，也就是之前的结论会变的。 剩下的问题就是变化有多快的事情了。&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;假设 \$x\$ 为视角，\$w\$为视角的权重。那么讨论问题做出决策就可以表达为下面这个公式：&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;stemblock&quot;&gt; 
+   &lt;div class=&quot;content&quot;&gt;
+     \$f(x) = sum_(i=1)^n w_ix_i\$ 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;其中的权重制约关系为：&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;stemblock&quot;&gt; 
+   &lt;div class=&quot;content&quot;&gt;
+     \$1 = sum_(i=1)^n w_i\$ 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;所以变化部分其实就是某个视角的权重是变化的，各个视角的权重分配是动态变化的。随着人的专业，认知，经验等等发生变化，每个人对这个公式中的午权重的分配也是变化的，所以一个结论发生变化，实在是常有的事情。&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;在这个结论下，一定要打开思路，敞开胸怀接受变化的发生，并积极想想如何应对变化了。&lt;/p&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;sect1&quot;&gt; 
+ &lt;h2 id=&quot;结论&quot;&gt;结论&lt;/h2&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;讨论一个问题，可能从量变与质变，定量与定性，过程与结果等等多角度思考。&lt;/p&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt;
+                </description>
+            </item>
+            <item>
+                <title>如何设置线程池的大小？</title>
+                <link>https://www.reploop.org/blog/2020/05/how-to-size-thread-pool.html</link>
+                <pubDate>Mon, 4 May 2020 00:00:00 +0800</pubDate>
+                <guid isPermaLink="false">blog/2020/05/how-to-size-thread-pool.html</guid>
+                <description>
+                        &lt;div id=&quot;preamble&quot;&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;多核环境下，为了更好的资源利用率，在Java世界里，多线程基本上算是一个常规武器了。以下就是本文的核心问题，如果你要创建一个线程池，该怎么确定线程池的大小呢？可以肯定的是线程数也不是越多越好。&lt;/p&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;sect1&quot;&gt; 
+ &lt;h2 id=&quot;线程池的大小&quot;&gt;线程池的大小&lt;/h2&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;关于线程池的大小，有两本非常有名的书中都有相关的论述。这两本书还都是Java生态里面重量级人物写的。分别看一下：&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;sect2&quot;&gt; 
+   &lt;h3 id=&quot;java_concurrency_in_practice&quot;&gt;Java Concurrency In Practice&lt;/h3&gt; 
+   &lt;div class=&quot;quoteblock&quot;&gt; 
+    &lt;blockquote&gt;
+      For compute intensive tasks, an &lt;em&gt;N&lt;sub&gt;cpu&lt;/sub&gt;&lt;/em&gt;-processor system usually achieves optimum utilization with a thread pool of &lt;em&gt;N&lt;sub&gt;cpu&lt;/sub&gt;&lt;/em&gt;+1 threads. (Even compute intensive threads occasionally take a page fault or pause for some other reason, so an &quot;extra&quot; runnable thread prevents CPU cycles from going unused when this happens.) For tasks that also include I/O or other blocking operations, you want a larger pool, since not all of the threads will be schedulable at all times. In order to size the pool properly, you must estimate the ratio of waiting time to compute time for your tasks; this estimate need not be precise and can be obtained through profiling or instrumentation. Alternatively, the size of the thread pool can be tuned by running the application using several different pool sizes under a benchmark load and observing the level of CPU utilization. 
+    &lt;/blockquote&gt; 
+    &lt;div class=&quot;attribution&quot;&gt;
+      — Brian Göetz
+     &lt;br&gt; &lt;cite&gt;Java Concurrency In Practice: p.107&lt;/cite&gt; 
+    &lt;/div&gt; 
+   &lt;/div&gt; 
+   &lt;div class=&quot;paragraph&quot;&gt; 
+    &lt;p&gt;书中先给出如下一些定义:&lt;/p&gt; 
+   &lt;/div&gt; 
+   &lt;div class=&quot;paragraph&quot;&gt; 
+    &lt;p&gt;&lt;em&gt;N&lt;sub&gt;cpu&lt;/sub&gt;&lt;/em&gt; = CPU核心数,&lt;/p&gt; 
+   &lt;/div&gt; 
+   &lt;div class=&quot;paragraph&quot;&gt; 
+    &lt;p&gt;&lt;em&gt;U&lt;sub&gt;cpu&lt;/sub&gt; = 目标CPU的使用率，其中 \$0 &amp;lt;=\$ _U&lt;sub&gt;cpu&lt;/sub&gt;&lt;/em&gt; \$&amp;lt;= 1\$,&lt;/p&gt; 
+   &lt;/div&gt; 
+   &lt;div class=&quot;paragraph&quot;&gt; 
+    &lt;p&gt;\$w\$ = CPU等待时间，&lt;/p&gt; 
+   &lt;/div&gt; 
+   &lt;div class=&quot;paragraph&quot;&gt; 
+    &lt;p&gt;\$c\$ = CPU计算时间，&lt;/p&gt; 
+   &lt;/div&gt; 
+   &lt;div class=&quot;paragraph&quot;&gt; 
+    &lt;p&gt;\$w/c\$ = CPU等待时间和计算时间的比率,&lt;/p&gt; 
+   &lt;/div&gt; 
+   &lt;div class=&quot;paragraph&quot;&gt; 
+    &lt;p&gt;然后就给出了能够使处理器保持在特定使用率的线程数最优公式： &lt;em&gt;N&lt;sub&gt;threads&lt;/sub&gt;&lt;/em&gt; = &lt;em&gt;N&lt;sub&gt;cpu&lt;/sub&gt;&lt;/em&gt; * &lt;em&gt;U&lt;sub&gt;cpu&lt;/sub&gt;&lt;/em&gt; * (\$1 + w/c\$)&lt;/p&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;sect2&quot;&gt; 
+   &lt;h3 id=&quot;programming_concurrency_on_the_jvm&quot;&gt;Programming Concurrency on the JVM&lt;/h3&gt; 
+   &lt;div class=&quot;quoteblock&quot;&gt; 
+    &lt;blockquote&gt;
+      If tasks spend 50 percent of the time being blocked, then the number of threads should be twice the number of available cores. If they spend less time being blocked—that is, they’re computation intensive—then we should have fewer threads but no less than the number of cores. If they spend more time being blocked—that is, they’re IO intensive—then we should have more threads, specifically, several multiples of the number of cores. 
+    &lt;/blockquote&gt; 
+    &lt;div class=&quot;attribution&quot;&gt;
+      — Venkat Subramaniam
+     &lt;br&gt; &lt;cite&gt;Programming Concurrency on the JVM: p.16&lt;/cite&gt; 
+    &lt;/div&gt; 
+   &lt;/div&gt; 
+   &lt;div class=&quot;paragraph&quot;&gt; 
+    &lt;p&gt;这本书里没有直接给出变量定义，而是用文字描述的。为了便于比较，这里也给出一些定义：&lt;/p&gt; 
+   &lt;/div&gt; 
+   &lt;div class=&quot;paragraph&quot;&gt; 
+    &lt;p&gt;&lt;em&gt;N&lt;sub&gt;threads&lt;/sub&gt;&lt;/em&gt; = 总的线程数，&lt;/p&gt; 
+   &lt;/div&gt; 
+   &lt;div class=&quot;paragraph&quot;&gt; 
+    &lt;p&gt;&lt;em&gt;N&lt;sub&gt;cpu&lt;/sub&gt;&lt;/em&gt; = 可用的CPU核心数，&lt;/p&gt; 
+   &lt;/div&gt; 
+   &lt;div class=&quot;paragraph&quot;&gt; 
+    &lt;p&gt;&lt;em&gt;B&lt;sub&gt;c&lt;/sub&gt;&lt;/em&gt; = 阻塞系数，介于0和1之间的。&lt;/p&gt; 
+   &lt;/div&gt; 
+   &lt;div class=&quot;paragraph&quot;&gt; 
+    &lt;p&gt;那么，就可以用如下的方式计算我们需要的线程数了： &lt;em&gt;N&lt;sub&gt;threads&lt;/sub&gt;&lt;/em&gt; = &lt;em&gt;N&lt;sub&gt;cpu&lt;/sub&gt;&lt;/em&gt; / (1 - &lt;em&gt;B&lt;sub&gt;c&lt;/sub&gt;&lt;/em&gt;)&lt;/p&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;sect1&quot;&gt; 
+ &lt;h2 id=&quot;分析与结论&quot;&gt;分析与结论&lt;/h2&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;乍一看，两本书给出了2个不一样的公式，该如何取舍呢？&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;假设CPU的使用率 &lt;em&gt;U&lt;sub&gt;cpu&lt;/sub&gt;&lt;/em&gt; 是100%的情况下，也就是如果目标都是尽可能的利用CPU资源，其实这两个公式是一样的。 只要定义阻塞系数(blocking coefficient) = \$w/(w+c)\$，也就是阻塞系数为阻塞时间与整个CPU时间的占比。那么他们就是一个意思：定性的描述就是阻塞时间越多，就需要更多线程来保证CPU有活干。上面2个不同的公式则是定量的表达上述思路了。优化线程池的大小是想用最少的线程上下文切换(或代价)来做到最大的(或特定目标)CPU使用率。&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;第2本书没有把目标CPU使用率放到公式里面，都包含在阻塞系数里面了。&lt;/p&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt;
+                </description>
+            </item>
+            <item>
+                <title>码农工作中的缩写词</title>
+                <link>https://www.reploop.org/blog/2020/05/dev-acronyms.html</link>
+                <pubDate>Sat, 4 Apr 2020 00:00:00 +0800</pubDate>
+                <guid isPermaLink="false">blog/2020/05/dev-acronyms.html</guid>
+                <description>
+                        &lt;div id=&quot;preamble&quot;&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;码农工作中，如果经常看一些英文的文档，混迹于github上抄抄源代码，发发邮件交流的话，或者和早几年外企出来的人一起工作的话，可能经常能看到一些缩写词。不懂的人一脸懵逼，懂的人可能因为少打了几次键盘提高了效率而提前下班被领导白眼。 不过缩写词也就是习惯的问题，不是啥逼格的问题。&lt;/p&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;sect1&quot;&gt; 
+ &lt;h2 id=&quot;常用缩写词&quot;&gt;常用缩写词&lt;/h2&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;dlist&quot;&gt; 
+   &lt;dl&gt; 
+    &lt;dt class=&quot;hdlist1&quot;&gt;
+     RP
+    &lt;/dt&gt; 
+    &lt;dd&gt; 
+     &lt;p&gt;pull request, 两个不同的代码仓库之间的合并请求。在分布式源码管理系统出来之后才有的概念，就是让别人拉取代码仓库变化的意思。&lt;/p&gt; 
+    &lt;/dd&gt; 
+    &lt;dt class=&quot;hdlist1&quot;&gt;
+     MR
+    &lt;/dt&gt; 
+    &lt;dd&gt; 
+     &lt;p&gt;merge request, 提交代码前的合并请求。为了控制代码质量，有些代码分支不允许直接提交。 MR一般发生在向一个受保护的分支提交代码并请求评审代码的意思。&lt;/p&gt; 
+    &lt;/dd&gt; 
+    &lt;dt class=&quot;hdlist1&quot;&gt;
+     IMHO
+    &lt;/dt&gt; 
+    &lt;dd&gt; 
+     &lt;p&gt;In My Humble Opinion. 也就是以我之见，恕我直言的意思。一般情况下是用于提出不同意见的。&lt;/p&gt; 
+    &lt;/dd&gt; 
+    &lt;dt class=&quot;hdlist1&quot;&gt;
+     TBD
+    &lt;/dt&gt; 
+    &lt;dd&gt; 
+     &lt;p&gt;to be done，未完待续。意思是说一项工作应该要做，但是还没有完成。好多开源项目的文档中经常会看到。&lt;/p&gt; 
+    &lt;/dd&gt; 
+    &lt;dt class=&quot;hdlist1&quot;&gt;
+     WIP
+    &lt;/dt&gt; 
+    &lt;dd&gt; 
+     &lt;p&gt;work in process, 施工/设计/处理/工作中，指一项工作正在进行中，还没有完成。开源中的Pull Request如果特别大，要分多次合并的话，每个Pull Request都可以加上[WIP]，说明还有后续的合并请求。&lt;/p&gt; 
+    &lt;/dd&gt; 
+    &lt;dt class=&quot;hdlist1&quot;&gt;
+     WTF
+    &lt;/dt&gt; 
+    &lt;dd&gt; 
+     &lt;p&gt;what the fuck，类似国骂&quot;我艹&quot;之类的，语气词，大概就是这是什么玩意的意思。代码注释中经常能看见WTF的身影，愤怒的程序员。&lt;/p&gt; 
+    &lt;/dd&gt; 
+    &lt;dt class=&quot;hdlist1&quot;&gt;
+     FYI
+    &lt;/dt&gt; 
+    &lt;dd&gt; 
+     &lt;p&gt;for your information，供你参考。一般是想把一个信息同步给另一个人，请他知晓的意思。&lt;/p&gt; 
+    &lt;/dd&gt; 
+    &lt;dt class=&quot;hdlist1&quot;&gt;
+     TL;DR
+    &lt;/dt&gt; 
+    &lt;dd&gt; 
+     &lt;p&gt;too long, don’t read，太长，别看，也就是长篇大论预警提示。一般是一个结论的详细说明，如果仅仅关注结论，不关心缘由的话可以直接跳过的。&lt;/p&gt; 
+    &lt;/dd&gt; 
+    &lt;dt class=&quot;hdlist1&quot;&gt;
+     LGTM
+    &lt;/dt&gt; 
+    &lt;dd&gt; 
+     &lt;p&gt;looks good to me，看起来不错。代码评审中的同意的意思。&lt;/p&gt; 
+    &lt;/dd&gt; 
+    &lt;dt class=&quot;hdlist1&quot;&gt;
+     PTAL
+    &lt;/dt&gt; 
+    &lt;dd&gt; 
+     &lt;p&gt;please take a look，请看一下我的提交。github上经常能看到，某个代码提交或者合并请求，需要某个人评审，就可以这么说。&lt;/p&gt; 
+    &lt;/dd&gt; 
+    &lt;dt class=&quot;hdlist1&quot;&gt;
+     SGTM
+    &lt;/dt&gt; 
+    &lt;dd&gt; 
+     &lt;p&gt;sounds good to me，听起来不错。代码评审中的同意的意思，或者某项提议/设计方案不错的意思。&lt;/p&gt; 
+    &lt;/dd&gt; 
+   &lt;/dl&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;暂时写这么多，后面遇到新的在补充。&lt;/p&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt;
+                </description>
+            </item>
             <item>
                 <title>nginx配置文件中的location匹配规则</title>
                 <link>https://www.reploop.org/blog/2020/04/nginx-location-matching-rules.html</link>
@@ -142,7 +444,7 @@ location ~ /uri/\d{1,}/ {}&lt;/code&gt;&lt;/pre&gt;
    &lt;p&gt;幸运的是，使用非对称加密我们是可以做到的。具体就是Facebook需要有一对公钥和私钥，然后公布自己的公钥，但是把私钥安全保存在自己的服务器上。现在，你只要用Facebook的公钥加密自己的请求数据，根据加密知识，你知道只有Facebook的私钥才能解密这个数据。如果你访问的服务器能够正确的解密数据并且给你返回数据，你就能确信服务器有Facebook的私钥。&lt;/p&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
-   &lt;p&gt;只要Facebook能够保护好自己的私钥，确保不被其他人访问到这个私钥，我们就解决了服务器的认证问题，简单。尽管受到互联网本身特性的制约，我们还是设计了一种方法来验证网站的身份。事实上，我们刚刚描述的这个过程和真正的HTTPS是非常像的。当我们说一个服务器的HTTPS证书的时候，我们其实说的就是一个公钥。&lt;/p&gt; 
+   &lt;p&gt;只要Facebook能够保护好自己的私钥，确保不被其他人盗用，我们就解决了服务器的认证问题，简单。这样的话，尽管受到互联网本身特性的制约，我们还是设计了一种方法来验证网站的身份。事实上，我们刚刚描述的这个过程和真正的HTTPS是非常像的。当我们说一个服务器的HTTPS证书的时候，我们其实说的就是一个公钥。&lt;/p&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
    &lt;p&gt;尽管如此，上述过程存在一个大问题，而这个问题HTTPS必须要解决的。这个问题就是你如何获取每个你想访问的网站的公钥呢？当然了，你有了Facebook的公钥就可以安全的访问Facebook了，但是，如果你想安全的访问Google，你需要Google的公钥。同样的，你想安全的访问Twitter，你需要Twitter的公钥。&lt;/p&gt; 
@@ -151,21 +453,21 @@ location ~ /uri/\d{1,}/ {}&lt;/code&gt;&lt;/pre&gt;
    &lt;p&gt;互联网上有成千上万的网站，而且还在不停的变化。所以就不太可能在你的个人电脑上保存一份全部网站的公钥，只能换一种思路了。现在，我们可以不用在电脑上一直维护这个巨大的公钥列表，而是在第一次访问网站的时候让网站发给我们她的公钥。不过这样就又回到开始的问题了：如果我们在不知情的情况下访问了恶意的第三方，那第三方可能会伪装并且发送她自己的公钥给我们。&lt;/p&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
-   &lt;p&gt;到这一步，你可能要泄气了。虽然我们使用了公钥和私钥，但是我们实际上又回到了最初的起点：我们需要一种让Facebook能够证明其身份的方法，然后我们才能信任他们的公钥。既然如此，公钥的真正的意义又是啥呢？&lt;/p&gt; 
+   &lt;p&gt;到这一步，你可能要泄气了。虽然我们使用了公钥和私钥，但是我们实际上又回到了最初的问题：我们需要一种让Facebook能够证明其身份的方法，然后我们才能信任他们的公钥。既然如此，公钥的真正的意义又是啥呢？&lt;/p&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;sect2&quot;&gt; 
    &lt;h3 id=&quot;证书和证书颁发机构&quot;&gt;证书和证书颁发机构&lt;/h3&gt; 
    &lt;div class=&quot;paragraph&quot;&gt; 
-    &lt;p&gt;问题是互联网上的某个网站不能对每个访问者验证其公钥的有效性，因为现今互联网的规模大到这么做是不经济的。想象一下Facebook &lt;a href=&quot;https://www.statista.com/statistics/490424/number-of-worldwide-facebook-users/&quot;&gt;16.9亿&lt;/a&gt;用户，每个用户至少得发起一次请求，鉴于HTTP的无状态特性，每次请求都要验证一下这个公钥的有效性，这个规模是非常大的。为了解决这个问题，我们使用证书机构或者简称CA。&lt;/p&gt; 
+    &lt;p&gt;还有一个问题是互联网上的某个网站不能对每个访问者验证其公钥的有效性，因为现今互联网的规模大到这么做是不经济的。想象一下Facebook &lt;a href=&quot;https://www.statista.com/statistics/490424/number-of-worldwide-facebook-users/&quot;&gt;16.9亿&lt;/a&gt;用户，每个用户至少得发起一次请求，鉴于HTTP的无状态特性，每次请求都要验证一下这个公钥的有效性，这个规模是非常大的。为了解决这个问题，我们使用证书机构或者简称CA。&lt;/p&gt; 
    &lt;/div&gt; 
    &lt;div class=&quot;paragraph&quot;&gt; 
     &lt;p&gt;证书机构(CA)能正确工作的前提是我们首先得信任他。这听起来有很多顾虑，但是实践中却工作的很好。CA是依靠信任的，所以当CA做了一些可疑的事情，浏览器马上就不再信任这些CA，这些CA也就该倒闭了。即使是CA方面的简单错误也足以永久破坏其声誉。&lt;/p&gt; 
    &lt;/div&gt; 
    &lt;div class=&quot;paragraph&quot;&gt; 
-    &lt;p&gt;那CA是如何解决我们的身份认证问题的呢？ CA收钱为网站提供这种身份认证服务。DigiCert是一家有名的CA，同时也是Facebook使用的CA，我们就用她作为CA的例子。Facebook想证明她的公钥的有效身份，从而让用户安全的访问。所以她就花钱请DigiCert确认她就是真正的Facebook，一旦做了这个，DigiCert就会知道哪个公钥真的就是Facebook的。现在当你访问Facebook的时候，你就不需要Facebook证明她自己的身份了，你只需要Facebook证明DigiCert已经验证过她的身份就可以了。DigiCert为许多网站提供这种服务，你不需要弄清楚如何信任某个网站，你只需要信任DigiCert就可以了。如果你信任DigiCert，而DigiCert信任Facebook，那么理论上你就可以信任Facebook了。我们叫这个信任链。&lt;/p&gt; 
+    &lt;p&gt;那CA是如何解决我们的身份认证问题的呢？CA收钱为网站提供这种身份认证服务。DigiCert是一家有名的CA，同时也是Facebook使用的CA，我们就用她作为CA的例子。Facebook想证明她的公钥的有效身份，从而让用户安全的访问。所以她就花钱请DigiCert确认她就是真正的Facebook，一旦做了这个，DigiCert就会知道哪个公钥真的就是Facebook的。现在当你访问Facebook的时候，你就不需要Facebook证明她自己的身份了，你只需要Facebook证明DigiCert已经验证过她的身份就可以了。DigiCert为许多网站提供这种服务，你不需要弄清楚如何信任某个网站，你只需要信任DigiCert就可以了。如果你信任DigiCert，而DigiCert信任Facebook，那么理论上你就可以信任Facebook了。我们叫这个信任链。&lt;/p&gt; 
    &lt;/div&gt; 
    &lt;div class=&quot;paragraph&quot;&gt; 
-    &lt;p&gt;从抽象的高度看，这就是HTTPS的工作原理了。但是，我们需要弄清楚该过程的中的两个具体细节，才能理解全部详细的工作原理。&lt;/p&gt; 
+    &lt;p&gt;从抽象的高度看，这就是HTTPS的工作原理了。但是，我们需要弄清楚该过程的中的两个具体细节，才能理解详细的工作原理。&lt;/p&gt; 
    &lt;/div&gt; 
    &lt;div class=&quot;ulist&quot;&gt; 
     &lt;ul&gt; 
@@ -173,7 +475,7 @@ location ~ /uri/\d{1,}/ {}&lt;/code&gt;&lt;/pre&gt;
     &lt;/ul&gt; 
    &lt;/div&gt; 
    &lt;div class=&quot;paragraph&quot;&gt; 
-    &lt;p&gt;这看起来又回到问题的起点了。如果我们拥有DigiCert的公钥，则可以验证其身份。但是我们需要以某种方式确保我们拥有DigiCert的公钥，而不是别人的。这里的解决办法是什么呢？其实是我们使用的操作系统或浏览器已经存储了DigiCert的公钥。现如今，我们信任很多CA，不过她们是众所周知的，才让现代操作系统或者浏览器存储她们的公钥。她们存储在计算机的“受信任的根证书颁发机构存储区(Trusted Root Certificate Authority Store)”中。存储的密钥数量似乎很多，但这总比为互联网上的每个网站存储一个公钥要容易多了。&lt;/p&gt; 
+    &lt;p&gt;这看起来又回到问题的起点了。如果我们拥有DigiCert的公钥，则可以验证其身份。但是我们需要以某种方式确保我们拥有DigiCert的公钥，而不是别人的。这里的解决办法是什么呢？其实是我们使用的操作系统或浏览器已经存储了DigiCert的公钥。现如今，我们信任很多CA，只不过她们是众所周知的，才能让现代操作系统或者浏览器存储她们的公钥。这部分公钥存储在计算机的“受信任的根证书颁发机构存储区(Trusted Root Certificate Authority Store)”中。存储的密钥数量似乎很多，但这总比为互联网上的每个网站存储一个公钥要容易多了。&lt;/p&gt; 
    &lt;/div&gt; 
    &lt;div class=&quot;ulist&quot;&gt; 
     &lt;ul&gt; 
@@ -181,7 +483,7 @@ location ~ /uri/\d{1,}/ {}&lt;/code&gt;&lt;/pre&gt;
     &lt;/ul&gt; 
    &lt;/div&gt; 
    &lt;div class=&quot;paragraph&quot;&gt; 
-    &lt;p&gt;一旦DigiCert验证过Facebook就是Facebook之后，DigiCert就知道了Facebook的真正公钥，然后对Facebook的公钥进行数字签名，并且将这个签名后的公钥给Facebook。这种交互完全发生在Facebook和DigiCert之间，而且远远早于用户连接到Facebook的时间，一般网站上线之前就发生了。现在，当你连接到Facebook时，Facebook会给你发送一个已由DigiCert的私钥签名的公钥。然后你可以使用操作系统存储的公钥来验证DigiCert对Facebook的公钥进行了签名。&lt;/p&gt; 
+    &lt;p&gt;一旦DigiCert验证过Facebook就是Facebook之后，DigiCert就知道了Facebook的真正公钥，然后使用自己的私钥对Facebook的公钥进行数字签名，并且将这个签名后的公钥给Facebook。这种交互完全发生在Facebook和DigiCert之间，而且远远早于用户连接到Facebook的时间，一般网站上线之前就发生了。现在，当你连接到Facebook时，Facebook会给你发送一个已由DigiCert的私钥签名的公钥。然后你可以使用操作系统存储的公钥来验证DigiCert对Facebook的公钥进行了签名。&lt;/p&gt; 
    &lt;/div&gt; 
    &lt;div class=&quot;paragraph&quot;&gt; 
     &lt;p&gt;整个过程中有两对公钥和私钥，一对是网站的，一对是CA的。双方都对外公布自己的公钥，并安全保存自己的私钥。网站的公钥先是给了CA，被签名之后间接的最终还是给了用户，这个公钥在协商阶段还会用到。而CA的公钥则直接被操作系统或者浏览器存储下来了，也相当于给了用户。CA用自己的私钥对网站的公钥进行数字签名，发给网站，这就是服务器的证书。当用户连接到服务器的握手环节，服务器发送证书给用户，用户通过本地的CA的公钥来解密网站发来的证书(CA私钥签名过的网站公钥)，如果成功则完成了验证问题。&lt;/p&gt; 
@@ -1395,21 +1697,21 @@ reader_thread.start()&lt;/code&gt;&lt;/pre&gt;
 &lt;div class=&quot;sect1&quot;&gt; 
  &lt;h2 id=&quot;问答环节&quot;&gt;问答环节&lt;/h2&gt; 
  &lt;div class=&quot;sectionbody&quot;&gt; 
-  &lt;div class=&quot;olist arabic&quot;&gt; 
-   &lt;ol class=&quot;arabic&quot;&gt; 
-    &lt;li&gt; &lt;p&gt;如何看人工智能？ 笑称：人工智能是人工智障。拐点：机器可以开始自我学习的时候。但是未必会出现，不确定。现在是人机交互和图像识别做的好，整体还是挺傻逼的。&lt;/p&gt; &lt;/li&gt; 
-    &lt;li&gt; &lt;p&gt;精和广该如何选择？精度和广度是矛盾的，二选一。先精以后，以后学习总结到一套抽象的认识，然后以这为根据地往广度拓宽会比较容易一些。&lt;/p&gt; &lt;/li&gt; 
-    &lt;li&gt; &lt;p&gt;技术转管理的困惑： 团队的技术效能最大化，管理方法千人千面，自己摸索。自己的成就感来源要变。&lt;/p&gt; &lt;/li&gt; 
-    &lt;li&gt; &lt;p&gt;百度的经历：我一直努力让自己被更多人知道。&lt;/p&gt; &lt;/li&gt; 
-    &lt;li&gt; &lt;p&gt;精英创业与草根创业：自己的定位清晰。&lt;/p&gt; &lt;/li&gt; 
-    &lt;li&gt; &lt;p&gt;架构师的关注？全面了解系统的各个组成，懂得权衡，引进业界优秀方案，找到对业务合适的系统组成方式。&lt;/p&gt; &lt;/li&gt; 
-    &lt;li&gt; &lt;p&gt;大公司完善体系，如何提升？核心点还是自己的目标要明确，明确了之后办法自然就有了。&lt;/p&gt; &lt;/li&gt; 
-    &lt;li&gt; &lt;p&gt;牛人？正真的牛人是解决问题的。&lt;/p&gt; &lt;/li&gt; 
-    &lt;li&gt; &lt;p&gt;副总裁与架构师怎么平衡的？技术是乐趣，更喜欢程序员的称呼。做事是目的，想做的话什么事都能做好。&lt;/p&gt; &lt;/li&gt; 
-    &lt;li&gt; &lt;p&gt;机会争取的事情，蝴蝶效应：一定要争取&lt;/p&gt; &lt;/li&gt; 
-    &lt;li&gt; &lt;p&gt;语言：facebook来源具有玩票性质。需求是工具，重要的是解决问题的方法&lt;/p&gt; &lt;/li&gt; 
-    &lt;li&gt; &lt;p&gt;面试的时候提问一些题外话是不是需要了解的？明确目标，不管是什么困难都迎难而上，面试让你不懂什么，想去就学习。&lt;/p&gt; &lt;/li&gt; 
-    &lt;li&gt; &lt;p&gt;技术晋升：业务复杂，解决方案，评审的时候看的是能力，而不是做过什么。遇到了什么问题(突出难点)，我的解决方案是什么(列举一些，要有对比，说明优劣)，最后取得了什么效果。&lt;/p&gt; &lt;/li&gt; 
+  &lt;div class=&quot;qlist qanda&quot;&gt; 
+   &lt;ol&gt; 
+    &lt;li&gt; &lt;p&gt;&lt;em&gt;如何看人工智能？&lt;/em&gt;&lt;/p&gt; &lt;p&gt;笑称：人工智能是人工智障。拐点：机器可以开始自我学习的时候。但是未必会出现，不确定。现在是人机交互和图像识别做的好，整体还是挺傻逼的。&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;&lt;em&gt;精和广该如何选择？&lt;/em&gt;&lt;/p&gt; &lt;p&gt;精度和广度是矛盾的，二选一。先精以后，以后学习总结到一套抽象的认识，然后以这为根据地往广度拓宽会比较容易一些。&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;&lt;em&gt;精英创业与草根创业&lt;/em&gt;&lt;/p&gt; &lt;p&gt;自己的定位清晰。&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;&lt;em&gt;架构师的关注？&lt;/em&gt;&lt;/p&gt; &lt;p&gt;全面了解系统的各个组成，懂得权衡，引进业界优秀方案，找到对业务合适的系统组成方式。&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;&lt;em&gt;大公司完善体系，如何提升？&lt;/em&gt;&lt;/p&gt; &lt;p&gt;核心点还是自己的目标要明确，明确了之后办法自然就有了。&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;&lt;em&gt;副总裁与架构师怎么平衡的？&lt;/em&gt;&lt;/p&gt; &lt;p&gt;技术是乐趣，更喜欢程序员的称呼。做事是目的，想做的话什么事都能做好。&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;&lt;em&gt;机会该不该主动争取的事情?&lt;/em&gt;&lt;/p&gt; &lt;p&gt;蝴蝶效应,一定要争取&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;&lt;em&gt;对语言的看法？&lt;/em&gt;&lt;/p&gt; &lt;p&gt;facebook开源具有玩票性质。需求是工具，重要的是解决问题的方法。&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;&lt;em&gt;面试的时候提问一些题外话是不是需要了解的？&lt;/em&gt;&lt;/p&gt; &lt;p&gt;明确目标，不管是什么困难都迎难而上，面试让你不懂什么，想去就学习。&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;&lt;em&gt;如何技术晋升？&lt;/em&gt;&lt;/p&gt; &lt;p&gt;业务复杂，解决方案，评审的时候看的是能力，而不是经验(做过什么)。主要说明遇到了什么问题(突出难点)，我的解决方案是什么(列举一些，要有对比，说明优劣)，最后取得了什么效果。&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;&lt;em&gt;技术转管理的困惑？&lt;/em&gt;&lt;/p&gt; &lt;p&gt;团队的技术效能最大化，管理方法千人千面，自己摸索。自己的成就感来源要变。&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;&lt;em&gt;百度的经历?&lt;/em&gt;&lt;/p&gt; &lt;p&gt;我一直努力让自己被更多人知道。&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;&lt;em&gt;什么是牛人？&lt;/em&gt;&lt;/p&gt; &lt;p&gt;正真的牛人是解决问题的。&lt;/p&gt; &lt;/li&gt; 
    &lt;/ol&gt; 
   &lt;/div&gt; 
  &lt;/div&gt; 

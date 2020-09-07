@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh_CN">
   <head>
     <meta charset="utf-8"/>
     <title>REPLoop</title>
@@ -8,6 +8,7 @@
     <meta name="author" content="乔治">
     <meta name="keywords" content="REPL,REPLoop,George,乔治">
     <meta name="generator" content="JBake v2.7.0.1">
+    <meta property=og:locale content=zh_CN>
 
     <!-- Le styles -->
     <link href="../css/bootstrap.min.css" rel="stylesheet">
@@ -87,6 +88,10 @@
                 <span class="badge badge-light">1</span>
             </button>
             <button type="button" class="btn btn-secondary">
+                <a href="../tags/变化.html">变化</a>
+                <span class="badge badge-light">1</span>
+            </button>
+            <button type="button" class="btn btn-secondary">
                 <a href="../tags/原子性.html">原子性</a>
                 <span class="badge badge-light">1</span>
             </button>
@@ -147,6 +152,10 @@
                 <span class="badge badge-light">1</span>
             </button>
             <button type="button" class="btn btn-secondary">
+                <a href="../tags/线程池.html">线程池</a>
+                <span class="badge badge-light">1</span>
+            </button>
+            <button type="button" class="btn btn-secondary">
                 <a href="../tags/并行.html">并行</a>
                 <span class="badge badge-light">1</span>
             </button>
@@ -155,12 +164,20 @@
                 <span class="badge badge-light">1</span>
             </button>
             <button type="button" class="btn btn-secondary">
+                <a href="../tags/视角.html">视角</a>
+                <span class="badge badge-light">1</span>
+            </button>
+            <button type="button" class="btn btn-secondary">
+                <a href="../tags/缩写词.html">缩写词</a>
+                <span class="badge badge-light">1</span>
+            </button>
+            <button type="button" class="btn btn-secondary">
                 <a href="../tags/thrift.html">thrift</a>
                 <span class="badge badge-light">1</span>
             </button>
             <button type="button" class="btn btn-secondary">
                 <a href="../tags/多线程.html">多线程</a>
-                <span class="badge badge-light">4</span>
+                <span class="badge badge-light">5</span>
             </button>
             <button type="button" class="btn btn-secondary">
                 <a href="../tags/HTTPS.html">HTTPS</a>
@@ -184,6 +201,10 @@
             </button>
             <button type="button" class="btn btn-secondary">
                 <a href="../tags/密钥对.html">密钥对</a>
+                <span class="badge badge-light">1</span>
+            </button>
+            <button type="button" class="btn btn-secondary">
+                <a href="../tags/认知.html">认知</a>
                 <span class="badge badge-light">1</span>
             </button>
             <button type="button" class="btn btn-secondary">
@@ -237,6 +258,31 @@
     <script src="../js/jquery-1.11.1.min.js"></script>
     <script src="../js/bootstrap.min.js"></script>
     <script src="../js/prettify.js"></script>
-    
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  messageStyle: "none",
+  tex2jax: {
+    inlineMath: [["\\(", "\\)"]],
+    displayMath: [["\\[", "\\]"]],
+    ignoreClass: "nostem|nolatexmath"
+  },
+  asciimath2jax: {
+    delimiters: [["\\$", "\\$"]],
+    ignoreClass: "nostem|noasciimath"
+  },
+  TeX: { equationNumbers: { autoNumber: "none" } }
+})
+MathJax.Hub.Register.StartupHook("AsciiMath Jax Ready", function () {
+  MathJax.InputJax.AsciiMath.postfilterHooks.Add(function (data, node) {
+    if ((node = data.script.parentNode) && (node = node.parentNode) && node.classList.contains('stemblock')) {
+      data.math.root.display = "block"
+    }
+    return data
+  })
+})
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_HTMLorMML"></script>
   </body>
 </html>

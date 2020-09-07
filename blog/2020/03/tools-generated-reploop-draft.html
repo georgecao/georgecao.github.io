@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh_CN">
   <head>
     <meta charset="utf-8"/>
     <title>REPLoop使用到的工具链</title>
@@ -8,6 +8,7 @@
     <meta name="author" content="George Cao">
     <meta name="keywords" content="REPLoop,JBake,主题,Asciidoctor,Pandoc">
     <meta name="generator" content="JBake v2.7.0.1">
+    <meta property=og:locale content=zh_CN>
 
     <!-- Le styles -->
     <link href="../../../css/bootstrap.min.css" rel="stylesheet">
@@ -74,7 +75,7 @@
    <p>LAMP vs SSM</p> 
   </div> 
   <div class="paragraph"> 
-   <p>云时代对小不点的企业或者个人来说啥都可以找到云解决方案，比如给网站加个评论那就用 <a href="https://disqus.com/">DISQUS</a>，想有个统计那就用 <a href="https://analytics.google.com/analytics/web/">Google Analytics</a>，想上个CDN加速那就用 <a href="https://www.cloudflare.com/">Cloudflare</a>，域名也可以不用操心，就用Github Pages的，有自己域名的也可以用。HTTPS证书也有免费的 <a href="https://letsencrypt.org/">Let’s Encrypt</a>。只要搭好架子，剩下的就是使用熟悉的格式如 <a href="https://www.markdownguide.org/">Markdown</a>或者 <a href="https://asciidoctor.org/">Asciidoctor</a>等开始写就可以了。</p> 
+   <p>云时代对小不点的企业或者个人来说啥都可以找到云解决方案，比如给网站加个评论那就用 <a href="https://disqus.com/">DISQUS</a>，想有个统计那就用 <a href="https://analytics.google.com/analytics/web/">Google Analytics</a>，想上个CDN加速那就用 <a href="https://www.cloudflare.com/">Cloudflare</a>，域名也可以不用操心，就用Github Pages的，有自己域名的也可以用。HTTPS证书也有免费的 <a href="https://letsencrypt.org/">Let’s Encrypt</a>。只要搭好架子，剩下的就是使用熟悉的格式如 <a href="https://www.markdownguide.org/">Markdown</a>或者 <a href="https://asciidoctor.org/">Asciidoctor</a>等开始写就可以了。写完了也直接提交代码库 <a href="https://github.com/gitlab">Github</a>，存储都在云端了。搭建好之后简单到大约只有有个浏览器，连了网络就可以写了。</p> 
   </div> 
  </div> 
 </div> 
@@ -93,6 +94,9 @@
  <div class="sectionbody"> 
   <div class="paragraph"> 
    <p>英文句子中的每个单词前后都有空格，但是中文句子却不是。然后一些加粗必须和前面的字有一个空格Asciidoc才能解析。 比如 <code>This is <strong>bold</strong> .`很正常， 但是 `这是*加粗*文字</code> 这个不能正确解析，需要加入空格才可以，像这样：<code>这是 <strong>加粗</strong> 文字</code>。不过这样的话出来的文字就有空格了。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p><a href="https://github.com/asciidoctor/asciidoctor/issues/1420" class="bare">https://github.com/asciidoctor/asciidoctor/issues/1420</a> <a href="https://emacs-china.org/t/markup-language/9308" class="bare">https://emacs-china.org/t/markup-language/9308</a></p> 
   </div> 
  </div> 
 </div> 
@@ -189,6 +193,31 @@
     <script src="../../../js/jquery-1.11.1.min.js"></script>
     <script src="../../../js/bootstrap.min.js"></script>
     <script src="../../../js/prettify.js"></script>
-    
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  messageStyle: "none",
+  tex2jax: {
+    inlineMath: [["\\(", "\\)"]],
+    displayMath: [["\\[", "\\]"]],
+    ignoreClass: "nostem|nolatexmath"
+  },
+  asciimath2jax: {
+    delimiters: [["\\$", "\\$"]],
+    ignoreClass: "nostem|noasciimath"
+  },
+  TeX: { equationNumbers: { autoNumber: "none" } }
+})
+MathJax.Hub.Register.StartupHook("AsciiMath Jax Ready", function () {
+  MathJax.InputJax.AsciiMath.postfilterHooks.Add(function (data, node) {
+    if ((node = data.script.parentNode) && (node = node.parentNode) && node.classList.contains('stemblock')) {
+      data.math.root.display = "block"
+    }
+    return data
+  })
+})
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_HTMLorMML"></script>
   </body>
 </html>

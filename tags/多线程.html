@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh_CN">
   <head>
     <meta charset="utf-8"/>
     <title>REPLoop</title>
@@ -8,6 +8,7 @@
     <meta name="author" content="乔治">
     <meta name="keywords" content="REPL,REPLoop,George,乔治">
     <meta name="generator" content="JBake v2.7.0.1">
+    <meta property=og:locale content=zh_CN>
 
     <!-- Le styles -->
     <link href="../css/bootstrap.min.css" rel="stylesheet">
@@ -58,8 +59,13 @@
 	</div>
 	
 	<!--<ul>-->
-			<h4>2020年02月</h4>
+			<h4>2020年05月</h4>
 			<ul>
+		
+		<li>04 - <a href="../blog/2020/05/how-to-size-thread-pool.html">如何设置线程池的大小？</a></li>
+				</ul>
+				<h4>2020年02月</h4>
+				<ul>
 		
 		<li>29 - <a href="../blog/2020/02/understanding-memory-reordering.html">理解内存重排序以及为什写无锁多线程代码时很重要</a></li>
 		
@@ -86,6 +92,31 @@
     <script src="../js/jquery-1.11.1.min.js"></script>
     <script src="../js/bootstrap.min.js"></script>
     <script src="../js/prettify.js"></script>
-    
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  messageStyle: "none",
+  tex2jax: {
+    inlineMath: [["\\(", "\\)"]],
+    displayMath: [["\\[", "\\]"]],
+    ignoreClass: "nostem|nolatexmath"
+  },
+  asciimath2jax: {
+    delimiters: [["\\$", "\\$"]],
+    ignoreClass: "nostem|noasciimath"
+  },
+  TeX: { equationNumbers: { autoNumber: "none" } }
+})
+MathJax.Hub.Register.StartupHook("AsciiMath Jax Ready", function () {
+  MathJax.InputJax.AsciiMath.postfilterHooks.Add(function (data, node) {
+    if ((node = data.script.parentNode) && (node = node.parentNode) && node.classList.contains('stemblock')) {
+      data.math.root.display = "block"
+    }
+    return data
+  })
+})
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_HTMLorMML"></script>
   </body>
 </html>

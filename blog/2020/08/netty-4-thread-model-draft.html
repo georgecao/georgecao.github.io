@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+  <head>
+    <meta charset="utf-8"/>
+    <title>Netty 4 线程模型</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="乔治">
+    <meta name="keywords" content="netty,多线程,线程模型">
+    <meta name="generator" content="JBake v2.7.0.1">
+    <meta property=og:locale content=zh_CN>
+
+    <!-- Le styles -->
+    <link href="../../../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../../../css/asciidoctor.css" rel="stylesheet">
+    <link href="../../../css/base.css" rel="stylesheet">
+    <link href="../../../css/prettify.css" rel="stylesheet">
+
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+
+    <!-- Fav and touch icons -->
+    <!--<link rel="apple-touch-icon-precomposed" sizes="144x144" href="../assets/ico/apple-touch-icon-144-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="../assets/ico/apple-touch-icon-114-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="../assets/ico/apple-touch-icon-72-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" href="../assets/ico/apple-touch-icon-57-precomposed.png">-->
+    <link rel="shortcut icon" href="../../../img/favicon.ico">
+      <link rel="canonical" href="https://www.reploop.org/blog/2020/08/netty-4-thread-model.html" />
+    <script data-ad-client="ca-pub-2350040335860411" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  </head>
+  <body onload="prettyPrint()">
+    <div id="wrap">	
+	<!-- Fixed navbar -->
+    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../../../">REPLoop</a>
+        </div>
+        <div class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li><a href="../../../index.html">博客</a></li>
+            <li><a href="../../../archive.html">归档</a></li>
+            <li><a href="../../../tags/index.html">标签</a></li>
+            <li><a href="../../../about.html">关于</a></li>
+            <li><a href="../../../feed.xml">订阅</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </div>
+    <div class="container">
+		<div class="page-header">
+			<h1>Netty 4 线程模型</h1>
+		</div>
+
+<p><a href="/about.html"><strong>乔治</strong></a>于2020年05月04日
+				<span class="badge badge-dark">netty</span>
+				<span class="badge badge-dark">多线程</span>
+				<span class="badge badge-dark">线程模型</span>
+	</p>
+	<p><div id="preamble"> 
+ <div class="sectionbody"> 
+  <div class="quoteblock abstract"> 
+   <blockquote>
+     Netty 4的线程模型简单可依赖 
+   </blockquote> 
+  </div> 
+  <div class="paragraph"> 
+   <p><a href="https://medium.com/square-corner-blog/upgrading-a-reverse-proxy-from-netty-3-to-4-878ec407665a#.yyrawts8y" class="bare">https://medium.com/square-corner-blog/upgrading-a-reverse-proxy-from-netty-3-to-4-878ec407665a#.yyrawts8y</a></p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>EventLoop → EventExecutor Lazy Bind <a href="http://www.infoq.com/cn/articles/netty-version-upgrade-history-thread-part" class="bare">http://www.infoq.com/cn/articles/netty-version-upgrade-history-thread-part</a></p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="java线程池">Java线程池</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>简单朴素的正向思路，线程池就是提前实例化多个线程，有任务的时候呢，先挑一个线程出来，然后把任务给它执行。有过数据库连接池使用经验的话，应该很熟悉这种模式。</p> 
+  </div> 
+  <div class="listingblock"> 
+   <div class="content"> 
+    <pre class="prettyprint highlight"><code data-lang="java">int size = 100;
+Thread[size] = new Thread[size]; //线程池</code></pre> 
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>不过Doug Lea大神在Java 1.5提供的线程池实现则不是这么简单粗暴。 理解Java的线程池实现对理解Netty的线程模式非常有帮助。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="工作原理">工作原理</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>每个EventExecutor都会绑定唯一的一个线程，并且可以有0或者1个工作队列（EventLoop）。提交任务的时候将任务放去工作队列，而绑定的线程则不停地轮询（Loop）工作队列，如何有任务则执行，没有就等待，直到Executor关闭才退出循环。EventExecutor和JDK中的线程池Executor非常类似的思想。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="延迟绑定">延迟绑定</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>EventExecutor 第一次执行任务的时候，使用ThreadPerTaskExecutor创建一个新线程，并且绑定到这个EventExecutor。ThreadPerTaskExecutor非常特殊，没有工作队列，每个任务都是新创建一个线程去执行，顾名思义。而当前任务呢将作为这个线程的第一个任务去执行。一般来讲绑定任务都是个无限循环，不停地从当前的Executor的任务队列中拉取任务执行，直到停止或者关闭的时候才结束。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="多线程环境">多线程环境</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>每个Handler可以显式绑定一个Executor，如果没有绑定的话，就使用Channel默认绑定的EventLoop执行。每个Handler执行任何Read或者Write操作都会检查当前Executor和绑定的是否一致，如果一致的话，单线程直接执行任务；不一致，当前Executor将把操作封装成一个任务提交到下一个Executor的任务队列中。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>Netty中默认都是使用的I/O线程，也就是Worker线程去执行任务，如果你的Handler里面有耗时任务，比如常见的网络操作，在加上一个EventLoop可以绑定到多个Channel，那么强烈建议给这个Handler显式绑定一个EventExecutorGroup，使得I/O线程能够继续处理I/O操作。如果阻塞当前线程的话，1个或者多个Channel将被阻塞，从而严重影响吞吐量。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>EventExecutor上创建的Promise或者Future，当前线程是用来阻塞等待的（wait/notify机制），实现的效果就是谁调用阻塞方法，就阻塞谁。但是当Promise和Future完成（notify）之后，是用这个EventExecutor去通知所有的监听者。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>EventExecutor可以看做一个普通的线程，去执行业务任务。EventLoop作为EventExecutor的特例，只用来执行I/O相关任务，因此也不能被阻塞。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>NIO模式下，Netty中Channel和JVM的Channel是通过附件attachment关联起来的。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>ByteBuf要在同一个线程里面创建和回收，从而避免内存泄露。因为ByteBuf Pool用的是ThreadLocal实现的。</p> 
+  </div> 
+  <div class="imageblock"> 
+   <div class="content"> 
+    <img src="https://www.reploop.org/blog/2020/08/images/netty-4-thread-model.png" alt="Thread任务执行模型"> 
+   </div> 
+   <div class="title">
+    Figure 1. Thread任务执行模型
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>I/O密集型和CPU密集型 这种线程模型针对这两类业务类型的优缺点</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p><a href="http://netty.io/wiki/new-and-noteworthy-in-4.0.html" class="bare">http://netty.io/wiki/new-and-noteworthy-in-4.0.html</a></p> 
+  </div> 
+ </div> 
+</div></p>
+
+	<hr />
+<div id="disqus_thread"></div>
+<script>
+
+    /**
+     *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+     *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
+    var disqus_config = function () {
+        this.page.url = "https://www.reploop.org/blog/2020/08/netty-4-thread-model.html";  // Replace PAGE_URL with your page's canonical URL variable
+        this.page.identifier = "https://www.reploop.org/blog/2020/08/netty-4-thread-model.html"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+    };
+    (function () { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://reploop.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by
+        Disqus.</a></noscript>
+		</div>
+		<div id="push"></div>
+    </div>
+    
+    <div id="footer">
+      <div class="container">
+        <p class="muted credit">&copy; 2020 | Mixed with <a href="http://getbootstrap.com/">Bootstrap v3.1.1</a> | Baked with <a href="http://jbake.org">JBake v2.7.0.1</a></p>
+      </div>
+    </div>
+    
+    <!-- Le javascript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="../../../js/jquery-1.11.1.min.js"></script>
+    <script src="../../../js/bootstrap.min.js"></script>
+    <script src="../../../js/prettify.js"></script>
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  messageStyle: "none",
+  tex2jax: {
+    inlineMath: [["\\(", "\\)"]],
+    displayMath: [["\\[", "\\]"]],
+    ignoreClass: "nostem|nolatexmath"
+  },
+  asciimath2jax: {
+    delimiters: [["\\$", "\\$"]],
+    ignoreClass: "nostem|noasciimath"
+  },
+  TeX: { equationNumbers: { autoNumber: "none" } }
+})
+MathJax.Hub.Register.StartupHook("AsciiMath Jax Ready", function () {
+  MathJax.InputJax.AsciiMath.postfilterHooks.Add(function (data, node) {
+    if ((node = data.script.parentNode) && (node = node.parentNode) && node.classList.contains('stemblock')) {
+      data.math.root.display = "block"
+    }
+    return data
+  })
+})
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_HTMLorMML"></script>
+  </body>
+</html>

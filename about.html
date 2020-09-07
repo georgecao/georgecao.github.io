@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh_CN">
   <head>
     <meta charset="utf-8"/>
     <title>关于</title>
@@ -8,6 +8,7 @@
     <meta name="author" content="乔治">
     <meta name="keywords" content="REPL,REPLoop,George,乔治">
     <meta name="generator" content="JBake v2.7.0.1">
+    <meta property=og:locale content=zh_CN>
 
     <!-- Le styles -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
@@ -62,8 +63,22 @@
 
 	<p>REPLoop，在脚本编程语言中经常能看到REPL，也就是Read-Evaluate-Print-Loop，意思是读取源代码，评估执行，打印结果的循环。这个过程能够快速的学习实践然后得到结果。 非常像一个学习成长的过程：输入信息，消化吸收，输出知识并用于实践，然后持之以恒的坚持。4个环节缺一不可，而且最难做到的大概是持之以恒了。 
 <p>所以就有了REPLoop。</p> 
-<p>邮件：georgecao(at)outlook.com</p> 
-<p>Twitter：<a href="https://twitter.com/czzhi">@czzhi</a></p></p>
+<table style="border: 0px"> 
+ <tbody>
+  <tr> 
+   <td>邮件：</td> 
+   <td>georgecao(at)outlook.com</td> 
+  </tr> 
+  <tr> 
+   <td>Twitter：</td> 
+   <td><a href="https://twitter.com/czzhi">@czzhi</a></td> 
+  </tr> 
+  <tr> 
+   <td>公众号：</td> 
+   <td><img alt="白话程序" src="https://www.reploop.org/img/qrcode_for_coder_talks_small.jpg"></td> 
+  </tr> 
+ </tbody>
+</table></p>
 
 	<hr />
 
@@ -83,6 +98,31 @@
     <script src="js/jquery-1.11.1.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
     <script src="js/prettify.js"></script>
-    
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  messageStyle: "none",
+  tex2jax: {
+    inlineMath: [["\\(", "\\)"]],
+    displayMath: [["\\[", "\\]"]],
+    ignoreClass: "nostem|nolatexmath"
+  },
+  asciimath2jax: {
+    delimiters: [["\\$", "\\$"]],
+    ignoreClass: "nostem|noasciimath"
+  },
+  TeX: { equationNumbers: { autoNumber: "none" } }
+})
+MathJax.Hub.Register.StartupHook("AsciiMath Jax Ready", function () {
+  MathJax.InputJax.AsciiMath.postfilterHooks.Add(function (data, node) {
+    if ((node = data.script.parentNode) && (node = node.parentNode) && node.classList.contains('stemblock')) {
+      data.math.root.display = "block"
+    }
+    return data
+  })
+})
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_HTMLorMML"></script>
   </body>
 </html>
