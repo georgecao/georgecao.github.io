@@ -24,7 +24,7 @@
     <link rel="apple-touch-icon-precomposed" sizes="114x114" href="../assets/ico/apple-touch-icon-114-precomposed.png">
     <link rel="apple-touch-icon-precomposed" sizes="72x72" href="../assets/ico/apple-touch-icon-72-precomposed.png">
     <link rel="apple-touch-icon-precomposed" href="../assets/ico/apple-touch-icon-57-precomposed.png">-->
-    <link rel="shortcut icon" href="../img/favicon.ico">
+    <link rel="shortcut icon" href="../img/favicon.svg">
     <script data-ad-client="ca-pub-2350040335860411" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
   </head>
   <body onload="prettyPrint()">
@@ -52,6 +52,252 @@
       </div>
     </div>
     <div class="container">
+  		<a href="blog/2020/02/a-gentle-introduction-to-multithreading.html"><h1>多线程简介: 一步一步走进并发的世界</h1></a>
+  		<p>
+			<a href="/about.html"><strong>George Cao</strong></a>于2020年02月20日
+					<span class="badge badge-dark">并行</span>
+					<span class="badge badge-dark">并发</span>
+					<span class="badge badge-dark">多线程</span>
+					<span class="badge badge-dark">进程</span>
+					<span class="badge badge-dark">线程</span>
+		</p>
+  		<p><div id="preamble"> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>现代计算机有同时执行多个任务的能力。在高级硬件和更智能的操作系统的支持下，计算机的这个能力能够让你的程序在执行时间和响应速度两方面体现的更快。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>开发利用这个能力的软件是既有趣又需要技巧：它要求你理解计算机的底层细节。在本系列的第一篇文章中，我尝试浅显介绍一下 <strong>线程（thread）</strong>。操作系统为做到同时执行多个任务提供了很多工具，线程是其一。</p> 
+  </div> 
+  <div class="ulist"> 
+   <div class="title">
+    本系列中的其他文章
+   </div> 
+   <ul> 
+    <li> <p><a href="https://www.reploop.org/blog/2020/02/introduction-to-thread-synchronization.html">线程同步简介</a> - 多线程应用中最常见的并发控制方法之一</p> </li> 
+    <li> <p><a href="https://www.reploop.org/blog/2020/02/lock-free-multithreading-with-atomic-operations.html">用原子操作实现无锁多线程</a> - 底层线程同步</p> </li> 
+    <li> <p><a href="https://www.reploop.org/blog/2020/02/understanding-memory-reordering.html">理解内存重排序</a> - 为什写无锁多线程代码时它很重要</p> </li> 
+   </ul> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="进程与线程用正确的方式命名">进程与线程：用正确的方式命名</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>现代操作系统能够同时执行多个程序。这就是你在用浏览器（一个程序）看这篇文章的同时还能够用多媒体播放器（另一个程序）听音乐的原因。每个程序就是一个正在被执行的 <strong>进程（process）</strong>。操作系统知道许多软件层面的技巧，或者利用底层硬件使得多个程序并行执行。不管那种方式，最终结果就是你 <em>感觉</em> 到所有的程序就是同时运行的。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>在操作系统中运行多个进程不是同时执行多个任务的唯一办法。每个进程内部可以同时运行多个子任务，称之为 <strong>线程</strong>。你可以把线程看作是进程的一部分。 每个进程在启动时会至少会创建1个线程，这个线程叫做 <strong>主线程(main thread)</strong>。然后，根据程序或者程序员的需要，更多的线程会被启动或者中止。<strong>多线程技术(Multithreading)</strong> 是指在一个进程内运行多个线程。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>例如，多媒体播放器可能是多线程的：1个线程负责绘制界面（通常是主线程），另1个线程则负责播放音乐，如此类推。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>你可以把操作系统看作是包含了多个进程的容器。而每个进程则是包含了多个线程的容器。这篇文章中，我只会将重点放在线程上，但是整个主题是非常有趣的，在未来的文章会会有更深入的分析。</p> 
+  </div> 
+  <div class="imageblock"> 
+   <div class="content"> 
+    <img src="https://www.reploop.org/blog/2020/02/images/processes-threads.png" alt="Processes vs Threads"> 
+   </div> 
+   <div class="title">
+    Figure 1. 操作系统可看作高包含多个进程的盒子，而进程则是包含了至少一个线程的盒子
+   </div> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="进程与线程的不同之处">进程与线程的不同之处</h3> 
+   <div class="paragraph"> 
+    <p>每个进程都有操作系统为其分配的内存块。默认情况下，进程的内存块不能够和其他进程共享：你的浏览器是不能访问分配给多媒体播放器的内存块的，反之亦然。如果你运行一个程序的两个 <strong>实例(instances)</strong>，规则也是一样的。比如你打开2个浏览器。操作系统把每个实例看作是一个新的拥有独立内存块的进程。所以，默认情况下，2个或者更多的进程之间没法共享数据，除非使用高级的技巧，也就是所谓的 <strong>进程间通信(<a href="https://en.wikipedia.org/wiki/Inter-process_communication">IPC</a>)</strong>。</p> 
+   </div> 
+   <div class="paragraph"> 
+    <p>不像进程，线程则共享了操作系统分配给其所在进程的内存块：多媒体播放器的音频引擎可很容易的访问播放器界面上的数据，反之亦然。因此线程间通信要比进程间通信容易多了。更重要的是，线程通常比进程轻量：线程占用较少的资源并且创建速度更快，这也是线程被称为 <strong>轻量级进程(lightweight processes)</strong> 的原因。</p> 
+   </div> 
+   <div class="paragraph"> 
+    <p>线程是同时执行多个操作的更方便的办法。没有线程，你需要为每个任务写一个程序，然后按进程运行并且通过操作系统来同步这些进程。这样会更难（IPC需要技巧）而且慢（进程比线程更重量级）。</p> 
+   </div> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="绿色线程或纤程">绿色线程，或纤程</h3> 
+   <div class="paragraph"> 
+    <p>到目前为止，线程是操作系统级别的：一个进程启动一个线程需要和操作系统交互。但是并不是每种操作系统都原生支持线程。<strong>绿色线程(Green threads)</strong>，也称为 <strong>纤程(fibers)</strong> 是一种在不支持线程的环境下通过软件模拟的多线程从而使得多线程程序能够工作。比如一个虚拟机可能会实现绿色线程以防底层依赖的操作系统不支持原生的线程。</p> 
+   </div> 
+   <div class="paragraph"> 
+    <p>绿色线程能够更快的创建和管理，因为绿色线程完全绕过了操作系统。但是也有其不足之处。我会在后续的文章中写这个主题。</p> 
+   </div> 
+   <div class="paragraph"> 
+    <p>『绿色线程』的名字是指90年代太阳微系统公司的内最初设计Java线程库的『绿色团队』。今天Java不在使用绿色线程了，2000年的时候Java从绿色线程切换到操作系统原生线程了。有部分其他语言（随便举几个例子Go，Haskell或者Rust）实现了原生线程对应的绿色线程。</p> 
+   </div> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="线程用来干什么的">线程用来干什么的</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>为啥一个进程要使用多个线程？ 如前所述，并行做事能够很大程度上加快速度。比如你准备用电影编辑器渲染一部电源，电影编辑器能够智能的把渲染任务分散到多个线程，每个线程处理这部电影的一部分。那么如果单线程执行这个任务要话1小时，用2个线程可能只需要30分钟，用4个线程可能只需要15分钟，依此类推。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>真的如此简单吗？有3个重要的点要考虑：</p> 
+  </div> 
+  <div class="olist arabic"> 
+   <ol class="arabic"> 
+    <li> <p>并不是每个程序都需要多线程运行。如果你的程序执行串行操作或者经常等待用户做一些事情，多线程可能并不会有多大好处；</p> </li> 
+    <li> <p>你不能不停的创建线程来让他运行更快：每个子任务都要仔细的思考和设计，才能执行并行操作。</p> </li> 
+    <li> <p>不能百分百的保证所有的线程是真正的平行执行的。也就是在 <strong>同一时刻</strong>，是否真的并行取决于底层硬件。</p> </li> 
+   </ol> 
+  </div> 
+  <div class="paragraph"> 
+   <p>最后一点比较关键：如果你的计算机不支持同时执行多个操作，那么操作系统就要模拟多线程。我们马上就会看到如何做了。 目前而言，让我们把 <strong>并发(concurrency)</strong> 认为是我们感觉多个任务在同时执行，而把 *真正的并行(true parallelism)*认为是多个任务真正的同时执行。</p> 
+  </div> 
+  <div class="imageblock"> 
+   <div class="content"> 
+    <img src="https://www.reploop.org/blog/2020/02/images/concurrency-parallelism.png" alt="Concurrency vs Parallelism"> 
+   </div> 
+   <div class="title">
+    Figure 2. 并行是并发的子集。
+   </div> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="并发和并行的背后原理">并发和并行的背后原理</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>计算机中的中央处理单元(CPU)是真正负责运行程序的。它有几部分构成，主要部分就是所谓的 <strong>核（core）</strong>：所有的计算都是在核上执行的。一个核一次只能执行一个操作。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>这当然也是一个主要缺点。 由于这个原因，操作系统发展出许多高级的技术才让用户能够一次运行多个进程（或者线程），特别是图形界面环境甚至是单核机器上。最重要的一个是 <strong>抢占式多任务(preemptive multitasking)</strong> 技术。其中 <strong>抢占式(preemption)</strong> 是指操作系统能够中断当前正在运行的任务，切换到另一个任务并且一段时间之后还能够继续执行之前被中断的程序。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>所以如果你的CPU是单核的，操作系统的部分工作就是将单核的算力分配给多个进程或者线程，这些进程或者线程是一个接着一个的不停执行的。这个操作会让你有个幻觉至少2个程序在并行运行，或者某个程序在同时做多个事情（如果是多线程程序的话）。并发是满足了，但是真正的平行，也就是 <em>同时</em> 运行多个进程的能力还是缺失的。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>今天现代CPU有不止1个核，而且同一时刻，每个核都可以独立的执行操作。 拥有2个或者更多的核心意味着真正的并行是可能的。例如，我的Intel Core i7是4核的：也就是说在某个时刻，它可以同时运行4个不同的进程或者线程。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>操作系统能够检测到CPU的核数并且分配进程或者线程给每个单独的核。操作系统可以调度自己喜欢的任意的核给一个线程，并且这种类型的调度对正在运行的程序是完全透明的。除此之外，抢占式多线程技术也可能在所有的核心都被占用的情况下生效。这能够让你运行多于机器实际拥有的核心数的程序。</p> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="多线程应用程序跑在单核上有意义吗">多线程应用程序跑在单核上：有意义吗？</h3> 
+   <div class="paragraph"> 
+    <p>在单核机器上是不可能实现真正的并行的。 不过如果你的应用程序能从中获益的话，写一个多线程程序仍然是有意义的。当一个应用程序使用了多线程，抢占式多任务技术能够让该应用跑起来，那怕是其中有些线程执行的是很慢的或者阻塞的任务。</p> 
+   </div> 
+   <div class="paragraph"> 
+    <p>比如你正在开发一个桌面应用程序从非常慢的磁盘上读出数据。如果你仅仅用单线程写这个程序，整个应用就会卡死，直到磁盘操作完成：被分配给唯一线程的CPU再等待磁盘唤醒的过程中完全浪费了。当然操作系统可以运行除此之外的其他程序，但是你的这个应用程序不会有任何响应了。</p> 
+   </div> 
+   <div class="paragraph"> 
+    <p>我们来用多线程重新考虑这个应用。 线程A负责磁盘读取，同时线程B负责主界面。如果线程A卡在等待很慢的设备，线程B仍然再运行主界面，这就能保证你的应用程序有响应。这是因为有2个线程的话，操作系统可以在2个线程之间切换CPU资源，这样就不用卡在那个慢的上。</p> 
+   </div> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="线程越多问题越多">线程越多，问题越多</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>如我们所知，线程会共享所在进程的内存块。这极大的简化了一个进程中2个或者多个线程之间交换数据。例如；一个电影编辑器可能持有了共享内存中包含视频时间线的一大部分。这部分共享内存会被多个用于渲染影片的工作线程访问。所有这些线程仅仅需要内存的一个句柄（比如指针）来读取数据并且将渲染后的帧写到磁盘上。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>只要所有的线程都从内存中 <em>读取</em> 数据，程序就能够平滑运行。但是只要有一个线程 <em>写入</em> 共享内存，同时其他线程读取共享内存就会引起问题。在这种情况下会产生两种问题:</p> 
+  </div> 
+  <div class="ulist"> 
+   <ul> 
+    <li> <p><strong>数据竞争</strong> - 当一个写线程在修改内存的时候， 一个读线程可能正在读内存。 如果写线程没有完成写入， 读线程就会得的损坏的数据；</p> </li> 
+    <li> <p><strong>竞争条件</strong> - 一个读线程只有在写线程写入数据之后才应该读数据。如果顺序反过来会怎样？比数据竞争更难理解，竞争条件是指2个或以上的线程以不可预知的顺序执行，事实上这些操作需要按照合适的顺序执行才能得到正确的结果。你的程序可触发竞争条件，即使是它已经有数据竞争保护。</p> </li> 
+   </ul> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="线程安全性的概念">线程安全性的概念</h3> 
+   <div class="paragraph"> 
+    <p>我们说一段程序是线程安全的，是说这段程序能够正确工作，即使多个线程同时执行，也没有数据竞争或者竞争条件。你可能已经发现了一些程序类库声称自己是线程安全的：如果你正在写一个多线程程序，你要确保任何第三方函数可以在多个线程间调用而不会触发并发问题。</p> 
+   </div> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="数据竞争的根本原因">数据竞争的根本原因</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>我们知道一个CPU核某一时刻只能执行一条机器指令。 这种指令是 <strong>原子的(atomic)</strong>，因为他不能再细分了：它不能再细分为更小的操作了。『atom』在希腊语中是 <em>不可再分割</em> 的意思。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>不能再细分的性质使得原子操作是天然的线程安全的。当一个线程执行一个原子写数据操作，没有其他线程能够读到未完成修改的数据。相反的，当一个线程执行一个原子读操作，它能读出完整的数据。线程是不能干扰一次原子操作的，因此也不会有数据竞争发生。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>坏消息是大部分操作都不是原子的。即使一个简单的赋值操作如 <code>x = 1</code> 在一些硬件上也可能是由多个原子机器指令组成的，这就造成了这个赋值语句本身不是一个原子操作。当一个线程读取 <code>x</code> 的值而另一个现在正在赋值就会触发数据竞争。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="竞争条件的根本原因">竞争条件的根本原因</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>抢占式多任务技术给了操作系统对线程管理的完全控制：根据高级调度算法，它可以启动，停止和暂停线程。作为程序员是控制不了程序执行的时间或者顺序的。事实上，没有任何保证如下这段简单的程序：</p> 
+  </div> 
+  <div class="listingblock"> 
+   <div class="content"> 
+    <pre class="prettyprint highlight"><code data-lang="c">writer_thread.start()
+reader_thread.start()</code></pre> 
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>能够按照书写顺序依次启动2个线程。多运行几次这段程序，你就会发现每次执行之间的不同表现：有时候写线程先启动，有时候确实读线程先启动。如果你的程序需要写线程总是先于读线程启动，这就一定会碰到竞争条件。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>这个行为称为 <strong>不确定性(non-deterministic)</strong>：每次执行的结果是变化的而且你不能预测到。调试竞争条件相关的程序是非常讨厌的，因为你不能用受控的方式每次都重现此问题。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="让线程和平共处并发控制">让线程和平共处：并发控制</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>数据竞争和竞争条件都是真实世界中的问题：一些人甚至是 <a href="https://en.wikipedia.org/wiki/Therac-25">因此而丧命</a>。协调2个或者更多并发线程的技术叫 <strong>并发控制(concurrency control)</strong>：操作系统和编程语言提供了处理并发控制的一些解决方案。最重要的一些方案如下：</p> 
+  </div> 
+  <div class="ulist"> 
+   <ul> 
+    <li> <p><strong>同步</strong> - 保证资源某一时刻只能被一个线程使用的方法。同步方法将特定代码块保护起来，使得2个或者更多的并发线程不能同时执行它，否则就会损坏你的共享数据；</p> </li> 
+    <li> <p><strong>原子操作</strong> - 由于操作系统提供了一些特殊的指令，使得一批非原子操作（如上文提到的赋值操作）可以被转化为原子操作。这样的话共享数据总是有效的状态，不论其他线程如何访问它。</p> </li> 
+    <li> <p><strong>不可变数据</strong> - 共享数据被标记为不可变的，谁都不能修改它：线程只允许读数据，消除了根本原因。 就像我们所知的，线程可以安全的从同样的内存读数据，只要这个数据不会被修改。这也是 <a href="https://en.wikipedia.org/wiki/Functional_programming">函数式编程</a>背后的主要哲学。</p> </li> 
+   </ul> 
+  </div> 
+  <div class="paragraph"> 
+   <p>我会在这个关于并发的迷你系列的后续文章中讨论这些有趣的主题，保持关注。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="参考">参考</h2> 
+ <div class="sectionbody"> 
+  <div class="ulist"> 
+   <ul> 
+    <li> <p>8 bit avenue - <a href="https://www.8bitavenue.com/difference-between-multiprogramming-multitasking-multithreading-and-multiprocessing/">Difference between Multiprogramming, Multitasking, Multithreading and Multiprocessing</a></p> </li> 
+    <li> <p>Wikipedia - <a href="https://en.wikipedia.org/wiki/Inter-process_communication">Inter-process communication</a></p> </li> 
+    <li> <p>Wikipedia - <a href="https://en.wikipedia.org/wiki/Process_%28computing%29">Process (computing)</a></p> </li> 
+    <li> <p>Wikipedia - <a href="https://en.wikipedia.org/wiki/Concurrency_%28computer_science%29">Concurrency (computer science)</a></p> </li> 
+    <li> <p>Wikipedia - <a href="https://en.wikipedia.org/wiki/Parallel_computing">Parallel computing</a></p> </li> 
+    <li> <p>Wikipedia - <a href="https://en.wikipedia.org/wiki/Multithreading_%28computer_architecture%29">Multithreading (computer architecture)</a></p> </li> 
+    <li> <p>Stackoverflow - <a href="https://stackoverflow.com/questions/1713554/threads-processes-vs-multithreading-multicore-multiprocessor-how-they-are">Threads &amp; Processes Vs MultiThreading &amp; Multi-Core/MultiProcessor: How they are mapped?</a></p> </li> 
+    <li> <p>Stackoverflow - <a href="https://stackoverflow.com/questions/19225859/difference-between-core-and-processor">Difference between core and processor?</a></p> </li> 
+    <li> <p>Wikipedia - <a href="https://en.wikipedia.org/wiki/Thread_%28computing%29">Thread (computing)</a></p> </li> 
+    <li> <p>Wikipedia - <a href="https://en.wikipedia.org/wiki/Computer_multitasking">Computer multitasking</a></p> </li> 
+    <li> <p>Ibm.com - <a href="https://www.ibm.com/support/knowledgecenter/en/ssw_aix_71/generalprogramming/benefits_threads.html">Benefits of threads</a></p> </li> 
+    <li> <p>Haskell.org - <a href="https://wiki.haskell.org/Parallelism_vs._Concurrency">Parallelism vs. Concurrency</a></p> </li> 
+    <li> <p>Stackoverflow - <a href="https://stackoverflow.com/questions/16116952/can-multithreading-be-implemented-on-a-single-processor-system">Can multithreading be implemented on a single processor system?</a></p> </li> 
+    <li> <p>HowToGeek - <a href="https://www.howtogeek.com/194756/cpu-basics-multiple-cpus-cores-and-hyper-threading-explained/">CPU Basics: Multiple CPUs, Cores, and Hyper-Threading Explained</a></p> </li> 
+    <li> <p>Oracle.com - <a href="https://docs.oracle.com/cd/E19205-01/820-0619/geojs/index.html">1.2 What is a Data Race?</a></p> </li> 
+    <li> <p>Jaka’s corner - <a href="http://jakascorner.com/blog/2016/01/data-races.html">Data race and mutex</a></p> </li> 
+    <li> <p>Wikipedia - <a href="https://en.wikipedia.org/wiki/Thread_safety">Thread safety</a></p> </li> 
+    <li> <p>Preshing on Programming - <a href="https://preshing.com/20130618/atomic-vs-non-atomic-operations/">Atomic vs. Non-Atomic Operations</a></p> </li> 
+    <li> <p>Wikipedia - <a href="https://en.wikipedia.org/wiki/Green_threads">Green threads</a></p> </li> 
+    <li> <p>Stackoverflow - <a href="https://stackoverflow.com/questions/617787/why-should-i-use-a-thread-vs-using-a-process">Why should I use a thread vs. using a process?</a></p> </li> 
+   </ul> 
+  </div> 
+  <div class="paragraph"> 
+   <p>本文译自https://www.internalpointers.com/post/gentle-introduction-multithreading，英文读者可直接阅读原文。</p> 
+  </div> 
+ </div> 
+</div></p>
   		<a href="blog/2020/01/share.html"><h1>“程序员”的成长之路</h1></a>
   		<p>
 			<a href="/about.html"><strong>George Cao</strong></a>于2020年01月29日
@@ -213,149 +459,6 @@
  <div class="sectionbody"> 
   <div class="paragraph"> 
    <p>中国银行（香港）出来之后所有的银行都下班了，也算是完成了开户的目标。晚上和一位在香港生活10多年的朋友吃饭，聊到这个事情，建议海外第一个账户选择中资银行，等有了第一个户头以后，再到外资银行说，想把业务转过来，他们就很喜欢了。还有所谓的开户最低存款，只是为了保证账户是有效账户。只要你开了账户，不管里面钱多钱少，只是管理费的问题了。另外，开户用途大陆很多文章说要选择投资理财账户，之所以这样，是因为这种账户客户经理可以提成，所以比较推荐。但是其实只申请一个储蓄账户，什么附加功能都不需要的账户也是可以的。不过，香港存款利率是千分之几，相当的低，所以香港人一般都不会存款的，单纯的存款，由于有管理费的存在，你的钱会越来越少的。</p> 
-  </div> 
- </div> 
-</div></p>
-  		<a href="blog/2020/01/the-bad-of-thrift.html"><h1>Thrift的坑</h1></a>
-  		<p>
-			<a href="/about.html"><strong>George Cao</strong></a>于2017年06月03日
-					<span class="badge badge-dark">thrift</span>
-					<span class="badge badge-dark">protobuf</span>
-					<span class="badge badge-dark">RPC</span>
-		</p>
-  		<p><div id="preamble"> 
- <div class="sectionbody"> 
-  <div class="quoteblock abstract"> 
-   <blockquote>
-     Thrift虽好，但是吹毛求疵的讲，可以更好。 
-   </blockquote> 
-  </div> 
-  <div class="paragraph"> 
-   <p>Thrift作为一个经常拿来和Google的Protocol Buffers比较的二进制协议阵营中的重量级选手，我认为其最大的特点就是有个完整的RPC协议栈，而Protocol Buffers开源出来的版本基本上可以认为仅仅是个跨平台的数据序列化/反序列化的工具。</p> 
-  </div> 
-  <div class="imageblock"> 
-   <div class="content"> 
-    <img src="https://www.reploop.org/blog/2020/01/images/Apache_Thrift_Architecture.png" alt="Thrift结构图"> 
-   </div> 
-   <div class="title">
-    Figure 1. Thrift结构图, 来自Wikipedia
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>也是基于最大的理由，我们在RPC环境下选择了Thrift。但是在使用Thrift的过程中也逐渐发现她的一些不尽如我意的地方。</p> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="集合里面不能有null值">集合里面不能有null值</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>集合是指Thrift原生支持的list，set和map这三个容器类的数据结构。使用Java语言的话，集合里面不能有null值这点要特别注意。Thrift使用的Java的ArrayList，HashSet和HashMap这3个数据结构分别实现list，set和map。从Java的语义来讲，ArrayList里面是允许有null值的，HashMap的键（key）和值（value）都是允许有null值的，而HashSet内部是用了一个HashMap来实现的，同样也是允许有null值的。</p> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="prettyprint highlight"><code data-lang="java">// HashMap
-Map&lt;String, String&gt; map = new HashMap&lt;&gt;();
-map.put(null, null);
-assert(1 == map.size());
-
-// HashSet
-Set&lt;String&gt; set = new HashSet&lt;&gt;();
-set.add(null);
-assert(1 == set.size());</code></pre> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>上面这段代码在Java语言范畴内是完全合法的，但是在Thrift里面，只要这些集合类里面混进了null值，而Thrift本身（libthrift）不做这方面的数据校验，就会导致客户端因为读不到预期的数据而报超时异常。所以写入的时候务必要对数据做非空的校验，从而避免这类异常的出现。</p> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="集合中不建议直接用枚举类型">集合中不建议直接用枚举类型</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>在Java语言中，枚举类型做Map的key是一个常用的做法，而且遇到枚举类型，基本上可以放心使用，而不用担心null值的。但是在Thrift环境下，为了避免枚举值（enum）扩展而带来的问题，枚举类型不要用在任何容器类集合里面，比如map，set和list。一旦这些集合类中出现enum类型，如果enum扩展了，增加了一个新值，那么就 <strong>需要所有的客户端先升级，代价比较大</strong>。 这是因为一旦服务端先升级的话，客户端因为没有升级Schema而在读到这个新的枚举值的时候就会出现null值。这样的话，Map里面出现了null的key，相当于这个数据丢失了。从Java的角度来进一步讲，就会出现枚举属性为null的情况，这个会在业务代码中引起非常多的问题。为了避免这种潜在的问题，要确保枚举都用在struct中形成间接的关系而不能直接放入容器类集合中去。</p> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="字符串不能压缩">字符串不能压缩</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>实际上Thrift是有TCompactProtocol的，但是这个Protocol做的大部分工作是数值的编码工作以减少数据量。 <strong>但是实际业务中，往往字符串传输占了非常大的比例。针对字符串的压缩，Thrift并没有原生的支持</strong>。自己扩展Protocol支持字符串压缩也不是很方面，这往往需要在Thrift协议之上在包装一个定制的协议。</p> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="传输协议不支持动态探测">传输协议不支持动态探测</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>Protocol使用的时候只能通过服务端与客户端开发人员协商约定来确定，一旦确定之后很难变更。也就是协议没有动态探测功能，任何一端使用新的Protocol的话，都将导致对等的端不能解析数据。如何你的系统在Thrift上跑了几年，数据存储了非常，那么要实现一个字符串压缩功能，不停服，不更新存量数据的情况下基本上无法做到，而这个代价是相当大的。</p> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="不规范json序列化输出">不规范JSON序列化输出</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>枚举值做key，序列化的时候适用枚举对应的数值，而不是字符串。这样用TSimpleJSONProtocol序列化就产生了不标准JSON。JSON里面的Key都要求是字符串，而不能出现数值。需要定制一个特殊的JSON序列化Protocol。</p> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="没有header的支持">没有Header的支持</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>我们开头也说了，Thrift有完整的协议栈。如果仅仅使用协议栈就能满足业务的话，这个应该也不是问题。但是一个实战中的RPC服务，一般来讲都会涉及一些用户认证，背压，限流，降级，熔断等等，更别说调用链分析这种业务了。没有Header的支持，基本上要做到以上功能，都是需要侵入业务API的。比如一个检查用户昵称是否被占用的服务, 业务相关的API设计成这样应该是比较实用的:</p> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="prettyprint highlight"><code data-lang="thrift">service UserService{
-  bool checkNickname(1:string nickname);
-}</code></pre> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>这就没法携带更多的信息了。如果我们要做用户认证，侵入业务API的做法，一种可能的实现可能是这样的：</p> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="prettyprint highlight"><code data-lang="thrift">struct NickNameRequest {
-  1: string nickname,
-  2: string authUser,
-}
-service UserService{
-  bool checkNickname(1:NickNameRequest request);
-}</code></pre> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>这就对业务使用方不是特别方便。 那么如何让Thrift支持Header呢？可能的方案至少有2个：</p> 
-  </div> 
-  <div class="olist arabic"> 
-   <ol class="arabic"> 
-    <li> <p>根据Thrift支持service multiplexing的思路，在service name里面做文章。这个需要Thrift 0.9以上的版本。</p> </li> 
-    <li> <p>根据Thrift解析数据的特点定制Protocol，善用FiledId为0和-1这些保留的值。</p> </li> 
-   </ol> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="java类库代码质量不好">Java类库代码质量不好</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>用静态代码分析工具分析一下Thrift的Java代码，结果往往是不忍直视。把这些问题归为编码规范的范畴也能说得过去，毕竟，能工作的代码，无论多么丑陋，他的核心价值并没有因此而减少。但是从可扩展的角度来考虑一下，基本上Thrift的Java代码质量是不太好的，基于他的二次开发扩展很难。毕竟Thrift的大部分代码是编译器自动生成的，也不需要人工维护。要扩展功能的时候，Java体系内可借助Thrift的metadata和反射来处理。</p> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="结论">结论</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>实际上，当前的RPC实现流行的做法使用netty做网络层，然后Thrift/Protocol Buffers用来描述数据结构以及序列化和反序列化数据。比如gRPC和armeria，基本上都抽象一个基本的Request和Response模型，然后使用分层的思路，或者类似Java语言中的Filter Chain模式来自由控制请求与响应，扩展性极强，可以和丰富的第三方类库整合。</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>如果现在要评估Thrift和Protocol Buffers用哪个，我的第一选择可能是Protocol Buffers了。</p> 
   </div> 
  </div> 
 </div></p>

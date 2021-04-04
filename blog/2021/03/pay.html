@@ -2,10 +2,10 @@
 <html lang="zh_CN">
   <head>
     <meta charset="utf-8"/>
-    <title>nginx配置文件中的location匹配规则</title>
+    <title>支付API为啥那么麻烦？</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="author" content="乔治">
-    <meta name="keywords" content="nginx,配置文件,优先级,优化,location">
+    <meta name="keywords" content="支付宝,微信,支付,安全,数字签名,RSA,密钥对">
     <meta name="generator" content="JBake v2.7.0.1">
     <meta property=og:locale content=zh_CN>
     <!-- Le styles -->
@@ -25,7 +25,7 @@
     <link rel="apple-touch-icon-precomposed" sizes="72x72" href="../assets/ico/apple-touch-icon-72-precomposed.png">
     <link rel="apple-touch-icon-precomposed" href="../assets/ico/apple-touch-icon-57-precomposed.png">-->
     <link rel="shortcut icon" href="../../../img/favicon.svg">
-      <link rel="canonical" href="https://www.reploop.org/blog/2020/04/nginx-location-matching-rules.html" />
+      <link rel="canonical" href="https://www.reploop.org/blog/2021/03/pay.html" />
     <script data-ad-client="ca-pub-2350040335860411" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
   </head>
   <body onload="prettyPrint()">
@@ -54,92 +54,75 @@
     </div>
     <div class="container">
 		<div class="page-header">
-			<h1>nginx配置文件中的location匹配规则</h1>
+			<h1>支付API为啥那么麻烦？</h1>
 		</div>
 
-<p><a href="/about.html"><strong>乔治</strong></a>于2020年04月04日
-				<span class="badge badge-dark">nginx</span>
-				<span class="badge badge-dark">配置文件</span>
-				<span class="badge badge-dark">优先级</span>
-				<span class="badge badge-dark">优化</span>
-				<span class="badge badge-dark">location</span>
+<p><a href="/about.html"><strong>乔治</strong></a>于2021年03月20日
+				<span class="badge badge-dark">支付宝</span>
+				<span class="badge badge-dark">微信</span>
+				<span class="badge badge-dark">支付</span>
+				<span class="badge badge-dark">安全</span>
+				<span class="badge badge-dark">数字签名</span>
+				<span class="badge badge-dark">RSA</span>
+				<span class="badge badge-dark">密钥对</span>
 	</p>
 	<p><div id="preamble"> 
  <div class="sectionbody"> 
   <div class="paragraph"> 
-   <p>在反向代理的场景下，nginx用的人很多。在使用nginx的过程中，除了常规的反向代理配置，还经常临时性的要封个请求，加个限速，跳转一下等是常有的事情。这些都和location的配置规则相关。</p> 
+   <p>仅仅在API层面，不涉及财务会计，金融监管等等方面，支付API的大部分繁琐工作都在保证 <strong>你就是你</strong> 的身份问题。 这个在新接入一家支付通道的时候感受非常明显。身份问题典型的解决方案就是基于非对称加密的 <strong>数字签名</strong> 技术。</p> 
   </div> 
  </div> 
 </div> 
 <div class="sect1"> 
- <h2 id="location语法">location语法</h2> 
+ <h2 id="支付安全">支付安全</h2> 
  <div class="sectionbody"> 
   <div class="paragraph"> 
-   <p>location支持5种语法，分别为：</p> 
+   <p>在一个支付流程中可能涉及的角色有平台用户，商户，平台，应用，商户用户等。整体上是一个三方参与的过程，比较负责。支付也是一个异步流程，从商家的角度至少需要2步以上才能完成支付：</p> 
   </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre>1. location =   /uri {}   #完整字符串匹配，优先级最高，发现匹配就停止
-2. location ^~  /uri {}   #字符串前缀匹配，发现匹配就停止。这个不是正则匹配
-3. location     /uri {}   #字符串前缀匹配，取最具体的那个匹配（the most specific match），可理解为最长匹配。这里即使是找到了匹配，也会继续执行后面的正则匹配。
-4. location ~   /uri {}   #正则匹配,大小写敏感。按在配置文件中定义的顺序执行，发现匹配就停止（The first regular expression to match the query will stop the search））
-5. location ~*  /uri {}   #同规则4(~)，区别就是正则匹配时大小写不敏感</pre> 
-   </div> 
+  <div class="olist arabic"> 
+   <ol class="arabic"> 
+    <li> <p>首先是商家调用平台API发起支付</p> </li> 
+    <li> <p>平台引导用户在平台上完成支付</p> </li> 
+    <li> <p>平台向商家发起支付结果通知的回调请求。</p> </li> 
+   </ol> 
   </div> 
   <div class="paragraph"> 
-   <p>“发现匹配就停止”的意思是匹配过程终止了，已经得到了匹配结果并提前返回了，不会在执行后面的匹配了。</p> 
+   <p>用户在支付平台上付款的事情是支付平台自己处理的，作为没有支付牌照的商家是不需要操心这部分的，暂时略过。 剩下的两步骤都需要请求发起方向请求接收方证明 <strong>你就是你</strong>.</p> 
+  </div> 
+  <div class="olist arabic"> 
+   <ol class="arabic"> 
+    <li> <p>商家调用平台API发起支付的时候的得告诉平台是谁在收钱。</p> </li> 
+    <li> <p>平台向商家发起回调请求的时候商家需要知道是平台在发起回掉。</p> </li> 
+   </ol> 
+  </div> 
+  <div class="paragraph"> 
+   <p>只有这样商家才放心说钱一定会收到的，平台也有凭证说商家已经把钱收了。这是一个双向的严格的安全要求。这就是为啥调用支付API要申请应用，要生成证书，要验签名等。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>第1个商家向平台证明自己的身份使用OAuth相关的技术。以支付宝为例，你要对接先申请一个应用，拿到一个APP ID和APP Secret，熟悉OAuth的人可能都马上能联系到开放平台的事情。APP Secret一定要保管好，不能泄漏。 貌似这一步也可以支持证书认证。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>第2个平台向商家证明自己的身份使用证书相关的技术。这就是我们需要下载平台的支付证书（其实是个公钥）的原因。这是用来回调验证签的。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>严格来收这里面并没有用到想HTTPS那样的证书，而仅仅是非对称加密算法中的公钥-私钥的密钥对，然后这就是一个数字签名的过程。不像HTTPS，这中间也没有知名的证书机构(CA)参与。</p> 
   </div> 
  </div> 
 </div> 
 <div class="sect1"> 
- <h2 id="执行顺序">执行顺序</h2> 
- <div class="sectionbody"> 
-  <div class="ulist"> 
-   <ul> 
-    <li> <p>执行完整字符串匹配。从1)开始搜索，如果1）找到匹配，则停止搜索；</p> </li> 
-    <li> <p>执行字符串前缀匹配。执行2），3），目的是找到最具体的那个匹配。此过程不会停止整个匹配过程，完成后会继续执行正则匹配。唯一的例外是，如果location的操作是^~，只要发现匹配就停止搜索；</p> </li> 
-    <li> <p>执行正则匹配。4），5），按照配置文件中出现的顺序挨个匹配，如果发现匹配则停止搜索；</p> </li> 
-    <li> <p>相同规则内执行顺序是按照规则在配置文件中出现的顺序从上到下顺序执行的。</p> </li> 
-   </ul> 
-  </div> 
-  <div class="paragraph"> 
-   <p>一句话概括一下就是先执行完整字符串匹配，找到匹配就结束，没有找到匹配，就继续执行前缀和正则匹配，最后就是如果找到正则匹配，就用正则匹配结果，如果没有找到，就用前缀匹配的结果。当然，有一个例外。</p> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="匹配结果">匹配结果</h2> 
+ <h2 id="https不能保证这个吗">HTTPS不能保证这个吗？</h2> 
  <div class="sectionbody"> 
   <div class="paragraph"> 
-   <p>根据 <strong>执行顺序</strong> 节的解释，我们可以确定匹配结果的优先级是：<strong>完整字符串匹配</strong> &gt; <strong>^~前缀匹配</strong> &gt; <strong>正则匹配</strong> &gt; <strong>字符串前缀匹配</strong>。</p> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="location优化建议">location优化建议</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>根据不同匹配的不同规则，</p> 
-  </div> 
-  <div class="ulist"> 
-   <ul> 
-    <li> <p>在确定的情况下优先使用完整字符串匹配（=），</p> </li> 
-    <li> <p>接下来优先使用（^~）。</p> </li> 
-    <li> <p>接下来就是正则匹配的location要合理排序，最常用，访问最多的要排到前面。</p> </li> 
-    <li> <p>最后是少写不带操作符的字符串前缀匹配。也就是location语法中的3.原因是a)这个过程是在正则匹配之前执行的，为了找到最具体的匹配，应该是需要全部执行;b)它的结果优先级没有正则匹配的高，如果后来发现了正则匹配，此过程就没有意义了。</p> </li> 
-   </ul> 
+   <p>虽说HTTPS逐渐普遍起来了，但是也不能完成保证支付安全的问题。因为HTTPS只能保证请求接收方的身份问题，不能提供请求发起方的身份问题。</p> 
   </div> 
   <div class="paragraph"> 
-   <p>同时应该注意的是正则匹配（4，5）是按照配置文件中出现的顺序挨个匹配，取第一个匹配的结果。如果顺序安排不当，会有覆盖的结果。比如：</p> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="prettyprint highlight"><code data-lang="bash">location ~ /uri {}           <i class="conum" data-value="1"></i><b>(1)</b>
-location ~ /uri/\d{1,}/ {}   <i class="conum" data-value="2"></i><b>(2)</b></code></pre> 
-   </div> 
+   <p>以支付宝为例，也就是是说我们访问 <a href="https://openapi.alipay.com/gateway.do" class="bare">https://openapi.alipay.com/gateway.do</a> 成功后请求发起方能确认访问的是就是支付宝的支付接口，但是支付宝支付平台不能安全的知道是谁在发起支付请求。</p> 
   </div> 
   <div class="paragraph"> 
-   <p>这个配置文件，如果遇到 <strong>/uri/12345/</strong> 这个请求的时候，最后的匹配结果是uri &lt;1&gt;，而不是后者 &lt;2&gt;。</p> 
+   <p>相应的支付回调也是类似的，支付宝发起HTTPS的回调，只能知道是访问了商家的回调地址，而商家不能安全的确性这就是支付宝发起的回调。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>而且上面的方案在非HTTPS的环境也是可以工作的。</p> 
   </div> 
  </div> 
 </div> 
@@ -148,7 +131,7 @@ location ~ /uri/\d{1,}/ {}   <i class="conum" data-value="2"></i><b>(2)</b></cod
  <div class="sectionbody"> 
   <div class="ulist"> 
    <ul> 
-    <li> <p>nginx.org - <a href="http://wiki.nginx.org/HttpCoreModule#location" class="bare">http://wiki.nginx.org/HttpCoreModule#location</a></p> </li> 
+    <li> <p>reploop.org - <a href="https://www.reploop.org/blog/2020/03/how-https-works.html">HTTPS如何工作的？</a></p> </li> 
    </ul> 
   </div> 
  </div> 
@@ -162,8 +145,8 @@ location ~ /uri/\d{1,}/ {}   <i class="conum" data-value="2"></i><b>(2)</b></cod
      *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
      *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
     var disqus_config = function () {
-        this.page.url = "https://www.reploop.org/blog/2020/04/nginx-location-matching-rules.html";  // Replace PAGE_URL with your page's canonical URL variable
-        this.page.identifier = "https://www.reploop.org/blog/2020/04/nginx-location-matching-rules.html"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+        this.page.url = "https://www.reploop.org/blog/2021/03/pay.html";  // Replace PAGE_URL with your page's canonical URL variable
+        this.page.identifier = "https://www.reploop.org/blog/2021/03/pay.html"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
     };
     (function () { // DON'T EDIT BELOW THIS LINE
         var d = document, s = d.createElement('script');

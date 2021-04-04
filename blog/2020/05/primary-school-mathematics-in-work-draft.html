@@ -24,7 +24,7 @@
     <link rel="apple-touch-icon-precomposed" sizes="114x114" href="../assets/ico/apple-touch-icon-114-precomposed.png">
     <link rel="apple-touch-icon-precomposed" sizes="72x72" href="../assets/ico/apple-touch-icon-72-precomposed.png">
     <link rel="apple-touch-icon-precomposed" href="../assets/ico/apple-touch-icon-57-precomposed.png">-->
-    <link rel="shortcut icon" href="../../../img/favicon.ico">
+    <link rel="shortcut icon" href="../../../img/favicon.svg">
       <link rel="canonical" href="https://www.reploop.org/blog/2020/05/primary-school-mathematics-in-work.html" />
     <script data-ad-client="ca-pub-2350040335860411" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
   </head>
@@ -86,55 +86,7 @@
  <h2 id="线程池的大小">线程池的大小</h2> 
  <div class="sectionbody"> 
   <div class="paragraph"> 
-   <p>关于线程池的大小，有两本非常有名的书中都有相关的论述。这两本书还都是Java生态里面重量级人物写的。</p> 
-  </div> 
-  <div class="quoteblock"> 
-   <blockquote>
-     For compute intensive tasks, an <em>N<sub>cpu</sub></em>-processor system usually achieves optimum utilization with a thread pool of <em>N<sub>cpu</sub></em>+1 threads. (Even compute intensive threads occasionally take a page fault or pause for some other reason, so an "extra" runnable thread prevents CPU cycles from going unused when this happens.) For tasks that also include I/O or other blocking operations, you want a larger pool, since not all of the threads will be schedulable at all times. In order to size the pool properly, you must estimate the ratio of waiting time to compute time for your tasks; this estimate need not be precise and can be obtained through profiling or instrumentation. Alternatively, the size of the thread pool can be tuned by running the application using several different pool sizes under a benchmark load and observing the level of CPU utilization. 
-   </blockquote> 
-   <div class="attribution">
-     — Brian Göetz
-    <br> <cite>Java Concurrency In Practice: p.107</cite> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>Given these definitions:</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p><em>N<sub>cpu</sub></em> = number of CPUs</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p><em>U<sub>cpu</sub> = target CPU utilization, \$0 &lt;=\$ _U<sub>cpu</sub></em> \$&lt;= 1\$</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>\$w/c\$ = ratio of wait time to compute time</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>The optimal pool size for keeping the processors at the desired utilization is:</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p><em>N<sub>threads</sub></em> = <em>N<sub>cpu</sub></em> * <em>U<sub>cpu</sub></em> * (\$1 + w/c\$)</p> 
-  </div> 
-  <div class="quoteblock"> 
-   <blockquote>
-     If tasks spend 50 percent of the time being blocked, then the number of threads should be twice the number of available cores. If they spend less time being blocked—that is, they’re computation intensive—then we should have fewer threads but no less than the number of cores. If they spend more time being blocked—that is, they’re IO intensive—then we should have more threads, specifically, several multiples of the number of cores. 
-   </blockquote> 
-   <div class="attribution">
-     — Venkat Subramaniam
-    <br> <cite>Programming Concurrency on the JVM: p.16</cite> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>So, we can compute the total number of threads we’d need as follo ws:</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>Number of threads = Number of Available Cores / (1 - Blocking Coefficient)</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>where the blocking coefficient is between 0 and 1.</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>假设 <em>U<sub>cpu</sub></em> 是100%的情况下，这两个公式是一样的。只要定义blocking coefficient = \$w/(w+c)\$，也就是阻塞时间与整个CPU时间的占比，那么他们就是一个意思：定性的描述就是阻塞任务越多，就需要更多线程来保证CPU有活干。而具体的公式则是定量的表达上述思路了。线程池的大小是想做到最少的线程上下文切换(或代价)来做到最大的(或特定目标)CPU使用率。</p> 
+   <p><a href="https://www.reploop.org/blog/2020/05/how-to-size-thread-pool.html">线程池</a></p> 
   </div> 
  </div> 
 </div> 
