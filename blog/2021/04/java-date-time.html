@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+  <head>
+    <meta charset="utf-8"/>
+    <title>Java日期与时间的一些理解</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="乔治">
+    <meta name="keywords" content="日期,时间,时区">
+    <meta name="generator" content="JBake v2.7.0.1">
+    <meta property=og:locale content=zh_CN>
+    <!-- Le styles -->
+    <link href="../../../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../../../css/asciidoctor.css" rel="stylesheet">
+    <link href="../../../css/base.css" rel="stylesheet">
+    <link href="../../../css/prettify.css" rel="stylesheet">
+
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+
+    <!-- Fav and touch icons -->
+    <!--<link rel="apple-touch-icon-precomposed" sizes="144x144" href="../assets/ico/apple-touch-icon-144-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="../assets/ico/apple-touch-icon-114-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="../assets/ico/apple-touch-icon-72-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" href="../assets/ico/apple-touch-icon-57-precomposed.png">-->
+    <link rel="shortcut icon" href="../../../img/favicon.svg">
+      <link rel="canonical" href="https://www.reploop.org/blog/2021/04/java-date-time.html" />
+    <script data-ad-client="ca-pub-2350040335860411" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  </head>
+  <body onload="prettyPrint()">
+    <div id="wrap">	
+	<!-- Fixed navbar -->
+    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../../../">REPLoop</a>
+        </div>
+        <div class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li><a href="../../../index.html">博客</a></li>
+            <li><a href="../../../archive.html">归档</a></li>
+            <li><a href="../../../tags/index.html">标签</a></li>
+            <li><a href="../../../about.html">关于</a></li>
+            <li><a href="../../../feed.xml">订阅</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </div>
+    <div class="container">
+		<div class="page-header">
+			<h1>Java日期与时间的一些理解</h1>
+		</div>
+
+<p><a href="/about.html"><strong>乔治</strong></a>于2021年04月22日
+				<span class="badge badge-dark">日期</span>
+				<span class="badge badge-dark">时间</span>
+				<span class="badge badge-dark">时区</span>
+	</p>
+	<p><div id="preamble"> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>日期和时间是表达周期性运动的一种方式，反过来说所有的周期性运动都可以用来计算时间。 地球人都知道有2种周期性运动，一个是地球绕太阳的公转，一个是地球自身的自转。地球的公转决定了日期，也就是 <strong>年-月-日</strong>。地球的自转决定了时间，也就是 <strong>时-分-秒</strong>。我们所说的一年就是地球公转一圈的时间，一日就是地球自转一圈的时间。所谓的周期性就是这个意思。日期的最小单位 <strong>日</strong> 就是地球自转一圈的时间，也就是24小时。 中国的农历和节气还和月球绕地球公转有关系。 而现在最精确的 <a href="https://zh.wikipedia.org/wiki/%E5%8E%9F%E5%AD%90%E9%90%98"><strong>原子钟</strong></a> 则是以原子共振频率标准来计算时间的。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="时间的表达">时间的表达</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>Java中的日期和时间是时间在计算机中的结构化表达，比如 <strong>Date</strong> 类内部就是用毫秒数表示的。</p> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="毫秒数">毫秒数</h3> 
+   <div class="paragraph"> 
+    <p>milliseconds 是一个和时区没关系的值，也就是同一时刻全世界不同地方同时通过以下代码获取到的毫秒数是一样的：</p> 
+   </div> 
+   <div class="listingblock"> 
+    <div class="content"> 
+     <pre class="prettyprint highlight"><code>System.currentTimeMillis();</code></pre> 
+    </div> 
+   </div> 
+   <div class="paragraph"> 
+    <p>其结果都是从 <strong>1970-01-01T00:00Z</strong> 开始到现在的毫秒数。</p> 
+   </div> 
+   <div class="quoteblock"> 
+    <blockquote> 
+     <div class="paragraph"> 
+      <p>But the concept is the same - those values are "absolute": they are the same for everyone in the world, no matter where they are. If 2 people in different parts of the world (in different timezones) get the current timestamp at the same time, they’ll all get the same number.</p> 
+     </div> 
+    </blockquote> 
+    <div class="attribution">
+      — https://stackoverflow.com/questions/46093200/showing-correct-time-from-milliseconds-with-desired-timezone 
+    </div> 
+   </div> 
+   <div class="paragraph"> 
+    <p>Date， LocalDate，LocalDateTime 本身都是时间的结构化表达，本身并不带有时区信息。只需要需要给人展示的时候，才会用到时区信息来具体展示时间。</p> 
+   </div> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="locale_vs_timezone">Locale vs Timezone</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>Locale是指所属的地区以及该地区的语言，而Timezone则是时区。 直觉上我们一直说的是中国的时区是东八区，所以在系统层面就理解地区和时区之间是有关系的，也就是设置了Locale则自动设置了该地区的时区。这也是我曾经的一个误解，其实他们两个之间是相互独立的。Locale作用于系统语言，比如国际化等。 TimeZone作用于日期和时间。 设置Locale不会影响日期与时间，反之亦然。如果非要有点关系的话，就是如果时间的字符串中有特殊语言，则可以使用Locale让系统知道，然后正确展示。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="时区的理解">时区的理解</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>Java 1.8以前和Java 1.8中的日期和时间设计分别参考 <a href="https://docs.oracle.com/javase/tutorial/datetime/overview/index.html">Java日期设计</a> 与 <a href="https://www.journaldev.com/2800/java-8-date-localdate-localdatetime-instant">Java 8日期API</a>。这里面的时区是采用标准的 <a href="http://www.iana.org/time-zones">时区数据库</a>。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="utc与gmt">UTC与GMT</h2> 
+ <div class="sectionbody"> 
+  <div class="quoteblock"> 
+   <blockquote> 
+    <div class="paragraph"> 
+     <p>To begin with, GMT (which stands for Greenwich Mean Time) is not the same as UTC (which stands for Coordinated Universal Time):</p> 
+    </div> 
+    <div class="paragraph"> 
+     <p>GMT is a time zone used in some but not all parts of the world (mainly Europe and Africa). It uses either a 24-hour format or a 12-hour format for display and its based on astronomical observations. UTC is not a time zone. It is a standard which we can use to display time zones. It is more stable as it takes time from an atomic clock.</p> 
+    </div> 
+   </blockquote> 
+   <div class="attribution">
+     — https://phrase.com/blog/posts/how-to-get-date-time-in-utc-or-gmt-in-java/ 
+   </div> 
+  </div> 
+  <div class="quoteblock"> 
+   <blockquote> 
+    <div class="paragraph"> 
+     <p>Did you know that there is a difference between GMT and UTC even though they share the same current time? In short, GMT is an actual time zone, whereas UTC is a time standard that is used to keep time synchronized across the world.</p> 
+    </div> 
+   </blockquote> 
+   <div class="attribution">
+     — https://www.worldtimeserver.com/learn/utc-vs-gmt/ 
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>也就是GMT(Greenwich Mean Time)是时区，但UTC(Coordinated Universal Time)不是时区，而是一个用来同步时间的标准。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>举例来说 <strong>GMT+8</strong> 是时区，但 <strong>UTC+8</strong> 不是时区，虽然他们说的同一个时间。UTF+8是一个offset，一个offset不能自动转为时区。Java 1.8的java.time包中提供了 <strong>ZoneOffset</strong> 可参考。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>Java语言中展示时间的时候就用 <code>TimeZone.getTimeZone()</code> 去解析并查找标准时区，这是按照时区去检索的，检索不到的话就是默认为 <strong>GMT</strong> 时区。所以如果你输入UTC+8这个非法时区参数，得到的结果是GMT, 这就和GMT+8差了8个小时了，所有GMT+8不能用UTC+8代替。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="默认时区">默认时区</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>现在基本上容器是必须要支持的运行环境，也就是有可能环境不再是私有的物理环境，不受开发控制的情况也经常发生。比如你使用了公有的镜像之类的。这种不受开发控制的环境，就需要通过外部参数来控制系统默认时区。其中的一种做法是通过系统属性 <strong>user.timezone</strong> 的方式在JVM启动的时候来设置：</p> 
+  </div> 
+  <div class="listingblock"> 
+   <div class="title">
+    启动参数设置系统默认时区：
+   </div> 
+   <div class="content"> 
+    <pre class="prettyprint highlight"><code>java -Duser.timezone=Asia/Shanghai Main</code></pre> 
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>其他方案参考这篇 <a href="https://www.baeldung.com/java-jvm-time-zone">文章</a>。</p> 
+  </div> 
+ </div> 
+</div></p>
+
+	<hr />
+<div id="disqus_thread"></div>
+<script>
+
+    /**
+     *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+     *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
+    var disqus_config = function () {
+        this.page.url = "https://www.reploop.org/blog/2021/04/java-date-time.html";  // Replace PAGE_URL with your page's canonical URL variable
+        this.page.identifier = "https://www.reploop.org/blog/2021/04/java-date-time.html"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+    };
+    (function () { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://reploop.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by
+        Disqus.</a></noscript>
+		</div>
+		<div id="push"></div>
+    </div>
+    
+    <div id="footer">
+      <div class="container">
+        <p class="muted credit">&copy; 2020 | Mixed with <a href="http://getbootstrap.com/">Bootstrap v3.1.1</a> | Baked with <a href="http://jbake.org">JBake v2.7.0.1</a></p>
+      </div>
+    </div>
+    
+    <!-- Le javascript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="../../../js/jquery-1.11.1.min.js"></script>
+    <script src="../../../js/bootstrap.min.js"></script>
+    <script src="../../../js/prettify.js"></script>
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  messageStyle: "none",
+  tex2jax: {
+    inlineMath: [["\\(", "\\)"]],
+    displayMath: [["\\[", "\\]"]],
+    ignoreClass: "nostem|nolatexmath"
+  },
+  asciimath2jax: {
+    delimiters: [["\\$", "\\$"]],
+    ignoreClass: "nostem|noasciimath"
+  },
+  TeX: { equationNumbers: { autoNumber: "none" } }
+})
+MathJax.Hub.Register.StartupHook("AsciiMath Jax Ready", function () {
+  MathJax.InputJax.AsciiMath.postfilterHooks.Add(function (data, node) {
+    if ((node = data.script.parentNode) && (node = node.parentNode) && node.classList.contains('stemblock')) {
+      data.math.root.display = "block"
+    }
+    return data
+  })
+})
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_HTMLorMML"></script>
+  </body>
+</html>

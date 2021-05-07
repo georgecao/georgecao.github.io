@@ -6,9 +6,131 @@
         <atom:link href="https://www.reploop.org/feed.xml" rel="self" type="application/rss+xml"/>
         <description>REPLoop，在脚本编程语言中经常能看到REPL，也就是Read-Evaluate-Print-Loop，意思是读取源代码，评估执行，打印结果的循环。这个过程能够快速的学习实践然后得到结果。非常像一个学习成长的过程：输入信息，消化吸收，输出知识并用于实践，然后持之以恒的坚持。4个环节缺一不可，而且最难做到的大概是持之以恒了。</description>
         <language>en-gb</language>
-        <pubDate>Sun, 4 Apr 2021 14:46:48 +0800</pubDate>
-        <lastBuildDate>Sun, 4 Apr 2021 14:46:48 +0800</lastBuildDate>
+        <pubDate>Fri, 7 May 2021 11:47:43 +0800</pubDate>
+        <lastBuildDate>Fri, 7 May 2021 11:47:43 +0800</lastBuildDate>
 
+            <item>
+                <title>Java日期与时间的一些理解</title>
+                <link>https://www.reploop.org/blog/2021/04/java-date-time.html</link>
+                <pubDate>Thu, 22 Apr 2021 00:00:00 +0800</pubDate>
+                <guid isPermaLink="false">blog/2021/04/java-date-time.html</guid>
+                <description>
+                        &lt;div id=&quot;preamble&quot;&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;日期和时间是表达周期性运动的一种方式，反过来说所有的周期性运动都可以用来计算时间。 地球人都知道有2种周期性运动，一个是地球绕太阳的公转，一个是地球自身的自转。地球的公转决定了日期，也就是 &lt;strong&gt;年-月-日&lt;/strong&gt;。地球的自转决定了时间，也就是 &lt;strong&gt;时-分-秒&lt;/strong&gt;。我们所说的一年就是地球公转一圈的时间，一日就是地球自转一圈的时间。所谓的周期性就是这个意思。日期的最小单位 &lt;strong&gt;日&lt;/strong&gt; 就是地球自转一圈的时间，也就是24小时。 中国的农历和节气还和月球绕地球公转有关系。 而现在最精确的 &lt;a href=&quot;https://zh.wikipedia.org/wiki/%E5%8E%9F%E5%AD%90%E9%90%98&quot;&gt;&lt;strong&gt;原子钟&lt;/strong&gt;&lt;/a&gt; 则是以原子共振频率标准来计算时间的。&lt;/p&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;sect1&quot;&gt; 
+ &lt;h2 id=&quot;时间的表达&quot;&gt;时间的表达&lt;/h2&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;Java中的日期和时间是时间在计算机中的结构化表达，比如 &lt;strong&gt;Date&lt;/strong&gt; 类内部就是用毫秒数表示的。&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;sect2&quot;&gt; 
+   &lt;h3 id=&quot;毫秒数&quot;&gt;毫秒数&lt;/h3&gt; 
+   &lt;div class=&quot;paragraph&quot;&gt; 
+    &lt;p&gt;milliseconds 是一个和时区没关系的值，也就是同一时刻全世界不同地方同时通过以下代码获取到的毫秒数是一样的：&lt;/p&gt; 
+   &lt;/div&gt; 
+   &lt;div class=&quot;listingblock&quot;&gt; 
+    &lt;div class=&quot;content&quot;&gt; 
+     &lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code&gt;System.currentTimeMillis();&lt;/code&gt;&lt;/pre&gt; 
+    &lt;/div&gt; 
+   &lt;/div&gt; 
+   &lt;div class=&quot;paragraph&quot;&gt; 
+    &lt;p&gt;其结果都是从 &lt;strong&gt;1970-01-01T00:00Z&lt;/strong&gt; 开始到现在的毫秒数。&lt;/p&gt; 
+   &lt;/div&gt; 
+   &lt;div class=&quot;quoteblock&quot;&gt; 
+    &lt;blockquote&gt; 
+     &lt;div class=&quot;paragraph&quot;&gt; 
+      &lt;p&gt;But the concept is the same - those values are &quot;absolute&quot;: they are the same for everyone in the world, no matter where they are. If 2 people in different parts of the world (in different timezones) get the current timestamp at the same time, they’ll all get the same number.&lt;/p&gt; 
+     &lt;/div&gt; 
+    &lt;/blockquote&gt; 
+    &lt;div class=&quot;attribution&quot;&gt;
+      — https://stackoverflow.com/questions/46093200/showing-correct-time-from-milliseconds-with-desired-timezone 
+    &lt;/div&gt; 
+   &lt;/div&gt; 
+   &lt;div class=&quot;paragraph&quot;&gt; 
+    &lt;p&gt;Date， LocalDate，LocalDateTime 本身都是时间的结构化表达，本身并不带有时区信息。只需要需要给人展示的时候，才会用到时区信息来具体展示时间。&lt;/p&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;sect1&quot;&gt; 
+ &lt;h2 id=&quot;locale_vs_timezone&quot;&gt;Locale vs Timezone&lt;/h2&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;Locale是指所属的地区以及该地区的语言，而Timezone则是时区。 直觉上我们一直说的是中国的时区是东八区，所以在系统层面就理解地区和时区之间是有关系的，也就是设置了Locale则自动设置了该地区的时区。这也是我曾经的一个误解，其实他们两个之间是相互独立的。Locale作用于系统语言，比如国际化等。 TimeZone作用于日期和时间。 设置Locale不会影响日期与时间，反之亦然。如果非要有点关系的话，就是如果时间的字符串中有特殊语言，则可以使用Locale让系统知道，然后正确展示。&lt;/p&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;sect1&quot;&gt; 
+ &lt;h2 id=&quot;时区的理解&quot;&gt;时区的理解&lt;/h2&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;Java 1.8以前和Java 1.8中的日期和时间设计分别参考 &lt;a href=&quot;https://docs.oracle.com/javase/tutorial/datetime/overview/index.html&quot;&gt;Java日期设计&lt;/a&gt; 与 &lt;a href=&quot;https://www.journaldev.com/2800/java-8-date-localdate-localdatetime-instant&quot;&gt;Java 8日期API&lt;/a&gt;。这里面的时区是采用标准的 &lt;a href=&quot;http://www.iana.org/time-zones&quot;&gt;时区数据库&lt;/a&gt;。&lt;/p&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;sect1&quot;&gt; 
+ &lt;h2 id=&quot;utc与gmt&quot;&gt;UTC与GMT&lt;/h2&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;quoteblock&quot;&gt; 
+   &lt;blockquote&gt; 
+    &lt;div class=&quot;paragraph&quot;&gt; 
+     &lt;p&gt;To begin with, GMT (which stands for Greenwich Mean Time) is not the same as UTC (which stands for Coordinated Universal Time):&lt;/p&gt; 
+    &lt;/div&gt; 
+    &lt;div class=&quot;paragraph&quot;&gt; 
+     &lt;p&gt;GMT is a time zone used in some but not all parts of the world (mainly Europe and Africa). It uses either a 24-hour format or a 12-hour format for display and its based on astronomical observations. UTC is not a time zone. It is a standard which we can use to display time zones. It is more stable as it takes time from an atomic clock.&lt;/p&gt; 
+    &lt;/div&gt; 
+   &lt;/blockquote&gt; 
+   &lt;div class=&quot;attribution&quot;&gt;
+     — https://phrase.com/blog/posts/how-to-get-date-time-in-utc-or-gmt-in-java/ 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;quoteblock&quot;&gt; 
+   &lt;blockquote&gt; 
+    &lt;div class=&quot;paragraph&quot;&gt; 
+     &lt;p&gt;Did you know that there is a difference between GMT and UTC even though they share the same current time? In short, GMT is an actual time zone, whereas UTC is a time standard that is used to keep time synchronized across the world.&lt;/p&gt; 
+    &lt;/div&gt; 
+   &lt;/blockquote&gt; 
+   &lt;div class=&quot;attribution&quot;&gt;
+     — https://www.worldtimeserver.com/learn/utc-vs-gmt/ 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;也就是GMT(Greenwich Mean Time)是时区，但UTC(Coordinated Universal Time)不是时区，而是一个用来同步时间的标准。&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;举例来说 &lt;strong&gt;GMT+8&lt;/strong&gt; 是时区，但 &lt;strong&gt;UTC+8&lt;/strong&gt; 不是时区，虽然他们说的同一个时间。UTF+8是一个offset，一个offset不能自动转为时区。Java 1.8的java.time包中提供了 &lt;strong&gt;ZoneOffset&lt;/strong&gt; 可参考。&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;Java语言中展示时间的时候就用 &lt;code&gt;TimeZone.getTimeZone()&lt;/code&gt; 去解析并查找标准时区，这是按照时区去检索的，检索不到的话就是默认为 &lt;strong&gt;GMT&lt;/strong&gt; 时区。所以如果你输入UTC+8这个非法时区参数，得到的结果是GMT, 这就和GMT+8差了8个小时了，所有GMT+8不能用UTC+8代替。&lt;/p&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;sect1&quot;&gt; 
+ &lt;h2 id=&quot;默认时区&quot;&gt;默认时区&lt;/h2&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;现在基本上容器是必须要支持的运行环境，也就是有可能环境不再是私有的物理环境，不受开发控制的情况也经常发生。比如你使用了公有的镜像之类的。这种不受开发控制的环境，就需要通过外部参数来控制系统默认时区。其中的一种做法是通过系统属性 &lt;strong&gt;user.timezone&lt;/strong&gt; 的方式在JVM启动的时候来设置：&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;listingblock&quot;&gt; 
+   &lt;div class=&quot;title&quot;&gt;
+    启动参数设置系统默认时区：
+   &lt;/div&gt; 
+   &lt;div class=&quot;content&quot;&gt; 
+    &lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code&gt;java -Duser.timezone=Asia/Shanghai Main&lt;/code&gt;&lt;/pre&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;其他方案参考这篇 &lt;a href=&quot;https://www.baeldung.com/java-jvm-time-zone&quot;&gt;文章&lt;/a&gt;。&lt;/p&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt;
+                </description>
+            </item>
             <item>
                 <title>支付API为啥那么麻烦？</title>
                 <link>https://www.reploop.org/blog/2021/03/pay.html</link>
@@ -18,7 +140,7 @@
                         &lt;div id=&quot;preamble&quot;&gt; 
  &lt;div class=&quot;sectionbody&quot;&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
-   &lt;p&gt;仅仅在API层面，不涉及财务会计，金融监管等等方面，支付API的大部分繁琐工作都在保证 &lt;strong&gt;你就是你&lt;/strong&gt; 的身份问题。 这个在新接入一家支付通道的时候感受非常明显。身份问题典型的解决方案就是基于非对称加密的 &lt;strong&gt;数字签名&lt;/strong&gt; 技术。&lt;/p&gt; 
+   &lt;p&gt;仅仅在API层面，不涉及财务会计，金融监管等等方面，仅仅从安全角度考虑，支付API的大部分繁琐工作都在保证 &lt;strong&gt;你就是你&lt;/strong&gt; 的身份问题。 这个在新接入一家支付通道的时候感受非常明显。身份问题典型的解决方案就是基于非对称加密的 &lt;strong&gt;数字签名&lt;/strong&gt; 技术。&lt;/p&gt; 
   &lt;/div&gt; 
  &lt;/div&gt; 
 &lt;/div&gt; 
@@ -26,7 +148,7 @@
  &lt;h2 id=&quot;支付安全&quot;&gt;支付安全&lt;/h2&gt; 
  &lt;div class=&quot;sectionbody&quot;&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
-   &lt;p&gt;在一个支付流程中可能涉及的角色有平台用户，商户，平台，应用，商户用户等。整体上是一个三方参与的过程，比较负责。支付也是一个异步流程，从商家的角度至少需要2步以上才能完成支付：&lt;/p&gt; 
+   &lt;p&gt;在一个支付流程中可能涉及的角色有平台用户，商户，平台，应用，商户用户等。整体上是一个三方参与的过程，比较复杂。支付也是一个异步流程，从商家的角度至少需要2步以上才能完成支付：&lt;/p&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;olist arabic&quot;&gt; 
    &lt;ol class=&quot;arabic&quot;&gt; 
@@ -45,7 +167,7 @@
    &lt;/ol&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
-   &lt;p&gt;只有这样商家才放心说钱一定会收到的，平台也有凭证说商家已经把钱收了。这是一个双向的严格的安全要求。这就是为啥调用支付API要申请应用，要生成证书，要验签名等。&lt;/p&gt; 
+   &lt;p&gt;只有这样商家才放心说钱一定会收到的(毕竟每笔交易你都没查银行账户确认)，平台也有凭证说商家已经把钱收了，用户确信商家是会履约的。这是一个双向的严格的安全要求。这就是为啥调用支付API要申请应用，要生成证书，要验签名等。&lt;/p&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
    &lt;p&gt;第1个商家向平台证明自己的身份使用OAuth相关的技术。以支付宝为例，你要对接先申请一个应用，拿到一个APP ID和APP Secret，熟悉OAuth的人可能都马上能联系到开放平台的事情。APP Secret一定要保管好，不能泄漏。 貌似这一步也可以支持证书认证。&lt;/p&gt; 
@@ -62,13 +184,13 @@
  &lt;h2 id=&quot;https不能保证这个吗&quot;&gt;HTTPS不能保证这个吗？&lt;/h2&gt; 
  &lt;div class=&quot;sectionbody&quot;&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
-   &lt;p&gt;虽说HTTPS逐渐普遍起来了，但是也不能完成保证支付安全的问题。因为HTTPS只能保证请求接收方的身份问题，不能提供请求发起方的身份问题。&lt;/p&gt; 
+   &lt;p&gt;虽说HTTPS逐渐普遍起来了，但是也不能完成保证支付安全的问题。因为HTTPS只能保证请求接收方的身份问题，不能确认请求发起方的身份问题。&lt;/p&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
-   &lt;p&gt;以支付宝为例，也就是是说我们访问 &lt;a href=&quot;https://openapi.alipay.com/gateway.do&quot; class=&quot;bare&quot;&gt;https://openapi.alipay.com/gateway.do&lt;/a&gt; 成功后请求发起方能确认访问的是就是支付宝的支付接口，但是支付宝支付平台不能安全的知道是谁在发起支付请求。&lt;/p&gt; 
+   &lt;p&gt;以支付宝为例，也就是是说我们访问 &lt;a href=&quot;https://openapi.alipay.com/gateway.do&quot; class=&quot;bare&quot;&gt;https://openapi.alipay.com/gateway.do&lt;/a&gt; 成功后请求发起方能确认访问的就是支付宝的支付接口，但是支付宝支付平台不能安全的知道是谁在发起支付请求。&lt;/p&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
-   &lt;p&gt;相应的支付回调也是类似的，支付宝发起HTTPS的回调，只能知道是访问了商家的回调地址，而商家不能安全的确性这就是支付宝发起的回调。&lt;/p&gt; 
+   &lt;p&gt;相应的支付回调也是类似的，支付宝发起HTTPS的回调，只能知道是访问了商家的回调地址，而商家不能安全的确信这就是支付宝发起的回调。&lt;/p&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
    &lt;p&gt;而且上面的方案在非HTTPS的环境也是可以工作的。&lt;/p&gt; 
@@ -182,7 +304,7 @@
    &lt;/div&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
-   &lt;p&gt;所以变化部分其实就是某个视角的权重是变化的，各个视角的权重分配是动态变化的。随着人的专业，认知，经验等等发生变化，每个人对这个公式中的午权重的分配也是变化的，所以一个结论发生变化，实在是常有的事情。&lt;/p&gt; 
+   &lt;p&gt;所以变化部分其实就是某个视角的权重是变化的，各个视角的权重分配是动态变化的。随着人的专业，认知，经验等等发生变化，每个人对这个公式中视角的权重分配也是变化的，所以一个结论发生变化，实在是常有的事情。&lt;/p&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
    &lt;p&gt;在这个结论下，一定要打开思路，敞开胸怀接受变化的发生，并积极想想如何应对变化了。&lt;/p&gt; 
@@ -382,6 +504,24 @@
     &lt;/dt&gt; 
     &lt;dd&gt; 
      &lt;p&gt;sounds good to me，听起来不错。代码评审中的同意的意思，或者某项提议/设计方案不错的意思。&lt;/p&gt; 
+    &lt;/dd&gt; 
+    &lt;dt class=&quot;hdlist1&quot;&gt;
+     RTFM
+    &lt;/dt&gt; 
+    &lt;dd&gt; 
+     &lt;p&gt;read the fucking manual, 先读一下手册。一般都是问题太简单，都写在手册里面了。&lt;/p&gt; 
+    &lt;/dd&gt; 
+    &lt;dt class=&quot;hdlist1&quot;&gt;
+     STFW
+    &lt;/dt&gt; 
+    &lt;dd&gt; 
+     &lt;p&gt;search the fucking web, 先上网查一下。一般都是问题太简单，简单搜索就能找到答案。&lt;/p&gt; 
+    &lt;/dd&gt; 
+    &lt;dt class=&quot;hdlist1&quot;&gt;
+     W/O
+    &lt;/dt&gt; 
+    &lt;dd&gt; 
+     &lt;p&gt;without, 经常在github的issue中看到w/o，勉强也可也算开发术语，w/o转化为without之后就简单了吧？&lt;/p&gt; 
     &lt;/dd&gt; 
    &lt;/dl&gt; 
   &lt;/div&gt; 

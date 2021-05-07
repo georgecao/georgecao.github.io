@@ -52,6 +52,127 @@
       </div>
     </div>
     <div class="container">
+  		<a href="blog/2021/04/java-date-time.html"><h1>Java日期与时间的一些理解</h1></a>
+  		<p>
+			<a href="/about.html"><strong>乔治</strong></a>于2021年04月22日
+					<span class="badge badge-dark">日期</span>
+					<span class="badge badge-dark">时间</span>
+					<span class="badge badge-dark">时区</span>
+		</p>
+  		<p><div id="preamble"> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>日期和时间是表达周期性运动的一种方式，反过来说所有的周期性运动都可以用来计算时间。 地球人都知道有2种周期性运动，一个是地球绕太阳的公转，一个是地球自身的自转。地球的公转决定了日期，也就是 <strong>年-月-日</strong>。地球的自转决定了时间，也就是 <strong>时-分-秒</strong>。我们所说的一年就是地球公转一圈的时间，一日就是地球自转一圈的时间。所谓的周期性就是这个意思。日期的最小单位 <strong>日</strong> 就是地球自转一圈的时间，也就是24小时。 中国的农历和节气还和月球绕地球公转有关系。 而现在最精确的 <a href="https://zh.wikipedia.org/wiki/%E5%8E%9F%E5%AD%90%E9%90%98"><strong>原子钟</strong></a> 则是以原子共振频率标准来计算时间的。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="时间的表达">时间的表达</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>Java中的日期和时间是时间在计算机中的结构化表达，比如 <strong>Date</strong> 类内部就是用毫秒数表示的。</p> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="毫秒数">毫秒数</h3> 
+   <div class="paragraph"> 
+    <p>milliseconds 是一个和时区没关系的值，也就是同一时刻全世界不同地方同时通过以下代码获取到的毫秒数是一样的：</p> 
+   </div> 
+   <div class="listingblock"> 
+    <div class="content"> 
+     <pre class="prettyprint highlight"><code>System.currentTimeMillis();</code></pre> 
+    </div> 
+   </div> 
+   <div class="paragraph"> 
+    <p>其结果都是从 <strong>1970-01-01T00:00Z</strong> 开始到现在的毫秒数。</p> 
+   </div> 
+   <div class="quoteblock"> 
+    <blockquote> 
+     <div class="paragraph"> 
+      <p>But the concept is the same - those values are "absolute": they are the same for everyone in the world, no matter where they are. If 2 people in different parts of the world (in different timezones) get the current timestamp at the same time, they’ll all get the same number.</p> 
+     </div> 
+    </blockquote> 
+    <div class="attribution">
+      — https://stackoverflow.com/questions/46093200/showing-correct-time-from-milliseconds-with-desired-timezone 
+    </div> 
+   </div> 
+   <div class="paragraph"> 
+    <p>Date， LocalDate，LocalDateTime 本身都是时间的结构化表达，本身并不带有时区信息。只需要需要给人展示的时候，才会用到时区信息来具体展示时间。</p> 
+   </div> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="locale_vs_timezone">Locale vs Timezone</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>Locale是指所属的地区以及该地区的语言，而Timezone则是时区。 直觉上我们一直说的是中国的时区是东八区，所以在系统层面就理解地区和时区之间是有关系的，也就是设置了Locale则自动设置了该地区的时区。这也是我曾经的一个误解，其实他们两个之间是相互独立的。Locale作用于系统语言，比如国际化等。 TimeZone作用于日期和时间。 设置Locale不会影响日期与时间，反之亦然。如果非要有点关系的话，就是如果时间的字符串中有特殊语言，则可以使用Locale让系统知道，然后正确展示。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="时区的理解">时区的理解</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>Java 1.8以前和Java 1.8中的日期和时间设计分别参考 <a href="https://docs.oracle.com/javase/tutorial/datetime/overview/index.html">Java日期设计</a> 与 <a href="https://www.journaldev.com/2800/java-8-date-localdate-localdatetime-instant">Java 8日期API</a>。这里面的时区是采用标准的 <a href="http://www.iana.org/time-zones">时区数据库</a>。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="utc与gmt">UTC与GMT</h2> 
+ <div class="sectionbody"> 
+  <div class="quoteblock"> 
+   <blockquote> 
+    <div class="paragraph"> 
+     <p>To begin with, GMT (which stands for Greenwich Mean Time) is not the same as UTC (which stands for Coordinated Universal Time):</p> 
+    </div> 
+    <div class="paragraph"> 
+     <p>GMT is a time zone used in some but not all parts of the world (mainly Europe and Africa). It uses either a 24-hour format or a 12-hour format for display and its based on astronomical observations. UTC is not a time zone. It is a standard which we can use to display time zones. It is more stable as it takes time from an atomic clock.</p> 
+    </div> 
+   </blockquote> 
+   <div class="attribution">
+     — https://phrase.com/blog/posts/how-to-get-date-time-in-utc-or-gmt-in-java/ 
+   </div> 
+  </div> 
+  <div class="quoteblock"> 
+   <blockquote> 
+    <div class="paragraph"> 
+     <p>Did you know that there is a difference between GMT and UTC even though they share the same current time? In short, GMT is an actual time zone, whereas UTC is a time standard that is used to keep time synchronized across the world.</p> 
+    </div> 
+   </blockquote> 
+   <div class="attribution">
+     — https://www.worldtimeserver.com/learn/utc-vs-gmt/ 
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>也就是GMT(Greenwich Mean Time)是时区，但UTC(Coordinated Universal Time)不是时区，而是一个用来同步时间的标准。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>举例来说 <strong>GMT+8</strong> 是时区，但 <strong>UTC+8</strong> 不是时区，虽然他们说的同一个时间。UTF+8是一个offset，一个offset不能自动转为时区。Java 1.8的java.time包中提供了 <strong>ZoneOffset</strong> 可参考。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>Java语言中展示时间的时候就用 <code>TimeZone.getTimeZone()</code> 去解析并查找标准时区，这是按照时区去检索的，检索不到的话就是默认为 <strong>GMT</strong> 时区。所以如果你输入UTC+8这个非法时区参数，得到的结果是GMT, 这就和GMT+8差了8个小时了，所有GMT+8不能用UTC+8代替。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="默认时区">默认时区</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>现在基本上容器是必须要支持的运行环境，也就是有可能环境不再是私有的物理环境，不受开发控制的情况也经常发生。比如你使用了公有的镜像之类的。这种不受开发控制的环境，就需要通过外部参数来控制系统默认时区。其中的一种做法是通过系统属性 <strong>user.timezone</strong> 的方式在JVM启动的时候来设置：</p> 
+  </div> 
+  <div class="listingblock"> 
+   <div class="title">
+    启动参数设置系统默认时区：
+   </div> 
+   <div class="content"> 
+    <pre class="prettyprint highlight"><code>java -Duser.timezone=Asia/Shanghai Main</code></pre> 
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>其他方案参考这篇 <a href="https://www.baeldung.com/java-jvm-time-zone">文章</a>。</p> 
+  </div> 
+ </div> 
+</div></p>
   		<a href="blog/2021/03/pay.html"><h1>支付API为啥那么麻烦？</h1></a>
   		<p>
 			<a href="/about.html"><strong>乔治</strong></a>于2021年03月20日
@@ -66,7 +187,7 @@
   		<p><div id="preamble"> 
  <div class="sectionbody"> 
   <div class="paragraph"> 
-   <p>仅仅在API层面，不涉及财务会计，金融监管等等方面，支付API的大部分繁琐工作都在保证 <strong>你就是你</strong> 的身份问题。 这个在新接入一家支付通道的时候感受非常明显。身份问题典型的解决方案就是基于非对称加密的 <strong>数字签名</strong> 技术。</p> 
+   <p>仅仅在API层面，不涉及财务会计，金融监管等等方面，仅仅从安全角度考虑，支付API的大部分繁琐工作都在保证 <strong>你就是你</strong> 的身份问题。 这个在新接入一家支付通道的时候感受非常明显。身份问题典型的解决方案就是基于非对称加密的 <strong>数字签名</strong> 技术。</p> 
   </div> 
  </div> 
 </div> 
@@ -74,7 +195,7 @@
  <h2 id="支付安全">支付安全</h2> 
  <div class="sectionbody"> 
   <div class="paragraph"> 
-   <p>在一个支付流程中可能涉及的角色有平台用户，商户，平台，应用，商户用户等。整体上是一个三方参与的过程，比较负责。支付也是一个异步流程，从商家的角度至少需要2步以上才能完成支付：</p> 
+   <p>在一个支付流程中可能涉及的角色有平台用户，商户，平台，应用，商户用户等。整体上是一个三方参与的过程，比较复杂。支付也是一个异步流程，从商家的角度至少需要2步以上才能完成支付：</p> 
   </div> 
   <div class="olist arabic"> 
    <ol class="arabic"> 
@@ -93,7 +214,7 @@
    </ol> 
   </div> 
   <div class="paragraph"> 
-   <p>只有这样商家才放心说钱一定会收到的，平台也有凭证说商家已经把钱收了。这是一个双向的严格的安全要求。这就是为啥调用支付API要申请应用，要生成证书，要验签名等。</p> 
+   <p>只有这样商家才放心说钱一定会收到的(毕竟每笔交易你都没查银行账户确认)，平台也有凭证说商家已经把钱收了，用户确信商家是会履约的。这是一个双向的严格的安全要求。这就是为啥调用支付API要申请应用，要生成证书，要验签名等。</p> 
   </div> 
   <div class="paragraph"> 
    <p>第1个商家向平台证明自己的身份使用OAuth相关的技术。以支付宝为例，你要对接先申请一个应用，拿到一个APP ID和APP Secret，熟悉OAuth的人可能都马上能联系到开放平台的事情。APP Secret一定要保管好，不能泄漏。 貌似这一步也可以支持证书认证。</p> 
@@ -110,13 +231,13 @@
  <h2 id="https不能保证这个吗">HTTPS不能保证这个吗？</h2> 
  <div class="sectionbody"> 
   <div class="paragraph"> 
-   <p>虽说HTTPS逐渐普遍起来了，但是也不能完成保证支付安全的问题。因为HTTPS只能保证请求接收方的身份问题，不能提供请求发起方的身份问题。</p> 
+   <p>虽说HTTPS逐渐普遍起来了，但是也不能完成保证支付安全的问题。因为HTTPS只能保证请求接收方的身份问题，不能确认请求发起方的身份问题。</p> 
   </div> 
   <div class="paragraph"> 
-   <p>以支付宝为例，也就是是说我们访问 <a href="https://openapi.alipay.com/gateway.do" class="bare">https://openapi.alipay.com/gateway.do</a> 成功后请求发起方能确认访问的是就是支付宝的支付接口，但是支付宝支付平台不能安全的知道是谁在发起支付请求。</p> 
+   <p>以支付宝为例，也就是是说我们访问 <a href="https://openapi.alipay.com/gateway.do" class="bare">https://openapi.alipay.com/gateway.do</a> 成功后请求发起方能确认访问的就是支付宝的支付接口，但是支付宝支付平台不能安全的知道是谁在发起支付请求。</p> 
   </div> 
   <div class="paragraph"> 
-   <p>相应的支付回调也是类似的，支付宝发起HTTPS的回调，只能知道是访问了商家的回调地址，而商家不能安全的确性这就是支付宝发起的回调。</p> 
+   <p>相应的支付回调也是类似的，支付宝发起HTTPS的回调，只能知道是访问了商家的回调地址，而商家不能安全的确信这就是支付宝发起的回调。</p> 
   </div> 
   <div class="paragraph"> 
    <p>而且上面的方案在非HTTPS的环境也是可以工作的。</p> 
@@ -229,7 +350,7 @@
    </div> 
   </div> 
   <div class="paragraph"> 
-   <p>所以变化部分其实就是某个视角的权重是变化的，各个视角的权重分配是动态变化的。随着人的专业，认知，经验等等发生变化，每个人对这个公式中的午权重的分配也是变化的，所以一个结论发生变化，实在是常有的事情。</p> 
+   <p>所以变化部分其实就是某个视角的权重是变化的，各个视角的权重分配是动态变化的。随着人的专业，认知，经验等等发生变化，每个人对这个公式中视角的权重分配也是变化的，所以一个结论发生变化，实在是常有的事情。</p> 
   </div> 
   <div class="paragraph"> 
    <p>在这个结论下，一定要打开思路，敞开胸怀接受变化的发生，并积极想想如何应对变化了。</p> 
@@ -244,101 +365,6 @@
  <div class="sectionbody"> 
   <div class="paragraph"> 
    <p>讨论一个问题，可能从量变与质变，定量与定性，过程与结果，存量与增量，绝对与相对等等多角度思考。 过程中要接受变化，并且认认真真的学习变化，最终收敛变化，完成一次迭代。</p> 
-  </div> 
- </div> 
-</div></p>
-  		<a href="blog/2020/05/how-to-size-thread-pool.html"><h1>如何设置线程池的大小？</h1></a>
-  		<p>
-			<a href="/about.html"><strong>乔治</strong></a>于2020年05月04日
-					<span class="badge badge-dark">多线程</span>
-					<span class="badge badge-dark">线程池</span>
-		</p>
-  		<p><div id="preamble"> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>多核环境下，为了更好的资源利用率，多线程基本上算是一个常规武器了。 我们知道CPU是用来计算的，而计算所需要的外部数据则是交给独立的I/O系统处理的。CPU和I/O的特点就是一个快，一个慢，大约差 <a href="https://colin-scott.github.io/personal_website/research/interactive_latency.html">2～3个数量级</a>。所以为了不浪费快的资源，就把慢的事情交给独立的系统做，等慢的资源准备好了在通知快的资源(也叫 <strong>中断处理</strong>)。所以一旦发生CPU需要等待外部数据的时候，操作系统的调度系统就会暂时保存当前计算的寄存器状态，程序计数器等(也叫 <strong>上下文</strong>) ，让出CPU给其他的可调度的进程。 这个过程称为 <strong>上下文切换</strong>。一旦发生了 <strong>上下文切换</strong>，以 <strong>线程</strong> 统一进行计算与I/O传输的应用这时就是被 <strong>阻塞</strong> 了。为了提高CPU的利用率，应用层面就是使用多个线程来保证CPU有计算可执行，线程池就是这么产生了。 以下就是本文的核心问题，如果你要创建一个线程池，该怎么确定线程池的大小呢？可以肯定的是线程数也不是越多越好。</p> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="线程池的大小">线程池的大小</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>关于线程池的大小，有两本非常有名的书中都有相关的论述。这两本书还都是Java生态里面重量级人物写的。分别看一下：</p> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="java_concurrency_in_practice">Java Concurrency In Practice</h3> 
-   <div class="quoteblock"> 
-    <blockquote>
-      For compute intensive tasks, an <em>N<sub>cpu</sub></em>-processor system usually achieves optimum utilization with a thread pool of <em>N<sub>cpu</sub></em>+1 threads. (Even compute intensive threads occasionally take a page fault or pause for some other reason, so an "extra" runnable thread prevents CPU cycles from going unused when this happens.) For tasks that also include I/O or other blocking operations, you want a larger pool, since not all of the threads will be schedulable at all times. In order to size the pool properly, you must estimate the ratio of waiting time to compute time for your tasks; this estimate need not be precise and can be obtained through profiling or instrumentation. Alternatively, the size of the thread pool can be tuned by running the application using several different pool sizes under a benchmark load and observing the level of CPU utilization. 
-    </blockquote> 
-    <div class="attribution">
-      — Brian Göetz
-     <br> <cite>Java Concurrency In Practice: p.107</cite> 
-    </div> 
-   </div> 
-   <div class="paragraph"> 
-    <p>书中先给出如下一些定义:</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p><em>N<sub>cpu</sub></em> = CPU核心数,</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p><em>U<sub>cpu</sub> = 目标CPU的使用率，其中 \$0 &lt;=\$ _U<sub>cpu</sub></em> \$&lt;= 1\$,</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>\$w\$ = CPU等待时间，</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>\$c\$ = CPU计算时间，</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>\$w/c\$ = CPU等待时间和计算时间的比率,</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>然后就给出了能够使处理器保持在特定使用率的线程数最优公式： <em>N<sub>threads</sub></em> = <em>N<sub>cpu</sub></em> * <em>U<sub>cpu</sub></em> * (\$1 + w/c\$)</p> 
-   </div> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="programming_concurrency_on_the_jvm">Programming Concurrency on the JVM</h3> 
-   <div class="quoteblock"> 
-    <blockquote>
-      If tasks spend 50 percent of the time being blocked, then the number of threads should be twice the number of available cores. If they spend less time being blocked—that is, they’re computation intensive—then we should have fewer threads but no less than the number of cores. If they spend more time being blocked—that is, they’re IO intensive—then we should have more threads, specifically, several multiples of the number of cores. 
-    </blockquote> 
-    <div class="attribution">
-      — Venkat Subramaniam
-     <br> <cite>Programming Concurrency on the JVM: p.16</cite> 
-    </div> 
-   </div> 
-   <div class="paragraph"> 
-    <p>这本书里没有直接给出变量定义，而是用文字描述的。为了便于比较，这里也给出一些定义：</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p><em>N<sub>threads</sub></em> = 总的线程数，</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p><em>N<sub>cpu</sub></em> = 可用的CPU核心数，</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p><em>B<sub>c</sub></em> = 阻塞系数，介于0和1之间的。</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>那么，就可以用如下的方式计算我们需要的线程数了： <em>N<sub>threads</sub></em> = <em>N<sub>cpu</sub></em> / (1 - <em>B<sub>c</sub></em>)</p> 
-   </div> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="分析与结论">分析与结论</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>乍一看，两本书给出了2个不一样的公式，该如何取舍呢？</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>假设CPU的使用率 <em>U<sub>cpu</sub></em> 是100%的情况下，也就是如果目标都是尽可能的利用CPU资源，其实这两个公式是一样的。 只要定义阻塞系数(blocking coefficient) = \$w/(w+c)\$，也就是阻塞系数为阻塞时间与整个CPU时间的占比。那么他们就是一个意思：定性的描述就是阻塞时间越多，就需要更多线程来保证CPU有活干。上面2个不同的公式则是定量的表达上述思路了。优化线程池的大小是想用最少的线程上下文切换(或代价)来做到最大的(或特定目标)CPU使用率。</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>第2本书没有把目标CPU使用率放到公式里面，都包含在阻塞系数里面了。</p> 
   </div> 
  </div> 
 </div></p>
