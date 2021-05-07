@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+  <head>
+    <meta charset="utf-8"/>
+    <title>编程语言中的文件系统与命名空间的关系</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="乔治">
+    <meta name="keywords" content="命名空间,作用域,文件路径,资源,文件系统">
+    <meta name="generator" content="JBake v2.7.0.1">
+    <meta property=og:locale content=zh_CN>
+    <!-- Le styles -->
+    <link href="../../../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../../../css/asciidoctor.css" rel="stylesheet">
+    <link href="../../../css/base.css" rel="stylesheet">
+    <link href="../../../css/prettify.css" rel="stylesheet">
+
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+
+    <!-- Fav and touch icons -->
+    <!--<link rel="apple-touch-icon-precomposed" sizes="144x144" href="../assets/ico/apple-touch-icon-144-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="../assets/ico/apple-touch-icon-114-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="../assets/ico/apple-touch-icon-72-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" href="../assets/ico/apple-touch-icon-57-precomposed.png">-->
+    <link rel="shortcut icon" href="../../../img/favicon.svg">
+      <link rel="canonical" href="https://www.reploop.org/blog/2021/04/path-and-namespace.html" />
+    <script data-ad-client="ca-pub-2350040335860411" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  </head>
+  <body onload="prettyPrint()">
+    <div id="wrap">	
+	<!-- Fixed navbar -->
+    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../../../">REPLoop</a>
+        </div>
+        <div class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li><a href="../../../index.html">博客</a></li>
+            <li><a href="../../../archive.html">归档</a></li>
+            <li><a href="../../../tags/index.html">标签</a></li>
+            <li><a href="../../../about.html">关于</a></li>
+            <li><a href="../../../feed.xml">订阅</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </div>
+    <div class="container">
+		<div class="page-header">
+			<h1>编程语言中的文件系统与命名空间的关系</h1>
+		</div>
+
+<p><a href="/about.html"><strong>乔治</strong></a>于2021年04月29日
+				<span class="badge badge-dark">命名空间</span>
+				<span class="badge badge-dark">作用域</span>
+				<span class="badge badge-dark">文件路径</span>
+				<span class="badge badge-dark">资源</span>
+				<span class="badge badge-dark">文件系统</span>
+	</p>
+	<p><div class="paragraph"> 
+ <p>编程语言的中命名空间非常重要，提供了语言层面的隔离，使得不同的人可以放心的写代码而不用担心名字冲突的问题。 编程语言写成的源代码都是写到文件里存储的，不同的文件本身也是一个隔离手段。</p> 
+</div> 
+<div class="paragraph"> 
+ <p>源代码都是按照文件的方式存储的，用文件可以实现基本的隔离。但是为了多个文件之间共享代码，文件的方式就不太够用了，起不到隔离的作用的，就需要实现语言层面的隔离。</p> 
+</div> 
+<div class="paragraph"> 
+ <p>为了实现语言层面的隔离，该命名空间发挥作用了。命名空间可以认为是物理文件之上更抽象的一个概念，保证在一个命名空间内名字不冲突。</p> 
+</div> 
+<div class="paragraph"> 
+ <p>像Java语言大概只知道命名空间，也就是package。然后使用默认的类名必须和文件名一样的规则，package对应各个层次的文件夹，这种一一对应的好处就是你基本感觉不到文件系统的存在。所以在import的过程中只见package，不见文件路径。能感受到路径的是获取资源的时候，这相当于还是基于文件系统找资源。这时候又没有了命名空间的意思了。</p> 
+</div> 
+<div class="paragraph"> 
+ <p>像Protobuf则是文件路径和命名空间同时存在。在一个文件引入另一个文件的时候使用的是文件路径。引入之后的，在需要使用具体的Message解析依赖的时候使用命名空间来隔离的。这两个可以是各自独立的。Ruby 也是一样的。</p> 
+</div> 
+<div class="paragraph"> 
+ <p>文件系统的使用都有一个开始路径，选定这个锚点，从这个路径开始查找资源。这就衍生出一个绝对路径和相对路径。所谓绝对路径就是整个应用最顶层的文件路径开始查找。相对路径则是根据当前文件所在的路径作为基点开始查找资源。</p> 
+</div> 
+<div class="paragraph"> 
+ <p>Java中查找资源常见的有2种方式：</p> 
+</div> 
+<div class="listingblock"> 
+ <div class="content"> 
+  <pre>String path = "";
+SomeClass.class.getResource(path);   <i class="conum" data-value="1"></i><b>(1)</b>
+ClassLoader.getSystemResource(path); <i class="conum" data-value="2"></i><b>(2)</b></pre> 
+ </div> 
+</div> 
+<div class="paragraph"> 
+ <p>第一种方式可以使用绝对或者相对路径查找，使用绝对路径的时候以 <strong>/</strong> 开始，其他情况就是使用相对路径，也就从当前SomeClass的位置开始查找。相对路径实现起来也简单，就是把当前SomeClass的路径加到待查找路径的前面，形成新的路径去查找就可以了。</p> 
+</div> 
+<div class="paragraph"> 
+ <p>第二种方式则只是用绝对路径查找，也就是从根目录开始查找。指定的查找资源路径也需要从根路径开始的路径，但是路径不需要以 <strong>/</strong> 开始。</p> 
+</div></p>
+
+	<hr />
+<div id="disqus_thread"></div>
+<script>
+
+    /**
+     *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+     *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
+    var disqus_config = function () {
+        this.page.url = "https://www.reploop.org/blog/2021/04/path-and-namespace.html";  // Replace PAGE_URL with your page's canonical URL variable
+        this.page.identifier = "https://www.reploop.org/blog/2021/04/path-and-namespace.html"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+    };
+    (function () { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://reploop.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by
+        Disqus.</a></noscript>
+		</div>
+		<div id="push"></div>
+    </div>
+    
+    <div id="footer">
+      <div class="container">
+        <p class="muted credit">&copy; 2020 | Mixed with <a href="http://getbootstrap.com/">Bootstrap v3.1.1</a> | Baked with <a href="http://jbake.org">JBake v2.7.0.1</a></p>
+      </div>
+    </div>
+    
+    <!-- Le javascript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="../../../js/jquery-1.11.1.min.js"></script>
+    <script src="../../../js/bootstrap.min.js"></script>
+    <script src="../../../js/prettify.js"></script>
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  messageStyle: "none",
+  tex2jax: {
+    inlineMath: [["\\(", "\\)"]],
+    displayMath: [["\\[", "\\]"]],
+    ignoreClass: "nostem|nolatexmath"
+  },
+  asciimath2jax: {
+    delimiters: [["\\$", "\\$"]],
+    ignoreClass: "nostem|noasciimath"
+  },
+  TeX: { equationNumbers: { autoNumber: "none" } }
+})
+MathJax.Hub.Register.StartupHook("AsciiMath Jax Ready", function () {
+  MathJax.InputJax.AsciiMath.postfilterHooks.Add(function (data, node) {
+    if ((node = data.script.parentNode) && (node = node.parentNode) && node.classList.contains('stemblock')) {
+      data.math.root.display = "block"
+    }
+    return data
+  })
+})
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_HTMLorMML"></script>
+  </body>
+</html>

@@ -6,9 +6,51 @@
         <atom:link href="https://www.reploop.org/feed.xml" rel="self" type="application/rss+xml"/>
         <description>REPLoop，在脚本编程语言中经常能看到REPL，也就是Read-Evaluate-Print-Loop，意思是读取源代码，评估执行，打印结果的循环。这个过程能够快速的学习实践然后得到结果。非常像一个学习成长的过程：输入信息，消化吸收，输出知识并用于实践，然后持之以恒的坚持。4个环节缺一不可，而且最难做到的大概是持之以恒了。</description>
         <language>en-gb</language>
-        <pubDate>Fri, 7 May 2021 11:47:43 +0800</pubDate>
-        <lastBuildDate>Fri, 7 May 2021 11:47:43 +0800</lastBuildDate>
+        <pubDate>Fri, 7 May 2021 13:08:58 +0800</pubDate>
+        <lastBuildDate>Fri, 7 May 2021 13:08:58 +0800</lastBuildDate>
 
+            <item>
+                <title>编程语言中的文件系统与命名空间的关系</title>
+                <link>https://www.reploop.org/blog/2021/04/path-and-namespace.html</link>
+                <pubDate>Thu, 29 Apr 2021 00:00:00 +0800</pubDate>
+                <guid isPermaLink="false">blog/2021/04/path-and-namespace.html</guid>
+                <description>
+                        &lt;div class=&quot;paragraph&quot;&gt; 
+ &lt;p&gt;编程语言的中命名空间非常重要，提供了语言层面的隔离，使得不同的人可以放心的写代码而不用担心名字冲突的问题。 编程语言写成的源代码都是写到文件里存储的，不同的文件本身也是一个隔离手段。&lt;/p&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;paragraph&quot;&gt; 
+ &lt;p&gt;源代码都是按照文件的方式存储的，用文件可以实现基本的隔离。但是为了多个文件之间共享代码，文件的方式就不太够用了，起不到隔离的作用的，就需要实现语言层面的隔离。&lt;/p&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;paragraph&quot;&gt; 
+ &lt;p&gt;为了实现语言层面的隔离，该命名空间发挥作用了。命名空间可以认为是物理文件之上更抽象的一个概念，保证在一个命名空间内名字不冲突。&lt;/p&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;paragraph&quot;&gt; 
+ &lt;p&gt;像Java语言大概只知道命名空间，也就是package。然后使用默认的类名必须和文件名一样的规则，package对应各个层次的文件夹，这种一一对应的好处就是你基本感觉不到文件系统的存在。所以在import的过程中只见package，不见文件路径。能感受到路径的是获取资源的时候，这相当于还是基于文件系统找资源。这时候又没有了命名空间的意思了。&lt;/p&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;paragraph&quot;&gt; 
+ &lt;p&gt;像Protobuf则是文件路径和命名空间同时存在。在一个文件引入另一个文件的时候使用的是文件路径。引入之后的，在需要使用具体的Message解析依赖的时候使用命名空间来隔离的。这两个可以是各自独立的。Ruby 也是一样的。&lt;/p&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;paragraph&quot;&gt; 
+ &lt;p&gt;文件系统的使用都有一个开始路径，选定这个锚点，从这个路径开始查找资源。这就衍生出一个绝对路径和相对路径。所谓绝对路径就是整个应用最顶层的文件路径开始查找。相对路径则是根据当前文件所在的路径作为基点开始查找资源。&lt;/p&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;paragraph&quot;&gt; 
+ &lt;p&gt;Java中查找资源常见的有2种方式：&lt;/p&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;listingblock&quot;&gt; 
+ &lt;div class=&quot;content&quot;&gt; 
+  &lt;pre&gt;String path = &quot;&quot;;
+SomeClass.class.getResource(path);   &lt;i class=&quot;conum&quot; data-value=&quot;1&quot;&gt;&lt;/i&gt;&lt;b&gt;(1)&lt;/b&gt;
+ClassLoader.getSystemResource(path); &lt;i class=&quot;conum&quot; data-value=&quot;2&quot;&gt;&lt;/i&gt;&lt;b&gt;(2)&lt;/b&gt;&lt;/pre&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;paragraph&quot;&gt; 
+ &lt;p&gt;第一种方式可以使用绝对或者相对路径查找，使用绝对路径的时候以 &lt;strong&gt;/&lt;/strong&gt; 开始，其他情况就是使用相对路径，也就从当前SomeClass的位置开始查找。相对路径实现起来也简单，就是把当前SomeClass的路径加到待查找路径的前面，形成新的路径去查找就可以了。&lt;/p&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;paragraph&quot;&gt; 
+ &lt;p&gt;第二种方式则只是用绝对路径查找，也就是从根目录开始查找。指定的查找资源路径也需要从根路径开始的路径，但是路径不需要以 &lt;strong&gt;/&lt;/strong&gt; 开始。&lt;/p&gt; 
+&lt;/div&gt;
+                </description>
+            </item>
             <item>
                 <title>Java日期与时间的一些理解</title>
                 <link>https://www.reploop.org/blog/2021/04/java-date-time.html</link>

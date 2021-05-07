@@ -52,6 +52,49 @@
       </div>
     </div>
     <div class="container">
+  		<a href="blog/2021/04/path-and-namespace.html"><h1>编程语言中的文件系统与命名空间的关系</h1></a>
+  		<p>
+			<a href="/about.html"><strong>乔治</strong></a>于2021年04月29日
+					<span class="badge badge-dark">命名空间</span>
+					<span class="badge badge-dark">作用域</span>
+					<span class="badge badge-dark">文件路径</span>
+					<span class="badge badge-dark">资源</span>
+					<span class="badge badge-dark">文件系统</span>
+		</p>
+  		<p><div class="paragraph"> 
+ <p>编程语言的中命名空间非常重要，提供了语言层面的隔离，使得不同的人可以放心的写代码而不用担心名字冲突的问题。 编程语言写成的源代码都是写到文件里存储的，不同的文件本身也是一个隔离手段。</p> 
+</div> 
+<div class="paragraph"> 
+ <p>源代码都是按照文件的方式存储的，用文件可以实现基本的隔离。但是为了多个文件之间共享代码，文件的方式就不太够用了，起不到隔离的作用的，就需要实现语言层面的隔离。</p> 
+</div> 
+<div class="paragraph"> 
+ <p>为了实现语言层面的隔离，该命名空间发挥作用了。命名空间可以认为是物理文件之上更抽象的一个概念，保证在一个命名空间内名字不冲突。</p> 
+</div> 
+<div class="paragraph"> 
+ <p>像Java语言大概只知道命名空间，也就是package。然后使用默认的类名必须和文件名一样的规则，package对应各个层次的文件夹，这种一一对应的好处就是你基本感觉不到文件系统的存在。所以在import的过程中只见package，不见文件路径。能感受到路径的是获取资源的时候，这相当于还是基于文件系统找资源。这时候又没有了命名空间的意思了。</p> 
+</div> 
+<div class="paragraph"> 
+ <p>像Protobuf则是文件路径和命名空间同时存在。在一个文件引入另一个文件的时候使用的是文件路径。引入之后的，在需要使用具体的Message解析依赖的时候使用命名空间来隔离的。这两个可以是各自独立的。Ruby 也是一样的。</p> 
+</div> 
+<div class="paragraph"> 
+ <p>文件系统的使用都有一个开始路径，选定这个锚点，从这个路径开始查找资源。这就衍生出一个绝对路径和相对路径。所谓绝对路径就是整个应用最顶层的文件路径开始查找。相对路径则是根据当前文件所在的路径作为基点开始查找资源。</p> 
+</div> 
+<div class="paragraph"> 
+ <p>Java中查找资源常见的有2种方式：</p> 
+</div> 
+<div class="listingblock"> 
+ <div class="content"> 
+  <pre>String path = "";
+SomeClass.class.getResource(path);   <i class="conum" data-value="1"></i><b>(1)</b>
+ClassLoader.getSystemResource(path); <i class="conum" data-value="2"></i><b>(2)</b></pre> 
+ </div> 
+</div> 
+<div class="paragraph"> 
+ <p>第一种方式可以使用绝对或者相对路径查找，使用绝对路径的时候以 <strong>/</strong> 开始，其他情况就是使用相对路径，也就从当前SomeClass的位置开始查找。相对路径实现起来也简单，就是把当前SomeClass的路径加到待查找路径的前面，形成新的路径去查找就可以了。</p> 
+</div> 
+<div class="paragraph"> 
+ <p>第二种方式则只是用绝对路径查找，也就是从根目录开始查找。指定的查找资源路径也需要从根路径开始的路径，但是路径不需要以 <strong>/</strong> 开始。</p> 
+</div></p>
   		<a href="blog/2021/04/java-date-time.html"><h1>Java日期与时间的一些理解</h1></a>
   		<p>
 			<a href="/about.html"><strong>乔治</strong></a>于2021年04月22日
@@ -251,120 +294,6 @@
    <ul> 
     <li> <p>reploop.org - <a href="https://www.reploop.org/blog/2020/03/how-https-works.html">HTTPS如何工作的？</a></p> </li> 
    </ul> 
-  </div> 
- </div> 
-</div></p>
-  		<a href="blog/2020/09/discuss-a-problem.html"><h1>如何讨论一个问题？</h1></a>
-  		<p>
-			<a href="/about.html"><strong>乔治</strong></a>于2020年09月05日
-					<span class="badge badge-dark">认知</span>
-					<span class="badge badge-dark">视角</span>
-					<span class="badge badge-dark">变化</span>
-		</p>
-  		<p><div id="preamble"> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>如何和不同的人讨论一个问题？尤其是两个专业领域不同，背景不一致，坐下来讨论一个共同问题，并最终达成共识，然后在后续的执行过程中能够达到预期的结果，是一个很难的问题。每个人专业领域不一样，看问题的视角也不一样，接受信息的能力或者意愿也不一样，处理信息的方法也不一样，好好讨论问题并达成共识。</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>先看一下看问题的视角。</p> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="视角">视角</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>从创业公司层面的角度来看，做一个决策可能涉及到的考虑因素有：</p> 
-  </div> 
-  <div class="ulist"> 
-   <ul> 
-    <li> <p>市场</p> </li> 
-    <li> <p>运营</p> </li> 
-    <li> <p>品牌</p> </li> 
-    <li> <p>技术</p> </li> 
-    <li> <p>财务</p> </li> 
-    <li> <p>公司</p> </li> 
-    <li> <p>文化</p> </li> 
-    <li> <p>认知</p> </li> 
-    <li> <p>用户</p> </li> 
-    <li> <p>需求</p> </li> 
-    <li> <p>产品</p> </li> 
-    <li> <p>经济</p> </li> 
-    <li> <p>宏观</p> </li> 
-    <li> <p>行业</p> </li> 
-    <li> <p>人力</p> </li> 
-    <li> <p>商业</p> </li> 
-    <li> <p>管理</p> </li> 
-    <li> <p>人性</p> </li> 
-    <li> <p>信仰</p> </li> 
-   </ul> 
-  </div> 
-  <div class="paragraph"> 
-   <p>暂时不讨论他们之间的关系，也不把他们归类，只是把他们列出来看看。在这种情况下针对一个问题开始讨论了, 讨论的目的当然是要作出各方都认可的决策。那么可能发生的讨论过程是这样的：</p> 
-  </div> 
-  <div class="ulist"> 
-   <ul> 
-    <li> <p>你按照市场决策，他说财务是关键。</p> </li> 
-    <li> <p>你按照技术决策，他说市场不等人。</p> </li> 
-    <li> <p>你按照品牌决策，他说产品更重要。</p> </li> 
-    <li> <p>依次类推。。。</p> </li> 
-   </ul> 
-  </div> 
-  <div class="paragraph"> 
-   <p>这种场景最常见的就是某一个领域的下属和横向业务上的领导讨论问题时发生，最后屁股坐的正的说就这么办，之前的讨论就结束了。</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>到了执行环节，下属将信将疑的免强做了动作，最后结果一汇报上去，领导不满意，还说你不专业。结果变成一个双输的局面。</p> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="分析">分析</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>人们常说</p> 
-  </div> 
-  <div class="quoteblock"> 
-   <blockquote>
-     唯一不变的就是变化。 
-   </blockquote> 
-  </div> 
-  <div class="paragraph"> 
-   <p>我个人认为套用在和人相关的事情上都可以。如果你认同这句话，那就是要时刻准备接受变化，比如你读了更多的书，做了更多的项目，和更多的人接触，写了更多的代码，吃了更多的垃圾食品等等。现在让我们回到主题上了，这些变化会影响你看问题的角度，也就是会影响你作出决策，也就是之前的结论会变的。 剩下的问题就是变化有多快的事情了。</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>假设 \$x\$ 为视角，\$w\$为视角的权重。那么讨论问题做出决策就可以表达为下面这个公式：</p> 
-  </div> 
-  <div class="stemblock"> 
-   <div class="content">
-     \$f(x) = sum_(i=1)^n w_ix_i\$ 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>其中的权重制约关系为：</p> 
-  </div> 
-  <div class="stemblock"> 
-   <div class="content">
-     \$1 = sum_(i=1)^n w_i\$ 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>所以变化部分其实就是某个视角的权重是变化的，各个视角的权重分配是动态变化的。随着人的专业，认知，经验等等发生变化，每个人对这个公式中视角的权重分配也是变化的，所以一个结论发生变化，实在是常有的事情。</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>在这个结论下，一定要打开思路，敞开胸怀接受变化的发生，并积极想想如何应对变化了。</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>那是不是就由着变化不停的变化吗？ 应该也不是。每个行业或者领域都是发展的，所以这个行业或者领域的变化应该是收敛的。所谓发展，就是迭代试错，不断地积累成功的经验规律。 在一定的周期内，随着行业的发展，每个视角的权重配比差不多达到一个最优的了，这就最终转化为行业的认识或者基本规律了。</p> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="结论">结论</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>讨论一个问题，可能从量变与质变，定量与定性，过程与结果，存量与增量，绝对与相对等等多角度思考。 过程中要接受变化，并且认认真真的学习变化，最终收敛变化，完成一次迭代。</p> 
   </div> 
  </div> 
 </div></p>
