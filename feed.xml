@@ -6,8 +6,8 @@
         <atom:link href="https://www.reploop.org/feed.xml" rel="self" type="application/rss+xml"/>
         <description>REPLoop，在脚本编程语言中经常能看到REPL，也就是Read-Evaluate-Print-Loop，意思是读取源代码，评估执行，打印结果的循环。这个过程能够快速的学习实践然后得到结果。非常像一个学习成长的过程：输入信息，消化吸收，输出知识并用于实践，然后持之以恒的坚持。4个环节缺一不可，而且最难做到的大概是持之以恒了。</description>
         <language>en-gb</language>
-        <pubDate>Fri, 7 May 2021 13:08:58 +0800</pubDate>
-        <lastBuildDate>Fri, 7 May 2021 13:08:58 +0800</lastBuildDate>
+        <pubDate>Sat, 8 May 2021 20:08:51 +0800</pubDate>
+        <lastBuildDate>Sat, 8 May 2021 20:08:51 +0800</lastBuildDate>
 
             <item>
                 <title>编程语言中的文件系统与命名空间的关系</title>
@@ -833,10 +833,10 @@ location ~ /uri/\d{1,}/ {}   &lt;i class=&quot;conum&quot; data-value=&quot;2&qu
    &lt;p&gt;程序想要执行，必须加载进 &lt;strong&gt;主内存&lt;/strong&gt;。CPU的任务就是执行存储在那的指令，同时在必要的时候读数据或者写数据。&lt;/p&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
-   &lt;p&gt;随着时间的推移，这种类型的内存和处理器比起来变得非常慢。例如，一个现代的CPU一个纳秒内能够执行10个指令，但是需要纳秒的许多倍时间从此内存中读取数据！工程师们不喜欢时间就这样浪费了，所以他们给CPU配上了容量很小但是速度非常快的特殊内存，我们称之为 &lt;strong&gt;缓存&lt;/strong&gt;。&lt;/p&gt; 
+   &lt;p&gt;随着时间的推移，这种类型的内存和处理器比起来变得非常慢。例如，一个现代的CPU一个纳秒内能够执行10个指令，但是需要纳秒的许多倍时间从主内存中读取数据！工程师们不喜欢时间就这样浪费了，所以他们给CPU配上了容量很小但是速度非常快的特殊内存，我们称之为 &lt;strong&gt;缓存&lt;/strong&gt;。&lt;/p&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
-   &lt;p&gt;缓存是处理为了避免和慢速主内存交互，用来存储CPU最常用的数据的。如果CPU需要从主内存读取或者写入主内存，它首先检测缓存看是不是有所需数据的副本。如果有，处理器就直接从缓存读取或者写入缓存而不会等待相比较慢的主内存的响应。&lt;/p&gt; 
+   &lt;p&gt;缓存是为了避免和慢速主内存交互，用来存储CPU最常用的数据的。如果CPU需要从主内存读取或者写入主内存，它首先检测缓存看是不是有所需数据的副本。如果有，处理器就直接从缓存读取或者写入缓存而不会等待相比较慢的主内存的响应。&lt;/p&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
    &lt;p&gt;现代CPU有多个核心组成的，&lt;strong&gt;核心(core)&lt;/strong&gt; 是真正执行计算的组件。每个核心拥有自己的独立缓存，如下图所示：&lt;/p&gt; 
@@ -858,10 +858,10 @@ location ~ /uri/\d{1,}/ {}   &lt;i class=&quot;conum&quot; data-value=&quot;2&qu
     &lt;p&gt;很明显缓存机制增加了多核场景下系统的复杂性。现在你需要详细的规则来决定数据如何在不同的缓存间流动，来保证每个核心有最新版本的数据，称之为 &lt;strong&gt;缓存一致性协议&lt;/strong&gt;，他可能引发非常大的性能下降。所以工程师们就设想用内存重排序来充分发挥每个核心的作用。&lt;/p&gt; 
    &lt;/div&gt; 
    &lt;div class=&quot;paragraph&quot;&gt; 
-    &lt;p&gt;内存重排序为什么会发生的理由有很多个。比如，考虑2个核心同时访问同样的内存块。核心A从内存读取数据，核心B写入数据到内存。内存一致性协议可能会强制核心A等待核心B将本地修改的数据写回到主内存，这样核心A就能读到最新的数据。等待的核心可以选择提前执行其他内存指令，而不是浪费珍贵的指令周期啥也不做，即使这个和你在程序中明确的代码顺序不一样。&lt;/p&gt; 
+    &lt;p&gt;内存重排序为什么会发生的理由有很多个。比如，考虑2个核心同时访问同样的内存块。核心A从内存读取数据，核心B写入数据到内存。内存一致性协议可能会强制核心A等待核心B将本地修改的数据写回到主内存，这样核心A就能读到最新的数据。这个等待的核心可以选择提前执行其他内存指令，而不是浪费珍贵的指令周期啥也不做，即使这个和你在程序中明确的代码顺序不一样。&lt;/p&gt; 
    &lt;/div&gt; 
    &lt;div class=&quot;paragraph&quot;&gt; 
-    &lt;p&gt;当特定的优化开启了，编译器和虚拟机也会自用重排序指令。这些变化发生在编译时，可以通过汇编码或者字节码很容易的看到。软件内存重排序是充分利用底层硬件可能提供的特性来让你的代码运行的更快。&lt;/p&gt; 
+    &lt;p&gt;当特定的优化开启了，编译器和虚拟机也会启用重排序指令。这些变化发生在编译时，可以通过汇编码或者字节码很容易的看到。软件内存重排序是充分利用底层硬件可能提供的特性来让你的代码运行的更快。&lt;/p&gt; 
    &lt;/div&gt; 
   &lt;/div&gt; 
  &lt;/div&gt; 
@@ -888,7 +888,7 @@ thread_two():
    &lt;/div&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
-   &lt;p&gt;上面的代码片段中2个线程并发运行在2个不同的核心上。第1个线程等待第2个线程将 &lt;code&gt;v&lt;/code&gt; 设置为 &lt;code&gt;true&lt;/code&gt;。让我们假设 &lt;code&gt;store()&lt;/code&gt; 和 &lt;code&gt;load()&lt;/code&gt; 都是读取内存的原子的CPU指令。&lt;/p&gt; 
+   &lt;p&gt;上面的代码片段中2个线程并发运行在2个不同的核心上。第1个线程等待第2个线程将 &lt;code&gt;v&lt;/code&gt; 设置为 &lt;code&gt;true&lt;/code&gt;。让我们假设 &lt;code&gt;store()&lt;/code&gt; 和 &lt;code&gt;load()&lt;/code&gt; 都是读取内存的原子CPU指令。&lt;/p&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
    &lt;p&gt;你预计第1个线程在屏幕上打印出什么？如果他在线程2之前启动（ &lt;a href=&quot;https://internalpointers.com/post/gentle-introduction-multithreading#race-conditions&quot;&gt;并不总是这样的&lt;/a&gt;），就没有正确的答案了。如果没有重排序发生，你可能会看到1。尽管如此，如果第2个线程中的存储指令发生重排序，&lt;code&gt;v&lt;/code&gt; 的更新也可能发生在 &lt;code&gt;x&lt;/code&gt; 之前，打印语句可能打印出 &lt;code&gt;0&lt;/code&gt;。相似的，内存重排序也可能发生在第1个线程中，也就是 &lt;code&gt;x&lt;/code&gt; 的加载可能发生在 &lt;code&gt;v&lt;/code&gt; 的检测之前。&lt;/p&gt; 
@@ -919,7 +919,7 @@ thread_two():
    &lt;p&gt;你肯定不会基于一些随机变化的东西构建你的同步机制。这个问题可以通过引入 &lt;strong&gt;内存屏障&lt;/strong&gt; 的方式来解决。内存屏障是强制处理器按照可预知的方式访问内存的CPU指令。内存屏障的工作方式类似路障：内存屏障之前的指令保证先于内存屏障之后的指令执行。&lt;/p&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
-   &lt;p&gt;内存屏障是硬件层面的：你得直接和CPU交互。这是一个底层的解决方案，且不利用程序的可移植性。解决这个问题最好的方式是软件层次，利用操作系统，编译器或虚拟机提供的工具。&lt;/p&gt; 
+   &lt;p&gt;内存屏障是硬件层面的：你得直接和CPU交互。这是一个底层的解决方案，且不利于程序的可移植性。解决这个问题最好的方式是软件层次，利用操作系统，编译器或虚拟机提供的工具。&lt;/p&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
    &lt;p&gt;尽管如此，软件工具也仅仅是中间阶段。为了构建一个此问题的清晰的全景图，我们首先全局看一下所有可能在硬件或者软件系统中的内存场景。&lt;strong&gt;内存模型&lt;/strong&gt; 在这个过程中发挥重要作用。&lt;/p&gt; 
@@ -1075,7 +1075,7 @@ thread_D:
                         &lt;div id=&quot;preamble&quot;&gt; 
  &lt;div class=&quot;sectionbody&quot;&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
-   &lt;p&gt;本文经 &lt;a href=&quot;https://it.linkedin.com/in/federicarinaldi&quot;&gt;Federica Rinaldi&lt;/a&gt;仔细审阅过，谢谢。&lt;/p&gt; 
+   &lt;p&gt;本文英文版经 &lt;a href=&quot;https://it.linkedin.com/in/federicarinaldi&quot;&gt;Federica Rinaldi&lt;/a&gt;仔细审阅过，谢谢。&lt;/p&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
    &lt;p&gt;&quot;atom&quot;在希腊语中拾不可再分割的意思。在计算机中一个任务被称为原子的是指他不能再细分了：它不能再拆分为更小的执行步骤了。&lt;/p&gt; 
@@ -1107,7 +1107,7 @@ thread_D:
    &lt;/ol&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
-   &lt;p&gt;大多数时候你不会关注这些问题，因为他们不影响你应用程序的正确性。另一方面，有时候使线程一直运行是需要的，特别是你想发挥多处理器/多核硬件的能力。或者你就是不能容忍系统被一个崩溃的线程拖死，或者优先级反转的问题不容忽视。&lt;/p&gt; 
+   &lt;p&gt;大多数时候你不会关注这些问题，因为他们不影响你应用程序的正确性。另一方面，有时候使线程一直运行是有必要的，特别是你想发挥多处理器/多核硬件的能力，或者你就是不能容忍系统被一个崩溃的线程拖死，或者优先级反转的问题是不容忽视的。&lt;/p&gt; 
   &lt;/div&gt; 
  &lt;/div&gt; 
 &lt;/div&gt; 
@@ -1236,7 +1236,7 @@ writer_thread()
   &lt;div class=&quot;sect2&quot;&gt; 
    &lt;h3 id=&quot;现实世界中的原子操作&quot;&gt;现实世界中的原子操作&lt;/h3&gt; 
    &lt;div class=&quot;paragraph&quot;&gt; 
-    &lt;p&gt;现在，上面这个例子显示了原子操作的一个重要特性：他们仅针对原子类型，如boolean型，字符串，整数等。但是真的程序是需要使用同步技术来实现更复杂的数据结构，比如数组，向量，对象，数据向量，对象里包含数据等等。如何用基于原子类型的简单操作来保证负责数据的原子性？&lt;/p&gt; 
+    &lt;p&gt;现在，上面这个例子显示了原子操作的一个重要特性：他们仅针对原子类型，如boolean型，字符串，整数等。但是真的程序是需要使用同步技术来实现更复杂的数据结构，比如数组，向量，对象，数据向量，对象里包含数据等等。如何用基于原子类型的简单操作来保证复杂数据的原子性？&lt;/p&gt; 
    &lt;/div&gt; 
    &lt;div class=&quot;paragraph&quot;&gt; 
     &lt;p&gt;无锁编程迫使你跳出常规的同步原语来思考问题。你不直接用原子操作保护共享资源，而是用互斥锁或者信号量。同样的，你会基于原子操作构建 &lt;strong&gt;无锁算法&lt;/strong&gt; 或者 &lt;strong&gt;无锁数据结构&lt;/strong&gt; 来确定多个线程如何访问你的数据。&lt;/p&gt; 
@@ -1284,8 +1284,8 @@ reader_thread()
     print(load(x))
 
 writer_thread()
-    temp = load(x)                              // (1)
-    while(!compare_and_swap(x, temp, temp + 1)) // (2)&lt;/code&gt;&lt;/pre&gt; 
+    temp = load(x)                              &lt;i class=&quot;conum&quot; data-value=&quot;1&quot;&gt;&lt;/i&gt;&lt;b&gt;(1)&lt;/b&gt;
+    while(!compare_and_swap(x, temp, temp + 1)) &lt;i class=&quot;conum&quot; data-value=&quot;2&quot;&gt;&lt;/i&gt;&lt;b&gt;(2)&lt;/b&gt;&lt;/code&gt;&lt;/pre&gt; 
     &lt;/div&gt; 
    &lt;/div&gt; 
    &lt;div class=&quot;paragraph&quot;&gt; 
@@ -1329,7 +1329,7 @@ writer_thread()
     &lt;p&gt;CAS循环经常用来交换指针，这也是 &lt;em&gt;比较并交换&lt;/em&gt; 操作支持的类型之一。当你需要修改复杂的诸如对象或者数组的数据集的时候非常有用：创建本地数据副本，按需修改这个副本，合适的时候交换本地副本数据和全局共享数据的指针。这样的话全局共享数据就指向了本地副本数据在内存中指针，其他线程就会看到更新后的最新数据。&lt;/p&gt; 
    &lt;/div&gt; 
    &lt;div class=&quot;paragraph&quot;&gt; 
-    &lt;p&gt;这个技术允许你同步非原始数据实体(primitive entities)，尽管要做到这个也有一定的难度。比如交换完成之后，一个读线程还在读取老的指针？如何安全的删除之前的数据副本而不引起非常危险的野指针问题？工程师们再一次的找到了很多解决方案，比如使用支持内存自动 &lt;a href=&quot;https://en.wikipedia.org/wiki/Garbage_collection_(computer_science)&quot;&gt;垃圾回收&lt;/a&gt;的语言，或者一些深奥的技术如 &lt;a href=&quot;https://aturon.github.io/blog/2015/08/27/epoch/&quot;&gt;分代内存回收&lt;/a&gt;， &lt;a href=&quot;https://en.wikipedia.org/wiki/Hazard_pointer&quot;&gt;冒险指针&lt;/a&gt;或者 &lt;a href=&quot;https://en.wikipedia.org/wiki/Reference_counting&quot;&gt;引用计数&lt;/a&gt;。&lt;/p&gt; 
+    &lt;p&gt;这个技术允许你同步非基本数据实体(primitive entities)，尽管要做到这个也有一定的难度。比如交换完成之后，一个读线程还在读取老的指针？如何安全的删除之前的数据副本而不引起非常危险的野指针问题？工程师们再一次的找到了很多解决方案，比如使用支持内存自动 &lt;a href=&quot;https://en.wikipedia.org/wiki/Garbage_collection_(computer_science)&quot;&gt;垃圾回收&lt;/a&gt;的语言，或者一些深奥的技术如 &lt;a href=&quot;https://aturon.github.io/blog/2015/08/27/epoch/&quot;&gt;分代内存回收&lt;/a&gt;， &lt;a href=&quot;https://en.wikipedia.org/wiki/Hazard_pointer&quot;&gt;冒险指针&lt;/a&gt;或者 &lt;a href=&quot;https://en.wikipedia.org/wiki/Reference_counting&quot;&gt;引用计数&lt;/a&gt;。&lt;/p&gt; 
    &lt;/div&gt; 
   &lt;/div&gt; 
  &lt;/div&gt; 
@@ -1341,7 +1341,7 @@ writer_thread()
    &lt;p&gt;每个基于原子操作的算法或者数据结构都可以归为2类：&lt;strong&gt;无锁的&lt;/strong&gt; 或者 &lt;strong&gt;无等待的&lt;/strong&gt;。当你要评估基于原子操作的类库对你应用程序性能的影响时，这是一个非常重要的不同点。&lt;/p&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
-   &lt;p&gt;无锁算法允许其他线程继续执行有用的工作，尽管有一个线程正在忙等。换句话说，至少有一个线程是可以继续执行的。CAS循环是一个非常好的无锁算法例子，因为循环的过程中如果有一些交换尝试失败了，一定是因为另一个线程成功修改了共享数据。尽管如此，无锁算法可能会在无法预知的时间内不停的忙等，尤其是有许多个线程在同时竞争同一个共享数据：更确切的说，当 &lt;strong&gt;竞争&lt;/strong&gt; 非常激烈的时候。极端情况下，一个无锁算法的CPU资源效率可能远远不及让阻塞线程休眠的互斥锁。&lt;/p&gt; 
+   &lt;p&gt;无锁算法允许其他线程继续执行有用的工作，尽管有一个线程正在忙等。换句话说，至少有一个线程是可以继续执行的。CAS循环是一个非常好的无锁算法例子，因为循环的过程中如果有一些交换尝试失败了，一定是因为另一个线程成功修改了共享数据。尽管如此，无锁算法可能会在无法预知的时间内不停的忙等，尤其是有许多个线程在同时竞争同一个共享数据：更确切的说，当 &lt;strong&gt;竞争&lt;/strong&gt; 非常激烈的时候。极端情况下，一个无锁算法的CPU资源效率可能远远不及让线程阻塞休眠的互斥锁。&lt;/p&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
    &lt;p&gt;相比之下，在无等待算法中（无锁算法的子集），任何线程都能够在有限的步骤内完成工作，无论执行速度是怎样的，或者其他线程的工作负载水平是怎样的。本文中基于 &lt;em&gt;fetch-and-add&lt;/em&gt; 操作的第一个代码片段就是一个无等待算法实例：没有循环，没有重试，就是干净的业务流。还有，无等待算法是 &lt;strong&gt;容错的&lt;/strong&gt;：任何其他线程的失败，或者执行速度的波动都不会使当前线程结束不了工作。这些特性使得无等待算法非常适合复杂的 &lt;a href=&quot;https://en.wikipedia.org/wiki/Real-time_computing&quot;&gt;实时系统&lt;/a&gt;，因为这里并发代码的行为可预知是必要的。&lt;/p&gt; 
@@ -1355,7 +1355,7 @@ writer_thread()
    &lt;/div&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
-   &lt;p&gt;无等待是并发代码非常需要的，但是很难获得的特性。总而言之，无论你正在构建一个阻塞的，无锁的还是无等待的算法，黄金法则是你一定要做基准测试并且衡量测试结果。有时候旧时的互斥锁比时髦的同步原语性能要好，尤其是并发任务的复杂度非常高的时候。&lt;/p&gt; 
+   &lt;p&gt;无等待是并发代码非常需要的，但也是很难获得的特性。总而言之，无论你正在构建一个阻塞的，无锁的还是无等待的算法，黄金法则是你一定要做基准测试并且衡量测试结果。有时候旧时的互斥锁比时髦的同步原语性能要好，尤其是并发任务的复杂度非常高的时候。&lt;/p&gt; 
   &lt;/div&gt; 
  &lt;/div&gt; 
 &lt;/div&gt; 
@@ -1457,13 +1457,13 @@ writer_thread()
    &lt;p&gt;最重要的同步原语是互斥锁，信号量和条件变量。这些关键字还没有官方的定义，所以在不同的书本或者实现中会有轻微的不同特征。&lt;/p&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
-   &lt;p&gt;操作系统原生支持他们。例如Linux和macOS支持 &lt;strong&gt;POSIX线程&lt;/strong&gt;，也就是 &lt;strong&gt;pthreads&lt;/strong&gt;，能够让你可以用这一组函数开发安全的多线程应用。Windows则用C运行时代码库（CRT）提供自己的同步工具：概念上和POSIX多线程功能相似但是不同的命名。&lt;/p&gt; 
+   &lt;p&gt;这3个同步原语是操作系统是原生支持的。例如Linux和macOS支持 &lt;strong&gt;POSIX线程&lt;/strong&gt;，也就是 &lt;strong&gt;pthreads&lt;/strong&gt;，能够让你可以用这一组函数开发安全的多线程应用。Windows则用C运行时代码库（CRT）提供自己的同步工具：概念上和POSIX多线程功能相似但是不同的命名。&lt;/p&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
    &lt;p&gt;除非你正在写非常底层的代码，通常你只要使用编程语言提供的同步原语就可以了。每个支持多线程的编程语言都提供了自己的同步原语工具箱，以及一些额外的线程处理功能。例如Java提供了 &lt;code&gt;java.util.concurrent&lt;/code&gt; 包，现代C++有自己的线程库，C#提供 &lt;code&gt;System.Threading&lt;/code&gt; 命名空间等等。当然所有这些功能和对象都是基于底层操作系统同步原语的。&lt;/p&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
-   &lt;p&gt;当然还有其他同步工具，但是本文只关注上面提到的3个，因为他们是构建复杂系统的基础。让我们进一步分析。&lt;/p&gt; 
+   &lt;p&gt;除此之外还有其他同步工具，但是本文只关注上面提到的3个，因为他们是构建复杂系统的基础。让我们进一步分析。&lt;/p&gt; 
   &lt;/div&gt; 
  &lt;/div&gt; 
 &lt;/div&gt; 
@@ -1482,10 +1482,13 @@ writer_thread()
   &lt;div class=&quot;paragraph&quot;&gt; 
    &lt;p&gt;你可以用互斥锁保护比如一个共享变量的并发读和写操作，也可以保护更大、更复杂的操作，同时只允许一个线程执行的，比如写日志文件或者修改数据库。无论如何，互斥锁的加锁/解锁操作总是和关键区的边界是匹配的。&lt;/p&gt; 
   &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;互斥锁保护的是关键区域，也就是操作，而不是数据本身。如果在关键区域之外的代码也能读写数据，互斥锁就有失效的风险。所以所有对数据有读写的代码都需要作为关键区用互斥锁保护起来才能避免数据竞争。&lt;/p&gt; 
+  &lt;/div&gt; 
   &lt;div class=&quot;sect2&quot;&gt; 
    &lt;h3 id=&quot;递归互斥锁&quot;&gt;递归互斥锁&lt;/h3&gt; 
    &lt;div class=&quot;paragraph&quot;&gt; 
-    &lt;p&gt;任何常规的互斥锁实现中，一个线程两次加锁同一个互斥锁会引起错误。但是 &lt;strong&gt;递归互斥锁(recursive mutex)&lt;/strong&gt; 允许此类操作：一个线程可以锁定一个递归互斥锁许多次而不需要先释放。尽管如此，其他线程只有等到第一个线程释放所有的递归互斥锁之后才能锁定这个锁。这个同步原语也叫做 &lt;strong&gt;可重入互斥锁(reentrant mutex)&lt;/strong&gt;，这里的 &lt;strong&gt;可重入性(reentrancy)&lt;/strong&gt; 是指在前一次调用结束之前可以多次调用同一个函数的能力。&lt;/p&gt; 
+    &lt;p&gt;许多常规的互斥锁实现中，一个线程两次加锁同一个互斥锁会引起错误。但是 &lt;strong&gt;递归互斥锁(recursive mutex)&lt;/strong&gt; 允许此类操作：一个线程可以锁定一个递归互斥锁许多次而不需要先释放。尽管如此，其他线程只有等到第一个线程释放所有的递归互斥锁之后才能锁定这个锁。这个同步原语也叫做 &lt;strong&gt;可重入互斥锁(reentrant mutex)&lt;/strong&gt;，这里的 &lt;strong&gt;可重入性(reentrancy)&lt;/strong&gt; 是指在前一次调用结束之前可以多次调用同一个函数的能力。&lt;/p&gt; 
    &lt;/div&gt; 
    &lt;div class=&quot;paragraph&quot;&gt; 
     &lt;p&gt;递归互斥锁很难用而且容易出错。你必须记录哪个线程锁定了哪个互斥锁多少次，而且要保证一个线程完全释放这个互斥锁。不然的话就会导致互斥锁没能释放而引起讨厌的后果。大多数时候正常的互斥锁就够用了。&lt;/p&gt; 
@@ -1537,7 +1540,7 @@ writer_thread()
    &lt;div class=&quot;olist arabic&quot;&gt; 
     &lt;ol class=&quot;arabic&quot;&gt; 
      &lt;li&gt; &lt;p&gt;互斥锁只能被加锁的线程解锁，但是信号量可以被任意线程释放。如果你仅仅需要一个锁机制的话，这会导致困惑和微妙的问题；&lt;/p&gt; &lt;/li&gt; 
-     &lt;li&gt; &lt;p&gt;信号量是用来编排线程的信号机制，但是互斥锁是保护共享资源的锁机制。你不应改使用信号量来保护共享资源，也不应该将互斥锁用于信号机制：你的意图对你和你的代码读者会更明确。&lt;/p&gt; &lt;/li&gt; 
+     &lt;li&gt; &lt;p&gt;信号量是用来编排线程的信号机制，但是互斥锁是保护共享资源的锁机制。你不应改使用信号量来保护共享资源，也不应该将互斥锁用于信号机制：这样你的意图对你和你的代码读者会更明确。&lt;/p&gt; &lt;/li&gt; 
     &lt;/ol&gt; 
    &lt;/div&gt; 
   &lt;/div&gt; 
@@ -1556,7 +1559,7 @@ writer_thread()
    &lt;p&gt;线程调用一个条件变量的 &lt;code&gt;wait&lt;/code&gt; 操作会被操作系统休眠。然后其他的线程想要唤醒休眠线程的话就调用 &lt;code&gt;notify_one&lt;/code&gt; 或者 &lt;code&gt;notify_all&lt;/code&gt;。&lt;code&gt;notify_one&lt;/code&gt; 和 &lt;code&gt;notify_all&lt;/code&gt; 的不同之处是 &lt;code&gt;notify_one&lt;/code&gt; 仅仅唤醒一个休眠线程，但是 &lt;code&gt;notify_all&lt;/code&gt; 会唤醒所有因为调用了条件变量的等待操作而休眠的线程。条件变量内部使用互斥锁提供休眠/唤醒机制。&lt;/p&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
-   &lt;p&gt;条件变量是仅仅依靠 在线程之间发送信号的强大机制，仅仅依靠互斥锁是实现不了的。例如你也可以使用它解决生产者-消费者问题，线程A完成任务后产生一个信号，接着线程B就可以开始执行任务了。&lt;/p&gt; 
+   &lt;p&gt;条件变量是仅靠互斥锁实现不了的在线程之间发送信号的强大机制。例如你也可以使用它解决生产者-消费者问题，线程A完成任务后产生一个信号，接着线程B就可以开始执行任务了。&lt;/p&gt; 
   &lt;/div&gt; 
  &lt;/div&gt; 
 &lt;/div&gt; 
@@ -1573,7 +1576,7 @@ writer_thread()
    &lt;/div&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;sect2&quot;&gt; 
-   &lt;h3 id=&quot;饥饿&quot;&gt;饥饿&lt;/h3&gt; 
+   &lt;h3 id=&quot;饥饿线程&quot;&gt;饥饿线程&lt;/h3&gt; 
    &lt;div class=&quot;paragraph&quot;&gt; 
     &lt;p&gt;当线程没有得到足够的爱就进入 &lt;strong&gt;饥饿&lt;/strong&gt; 模式：它永远卡在休眠模式等待访问共享资源，但是这个共享资源持续的给了其他线程。例如一个基于信号量的糟糕实现可能会忘记唤醒等待队列中的一些线程，这个可以通过给部分线程高优先级的方式实现。饥饿线程会永久等待而不能做任何有效的工作。&lt;/p&gt; 
    &lt;/div&gt; 
