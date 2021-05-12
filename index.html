@@ -52,6 +52,116 @@
       </div>
     </div>
     <div class="container">
+  		<a href="blog/2020/08/netty-4-thread-model.html"><h1>Netty 4 线程模型</h1></a>
+  		<p>
+			<a href="/about.html"><strong>乔治</strong></a>于2021年05月12日
+					<span class="badge badge-dark">netty</span>
+					<span class="badge badge-dark">多线程</span>
+					<span class="badge badge-dark">线程模型</span>
+		</p>
+  		<p><div id="preamble"> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>Netty 4 的线程模型核心是一个连接(channel)一个线程(thread)，但是一个线程可以绑定到多个不同的连接。也就是每一个连接上的所有I/O事件都是一个线程(EventLoop)来执行的，这个线程也可以叫I/O线程。这样从连接的角度看就是一个连接一个线程的单线程模型，省去了多线程同步的代价，写起代码简单可靠；从线程的角度看一个线程可以管理多个连接，工作起来也不需要大量的线程。当遇到业务逻辑比较耗时的情况，Netty允许这部分工作交给单独的线程池(EventExecutor)执行，执行完成产生的事件在通过提交到连接绑定的线程工作队列中，回到I/O线程中来继续流转。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="netty线程池">Netty线程池</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>简单朴素的正向思路，线程池就是提前实例化多个线程，有任务的时候呢，先挑一个线程出来，然后把任务给它执行。有过数据库连接池使用经验的话，应该很熟悉这种模式。</p> 
+  </div> 
+  <div class="listingblock"> 
+   <div class="content"> 
+    <pre class="prettyprint highlight"><code data-lang="java">int size = 100;
+Thread[size] = new Thread[size]; //线程池</code></pre> 
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>注：这里面的size如何决定，请参见 <a href="https://www.reploop.org/blog/2020/08/../05/how-to-size-thread-pool.adoc">如何设置线程池的大小</a>。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>不过Doug Lea大神在Java 1.5提供的线程池实现则不是这么简单粗暴，而是通过Executor抽象把线程池这部分透明化了，变成了提交一个异步任务，得到一个代表执行结果的Future对象。 这样就不需要处理线程同步、等待等问题了。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>理解Java的线程池实现对理解Netty的线程模式非常有帮助，因为Netty里面是自己定制实现了一个Executor。</p> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="实现思路">实现思路</h3> 
+   <div class="paragraph"> 
+    <p>Netty中的Executor实现有2中，一个是EventLoop，一个是EventExecutor。EventExecutor更像是Java中的Executor，用来多线程执行业务代码，而EventLoop是EventExecutor的特殊实现，它是绑定到Channel上的。</p> 
+   </div> 
+   <div class="paragraph"> 
+    <p>EventLoop和channel之间的关系是一个channel只能注册到一个EventLoop，而一个EventLoop可以绑定到多个Channel。 每个EventExecutor都会绑定唯一的一个线程，并且可以有0或者1个工作队列（EventLoop）。提交任务的时候将任务放去工作队列，而绑定的线程则不停地轮询（Loop）工作队列，如果有任务则执行，没有就等待，直到Executor关闭才退出循环。EventExecutor和JDK中的线程池Executor非常类似的思想。</p> 
+   </div> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="延迟绑定">延迟绑定</h3> 
+   <div class="paragraph"> 
+    <p>EventExecutor 第一次执行任务的时候，使用ThreadPerTaskExecutor创建一个新线程，并且绑定到这个EventExecutor。ThreadPerTaskExecutor非常特殊，没有工作队列，每个任务都是新创建一个线程去执行，顾名思义。而当前任务呢将作为这个线程的第一个任务去执行。一般来讲绑定任务都是个无限循环，不停地从当前的Executor的任务队列中拉取任务执行，直到停止或者关闭的时候才结束。</p> 
+   </div> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="netty事件模型">Netty事件模型</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>Netty 4中的核心事件处理流程是下图这样的：</p> 
+  </div> 
+  <div class="imageblock"> 
+   <div class="content"> 
+    <img src="https://www.reploop.org/blog/2020/08/images/netty-4-thread-model.png" alt="Thread任务执行模型"> 
+   </div> 
+   <div class="title">
+    Figure 1. Thread任务执行模型
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>从一个Channel建立开始，绑定一个EventLoop，通过一个由Handler顺序组成的Pipeline完成一次事件处理并返回结果（如果有必要的话）。</p> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="多线程环境">多线程环境</h3> 
+   <div class="paragraph"> 
+    <p>使用Netty的一个最佳实践就是不要阻塞I/O线程。那么应用自己的一部分比较耗时的逻辑该如何不阻塞I/O线程呢？</p> 
+   </div> 
+   <div class="paragraph"> 
+    <p>Netty是通过Pipeline中的每个Handler可以显式绑定一个Executor的方式来实现业务多线程执行，从而不阻塞I/O线程。如果没有绑定的话，就使用Channel默认绑定的EventLoop执行。每个Handler执行任何Read或者Write操作都会检查当前Executor和绑定的是否一致，如果一致的话，单线程直接执行任务；不一致，当前Executor将把操作封装成一个任务提交到下一个Executor的任务队列中。整体流程参考上图。</p> 
+   </div> 
+   <div class="paragraph"> 
+    <p>Netty中默认都是使用的I/O线程，也就是Worker线程去执行任务，如果你的Handler里面有耗时任务，比如常见的网络操作，在加上一个EventLoop可以绑定到多个Channel，那么强烈建议给这个Handler显式绑定一个EventExecutorGroup，使得I/O线程能够继续处理I/O操作。如果阻塞当前线程的话，1个或者多个Channel将被阻塞，从而严重影响吞吐量。</p> 
+   </div> 
+   <div class="paragraph"> 
+    <p>EventExecutor上创建的Promise或者Future，当前线程是用来阻塞等待的（wait/notify机制），实现的效果就是谁调用阻塞方法，就阻塞谁。但是当Promise和Future完成（notify）之后，是用这个EventExecutor去通知所有的监听者。</p> 
+   </div> 
+   <div class="paragraph"> 
+    <p>EventExecutor可以看做一个普通的线程，去执行业务任务。EventLoop作为EventExecutor的特例，只用来执行I/O相关任务，因此也不能被阻塞。</p> 
+   </div> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="一些的注意点">一些的注意点</h3> 
+   <div class="olist arabic"> 
+    <ol class="arabic"> 
+     <li> <p>NIO模式下，Netty中Channel和JVM的Channel是通过附件attachment关联起来的。</p> </li> 
+     <li> <p>ByteBuf要在同一个线程里面创建和回收，从而避免内存泄露。因为ByteBuf Pool用的是ThreadLocal实现的。</p> </li> 
+    </ol> 
+   </div> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="参考">参考</h2> 
+ <div class="sectionbody"> 
+  <div class="ulist"> 
+   <ul> 
+    <li> <p>New and noteworthy in 4.0 - <a href="http://netty.io/wiki/new-and-noteworthy-in-4.0.html" class="bare">http://netty.io/wiki/new-and-noteworthy-in-4.0.html</a></p> </li> 
+    <li> <p>Upgrading a Reverse Proxy from Netty 3 to 4 - <a href="https://medium.com/square-corner-blog/upgrading-a-reverse-proxy-from-netty-3-to-4-878ec407665a#.yyrawts8y" class="bare">https://medium.com/square-corner-blog/upgrading-a-reverse-proxy-from-netty-3-to-4-878ec407665a#.yyrawts8y</a></p> </li> 
+    <li> <p>EventLoop → EventExecutor Lazy Bind - <a href="http://www.infoq.com/cn/articles/netty-version-upgrade-history-thread-part" class="bare">http://www.infoq.com/cn/articles/netty-version-upgrade-history-thread-part</a></p> </li> 
+   </ul> 
+  </div> 
+ </div> 
+</div></p>
   		<a href="blog/2021/04/path-and-namespace.html"><h1>编程语言中的文件系统与命名空间的关系</h1></a>
   		<p>
 			<a href="/about.html"><strong>乔治</strong></a>于2021年04月29日
@@ -213,87 +323,6 @@ ClassLoader.getSystemResource(path); <i class="conum" data-value="2"></i><b>(2)<
   </div> 
   <div class="paragraph"> 
    <p>其他方案参考这篇 <a href="https://www.baeldung.com/java-jvm-time-zone">文章</a>。</p> 
-  </div> 
- </div> 
-</div></p>
-  		<a href="blog/2021/03/pay.html"><h1>支付API为啥那么麻烦？</h1></a>
-  		<p>
-			<a href="/about.html"><strong>乔治</strong></a>于2021年03月20日
-					<span class="badge badge-dark">支付宝</span>
-					<span class="badge badge-dark">微信</span>
-					<span class="badge badge-dark">支付</span>
-					<span class="badge badge-dark">安全</span>
-					<span class="badge badge-dark">数字签名</span>
-					<span class="badge badge-dark">RSA</span>
-					<span class="badge badge-dark">密钥对</span>
-		</p>
-  		<p><div id="preamble"> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>仅仅在API层面，不涉及财务会计，金融监管等等方面，仅仅从安全角度考虑，支付API的大部分繁琐工作都在保证 <strong>你就是你</strong> 的身份问题。 这个在新接入一家支付通道的时候感受非常明显。身份问题典型的解决方案就是基于非对称加密的 <strong>数字签名</strong> 技术。</p> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="支付安全">支付安全</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>在一个支付流程中可能涉及的角色有平台用户，商户，平台，应用，商户用户等。整体上是一个三方参与的过程，比较复杂。支付也是一个异步流程，从商家的角度至少需要2步以上才能完成支付：</p> 
-  </div> 
-  <div class="olist arabic"> 
-   <ol class="arabic"> 
-    <li> <p>首先是商家调用平台API发起支付</p> </li> 
-    <li> <p>平台引导用户在平台上完成支付</p> </li> 
-    <li> <p>平台向商家发起支付结果通知的回调请求。</p> </li> 
-   </ol> 
-  </div> 
-  <div class="paragraph"> 
-   <p>用户在支付平台上付款的事情是支付平台自己处理的，作为没有支付牌照的商家是不需要操心这部分的，暂时略过。 剩下的两步骤都需要请求发起方向请求接收方证明 <strong>你就是你</strong>.</p> 
-  </div> 
-  <div class="olist arabic"> 
-   <ol class="arabic"> 
-    <li> <p>商家调用平台API发起支付的时候的得告诉平台是谁在收钱。</p> </li> 
-    <li> <p>平台向商家发起回调请求的时候商家需要知道是平台在发起回掉。</p> </li> 
-   </ol> 
-  </div> 
-  <div class="paragraph"> 
-   <p>只有这样商家才放心说钱一定会收到的(毕竟每笔交易你都没查银行账户确认)，平台也有凭证说商家已经把钱收了，用户确信商家是会履约的。这是一个双向的严格的安全要求。这就是为啥调用支付API要申请应用，要生成证书，要验签名等。</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>第1个商家向平台证明自己的身份使用OAuth相关的技术。以支付宝为例，你要对接先申请一个应用，拿到一个APP ID和APP Secret，熟悉OAuth的人可能都马上能联系到开放平台的事情。APP Secret一定要保管好，不能泄漏。 貌似这一步也可以支持证书认证。</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>第2个平台向商家证明自己的身份使用证书相关的技术。这就是我们需要下载平台的支付证书（其实是个公钥）的原因。这是用来回调验证签的。</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>严格来收这里面并没有用到想HTTPS那样的证书，而仅仅是非对称加密算法中的公钥-私钥的密钥对，然后这就是一个数字签名的过程。不像HTTPS，这中间也没有知名的证书机构(CA)参与。</p> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="https不能保证这个吗">HTTPS不能保证这个吗？</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>虽说HTTPS逐渐普遍起来了，但是也不能完成保证支付安全的问题。因为HTTPS只能保证请求接收方的身份问题，不能确认请求发起方的身份问题。</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>以支付宝为例，也就是是说我们访问 <a href="https://openapi.alipay.com/gateway.do" class="bare">https://openapi.alipay.com/gateway.do</a> 成功后请求发起方能确认访问的就是支付宝的支付接口，但是支付宝支付平台不能安全的知道是谁在发起支付请求。</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>相应的支付回调也是类似的，支付宝发起HTTPS的回调，只能知道是访问了商家的回调地址，而商家不能安全的确信这就是支付宝发起的回调。</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>而且上面的方案在非HTTPS的环境也是可以工作的。</p> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="参考">参考</h2> 
- <div class="sectionbody"> 
-  <div class="ulist"> 
-   <ul> 
-    <li> <p>reploop.org - <a href="https://www.reploop.org/blog/2020/03/how-https-works.html">HTTPS如何工作的？</a></p> </li> 
-   </ul> 
   </div> 
  </div> 
 </div></p>
