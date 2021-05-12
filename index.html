@@ -79,7 +79,7 @@ Thread[size] = new Thread[size]; //线程池</code></pre>
    </div> 
   </div> 
   <div class="paragraph"> 
-   <p>注：这里面的size如何决定，请参见 <a href="https://www.reploop.org/blog/2020/08/../05/how-to-size-thread-pool.adoc">如何设置线程池的大小</a>。</p> 
+   <p>注：这里面的size如何决定，请参见 <a href="https://www.reploop.org/blog/2020/08/../05/how-to-size-thread-pool.html">如何设置线程池的大小</a>。</p> 
   </div> 
   <div class="paragraph"> 
    <p>不过Doug Lea大神在Java 1.5提供的线程池实现则不是这么简单粗暴，而是通过Executor抽象把线程池这部分透明化了，变成了提交一个异步任务，得到一个代表执行结果的Future对象。 这样就不需要处理线程同步、等待等问题了。</p> 
