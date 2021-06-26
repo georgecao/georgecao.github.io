@@ -247,16 +247,48 @@
   </div> 
  </div> 
 </div></p>
-  		<a href="blog/2020/05/how-to-size-thread-pool.html"><h1>如何设置线程池的大小？</h1></a>
+  		<a href="blog/2020/05/primary-school-mathematics-in-work.html"><h1>小学数学在工作中应用</h1></a>
   		<p>
 			<a href="/about.html"><strong>乔治</strong></a>于2020年05月04日
+					<span class="badge badge-dark">Java</span>
+					<span class="badge badge-dark">GC</span>
+					<span class="badge badge-dark">网络</span>
+					<span class="badge badge-dark">优化</span>
 					<span class="badge badge-dark">多线程</span>
-					<span class="badge badge-dark">线程池</span>
+					<span class="badge badge-dark">连接池</span>
+					<span class="badge badge-dark">超时</span>
 		</p>
   		<p><div id="preamble"> 
  <div class="sectionbody"> 
   <div class="paragraph"> 
-   <p>多核环境下，为了更好的资源利用率，多线程基本上算是一个常规武器了。 我们知道CPU是用来计算的，而计算所需要的外部数据则是交给独立的I/O系统处理的。CPU和I/O的特点就是一个快，一个慢，大约差 <a href="https://colin-scott.github.io/personal_website/research/interactive_latency.html">2～3个数量级</a>。所以为了不浪费快的资源，就把慢的事情交给独立的系统做，等慢的资源准备好了在通知快的资源(也叫 <strong>中断处理</strong>)。所以一旦发生CPU需要等待外部数据的时候，操作系统的调度系统就会暂时保存当前计算的寄存器状态，程序计数器等(也叫 <strong>上下文</strong>) ，让出CPU给其他的可调度的进程。 这个过程称为 <strong>上下文切换</strong>。一旦发生了 <strong>上下文切换</strong>，以 <strong>线程</strong> 统一进行计算与I/O传输的应用这时就是被 <strong>阻塞</strong> 了。为了提高CPU的利用率，应用层面就是使用多个线程来保证CPU有计算可执行，线程池就是这么产生了。 以下就是本文的核心问题，如果你要创建一个线程池，该怎么确定线程池的大小呢？可以肯定的是线程数也不是越多越好。</p> 
+   <p>作为一个Java程序员，干Web相关的开发，除去具体的业务，实质上干的就是通讯的工作，通过网络在不同机器之间来回搬字节（byte）。这么一比较，Java Web程序员的工作某些部分其实和大街小巷里面穿梭的快递员有几分相似。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>回到正路，日常工作中经常会碰到一些数字，需要给出合理的数值。这些数字可能是垃圾回收（GC）的频率，内存（Heap）的大小，线程池（Thread Pool）的大小，对象池（Object Pool）的大小，网络超时（Timeout）时间，压缩阀值等等。都是些应用层的东西，再往下深入到操作系统，协议层面的东西不知道小学数学还适用不适用了。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="gc的频率">GC的频率</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>GC的频率与内存的大小息息相关，如果一个JVM的应用不正常，首要查看的可能就是GC状态。GC，尤其是FGC频繁一定是JVM目前不在正常状态，但是反过来不见的是成立的，这还要取决于你对频繁的理解。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>GC调优的过程中会频繁的遇到下面三个数据，并且这些数据都可以通过 gc log分析计算出来：</p> 
+  </div> 
+  <div class="olist arabic"> 
+   <ol class="arabic"> 
+    <li> <p>内存分配速度(allocate rate)</p> </li> 
+    <li> <p>新老晋升速度(promote rate)</p> </li> 
+    <li> <p>内存回收速度(reclaim rate)</p> </li> 
+   </ol> 
+  </div> 
+  <div class="paragraph"> 
+   <p>一般来说调优就是为了减少应用的停顿时间(stop-the-world time), 在一般应用内存也就是最多几个G的的情况下，可以间接的通过降低GC频率来做到。 这时候我们加入时间参数 <strong>t</strong>， 所谓调优就是使得 <code>allocate rate * t &lt; reclaim rate * t</code>，只要时间确定的情况下，就可以通过计算来确定新生代和老年代的大小使得他们满足这个不等式就可以粗略的达到以时间 <strong>t</strong> 为间隔发生GC，也就达到了预期的GC频率。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>对于老年代来说 promote rate可以粗略的认为是他的allocate rate。 所以一次调优的开始就是问你自己你想让应用多久发生一次GC？</p> 
   </div> 
  </div> 
 </div> 
@@ -264,81 +296,77 @@
  <h2 id="线程池的大小">线程池的大小</h2> 
  <div class="sectionbody"> 
   <div class="paragraph"> 
-   <p>关于线程池的大小，有两本非常有名的书中都有相关的论述。这两本书还都是Java生态里面重量级人物写的。分别看一下：</p> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="java_concurrency_in_practice">Java Concurrency In Practice</h3> 
-   <div class="quoteblock"> 
-    <blockquote>
-      For compute intensive tasks, an <em>N<sub>cpu</sub></em>-processor system usually achieves optimum utilization with a thread pool of <em>N<sub>cpu</sub></em>+1 threads. (Even compute intensive threads occasionally take a page fault or pause for some other reason, so an "extra" runnable thread prevents CPU cycles from going unused when this happens.) For tasks that also include I/O or other blocking operations, you want a larger pool, since not all of the threads will be schedulable at all times. In order to size the pool properly, you must estimate the ratio of waiting time to compute time for your tasks; this estimate need not be precise and can be obtained through profiling or instrumentation. Alternatively, the size of the thread pool can be tuned by running the application using several different pool sizes under a benchmark load and observing the level of CPU utilization. 
-    </blockquote> 
-    <div class="attribution">
-      — Brian Göetz
-     <br> <cite>Java Concurrency In Practice: p.107</cite> 
-    </div> 
-   </div> 
-   <div class="paragraph"> 
-    <p>书中先给出如下一些定义:</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p><em>N<sub>cpu</sub></em> = CPU核心数,</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p><em>U<sub>cpu</sub> = 目标CPU的使用率，其中 \$0 &lt;=\$ _U<sub>cpu</sub></em> \$&lt;= 1\$,</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>\$w\$ = CPU等待时间，</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>\$c\$ = CPU计算时间，</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>\$w/c\$ = CPU等待时间和计算时间的比率,</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>然后就给出了能够使处理器保持在特定使用率的线程数最优公式： <em>N<sub>threads</sub></em> = <em>N<sub>cpu</sub></em> * <em>U<sub>cpu</sub></em> * (\$1 + w/c\$)</p> 
-   </div> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="programming_concurrency_on_the_jvm">Programming Concurrency on the JVM</h3> 
-   <div class="quoteblock"> 
-    <blockquote>
-      If tasks spend 50 percent of the time being blocked, then the number of threads should be twice the number of available cores. If they spend less time being blocked—that is, they’re computation intensive—then we should have fewer threads but no less than the number of cores. If they spend more time being blocked—that is, they’re IO intensive—then we should have more threads, specifically, several multiples of the number of cores. 
-    </blockquote> 
-    <div class="attribution">
-      — Venkat Subramaniam
-     <br> <cite>Programming Concurrency on the JVM: p.16</cite> 
-    </div> 
-   </div> 
-   <div class="paragraph"> 
-    <p>这本书里没有直接给出变量定义，而是用文字描述的。为了便于比较，这里也给出一些定义：</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p><em>N<sub>threads</sub></em> = 总的线程数，</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p><em>N<sub>cpu</sub></em> = 可用的CPU核心数，</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p><em>B<sub>c</sub></em> = 阻塞系数，介于0和1之间的。</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>那么，就可以用如下的方式计算我们需要的线程数了： <em>N<sub>threads</sub></em> = <em>N<sub>cpu</sub></em> / (1 - <em>B<sub>c</sub></em>)</p> 
-   </div> 
+   <p>已经写过<a href="https://www.reploop.org/blog/2020/05/how-to-size-thread-pool.html">如何设置线程池的大小</a>，可以移步过去看看。这里面主要考虑的是CPU的计算时间和等待时间这两个因素，就是找到合理的线程数来让你的应用的CPU使用情况能符合计算时间和等待时间这两个因素。</p> 
   </div> 
  </div> 
 </div> 
 <div class="sect1"> 
- <h2 id="分析与结论">分析与结论</h2> 
+ <h2 id="对象池的大小">对象池的大小</h2> 
  <div class="sectionbody"> 
   <div class="paragraph"> 
-   <p>乍一看，两本书给出了2个不一样的公式，该如何取舍呢？</p> 
+   <p>说到对象池，最常见的就是数据库的连接池了。因为他保持了真实的连接资源，那么连接池就不能任意的大，而且要根据请求的峰值来动态的扩容来满足性能指标，根据低谷数量来回收连接来释放资源。而且这两个过程要尽量保持平滑，从而避免给服务端比如数据库造成不好的影响。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="网络读超时read_timeout时间">网络读超时（Read Timeout）时间</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>从开始读数据到读到第一个字节的最长时间，超过这个时间，客户端就会报一个Read timeout异常。</p> 
+  </div> 
+  <div class="quoteblock"> 
+   <blockquote>
+     Specifically, if the server fails to send a byte &lt;timeout&gt; seconds after the last byte, a read timeout error will be raised. 
+   </blockquote> 
+   <div class="attribution">
+     — Stephen C
+    <br> <cite>http://stackoverflow.com/questions/3069382/what-is-the-difference-between-connection-and-read-timeout-for-sockets</cite> 
+   </div> 
   </div> 
   <div class="paragraph"> 
-   <p>假设CPU的使用率 <em>U<sub>cpu</sub></em> 是100%的情况下，也就是如果目标都是尽可能的利用CPU资源，其实这两个公式是一样的。 只要定义阻塞系数(blocking coefficient) = \$w/(w+c)\$，也就是阻塞系数为阻塞时间与整个CPU时间的占比。那么他们就是一个意思：定性的描述就是阻塞时间越多，就需要更多线程来保证CPU有活干。上面2个不同的公式则是定量的表达上述思路了。优化线程池的大小是想用最少的线程上下文切换(或代价)来做到最大的(或特定目标)CPU使用率。</p> 
+   <p>这个和应用的处理模式有关系，可以考虑流式的处理，这样就可以尽可能早的开始返回数据。</p> 
   </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="网络连接超时connection_timeout">网络连接超时（Connection Timeout）</h2> 
+ <div class="sectionbody"> 
   <div class="paragraph"> 
-   <p>第2本书没有把目标CPU使用率放到公式里面，都包含在阻塞系数里面了。</p> 
+   <p>这是建立TCP连接的三次握手完成时间。这里面的涉及的一个众所周知的速度，那就是光速。也就是网络传输速度的上限是信号在光纤中传输的速度-光速。根据 <code>距离=速度*时间</code>，那么3次握手的网络连接时间至少是 <strong>3距离/速度(c=299792458m/s)</strong>。那么从北京的机房连接到纽约的机房大约1万公里，那么网络连接时间至少是：<code>3 * 10000km / c = 100ms</code>。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="请求超时request_timeout">请求超时（Request Timeout）</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>上到应用层的请求，那么一次请求所需要的时间至少等于 Connection Timeout + Read Timeout + Data Transferring Time。 这里涉及请求本身的数据传输量，这部分时间也可以根据网速来计算出来。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="压缩阀值">压缩阀值</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>数据该不该压缩也是进场要做的一个决策。这个决策就是压缩所花费的时间小于数据压缩后缩小部分的所需的传输时间，也就是收益大于成本。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="结论">结论</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>这些场景工作中多多少少都有机会碰到，只要思路对上了，剩下的就是小学数学中的加减乘除就可以得出结论了。 这里面也提到了非常多的时间，这部分可以参考 <a href="https://colin-scott.github.io/personal_website/research/interactive_latency.html">Jeff Dean’s latency numbers</a>。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="参考">参考</h2> 
+ <div class="sectionbody"> 
+  <div class="ulist"> 
+   <ul> 
+    <li> <p>Jeff Dean’s latency numbers plotted over time - <a href="https://colin-scott.github.io/personal_website/research/interactive_latency.html" class="bare">https://colin-scott.github.io/personal_website/research/interactive_latency.html</a></p> </li> 
+   </ul> 
   </div> 
  </div> 
 </div></p>
