@@ -6,9 +6,210 @@
         <atom:link href="https://www.reploop.org/feed.xml" rel="self" type="application/rss+xml"/>
         <description>REPLoop，在脚本编程语言中经常能看到REPL，也就是Read-Evaluate-Print-Loop，意思是读取源代码，评估执行，打印结果的循环。这个过程能够快速的学习实践然后得到结果。非常像一个学习成长的过程：输入信息，消化吸收，输出知识并用于实践，然后持之以恒的坚持。4个环节缺一不可，而且最难做到的大概是持之以恒了。</description>
         <language>en-gb</language>
-        <pubDate>Sun, 27 Jun 2021 00:26:15 +0800</pubDate>
-        <lastBuildDate>Sun, 27 Jun 2021 00:26:15 +0800</lastBuildDate>
+        <pubDate>Mon, 28 Jun 2021 17:11:45 +0800</pubDate>
+        <lastBuildDate>Mon, 28 Jun 2021 17:11:45 +0800</lastBuildDate>
 
+            <item>
+                <title>基于角色的权限与认证</title>
+                <link>https://www.reploop.org/blog/2021/06/a-brief-introduce-to-rbac.html</link>
+                <pubDate>Mon, 28 Jun 2021 00:00:00 +0800</pubDate>
+                <guid isPermaLink="false">blog/2021/06/a-brief-introduce-to-rbac.html</guid>
+                <description>
+                        &lt;div id=&quot;preamble&quot;&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;权限管理管理涉及用户，操作和资源，主要就是回答&quot;用户-操作-资源&quot;是不是被允许的。这就通过现实中的&quot;主-谓-宾&quot;的形式定义了一个完整行为，权限管理就是决定这个行为是不是被允许的。给出这个理解，实现一个权限管理最简单的做法就是三个实体表再加一个权限的关联表。这个关联表每条记录都包含了用户，操作，资源，是否允许这几个关键属性。这个表的数量是一个笛卡尔乘积 = &lt;strong&gt;用户数*操作数*资源数&lt;/strong&gt;。&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;在数量相对较少的情况下这个方案不管是授权还是鉴权都很简单，但是当数量稍微多一点之后授权成本对人来说就太大了。比如一个1000人企业内部的WIKI权限系统，划分了不同的团队空间200个，对团队空间的操作有4个（仅仅考虑最简单的CRUD），那么这个管理复杂度：1000*4*200=80万。这对计算机来说不足为虑了，对那个要进行权限管理的管理员来说负担大的是个不可能完成的任务。&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;从这里演化出2个重要概念，组(Group)和角色(Role)，用他们能大大降低授权的工作量。以下是权限管理中涉及到的实体，先说明一下方便后面讨论。&lt;/p&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;sect1&quot;&gt; 
+ &lt;h2 id=&quot;名词解释&quot;&gt;名词解释&lt;/h2&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;dlist&quot;&gt; 
+   &lt;dl&gt; 
+    &lt;dt class=&quot;hdlist1&quot;&gt;
+     用户(User)
+    &lt;/dt&gt; 
+    &lt;dd&gt; 
+     &lt;p&gt;最好理解的是用户，这就是上面提到的行为的主体，可以是各种需要权限的人等，比如员工等。&lt;/p&gt; 
+    &lt;/dd&gt; 
+    &lt;dt class=&quot;hdlist1&quot;&gt;
+     资源(Object)
+    &lt;/dt&gt; 
+    &lt;dd&gt; 
+     &lt;p&gt;受权限保护的资源，常见的比如数据库注册用户表， WIKI，代码仓库等等。资源是操作的对象。&lt;/p&gt; 
+    &lt;/dd&gt; 
+    &lt;dt class=&quot;hdlist1&quot;&gt;
+     操作(Operation)
+    &lt;/dt&gt; 
+    &lt;dd&gt; 
+     &lt;p&gt;对资源的操作，细粒度的比如创建(Create)，读取(Read)，更新(Update)，删除(Delete)，合起来就是常说的CRUD。&lt;/p&gt; 
+    &lt;/dd&gt; 
+   &lt;/dl&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;以上三个实体可以认为是最基础的实体，权限管理过程中其他实体都是他们各自或者相互结合之后演化出来的。&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;dlist&quot;&gt; 
+   &lt;dl&gt; 
+    &lt;dt class=&quot;hdlist1&quot;&gt;
+     组(Group)
+    &lt;/dt&gt; 
+    &lt;dd&gt; 
+     &lt;p&gt;相同的实体合在一起形成组，多用户可以成为用户组，多资源可以成为资源组，多操作可以成为操作组。&lt;/p&gt; 
+    &lt;/dd&gt; 
+    &lt;dt class=&quot;hdlist1&quot;&gt;
+     权限(Permission)
+    &lt;/dt&gt; 
+    &lt;dd&gt; 
+     &lt;p&gt;权限是操作和资源的组合。&lt;/p&gt; 
+    &lt;/dd&gt; 
+    &lt;dt class=&quot;hdlist1&quot;&gt;
+     角色(Role)
+    &lt;/dt&gt; 
+    &lt;dd&gt; 
+     &lt;p&gt;角色是通过该角色所具备的权限来定义的，也就是多个操作和资源的组合定义为一个角色，反过来角色代表了一些操作和资源的有效组合。比如我们常说的数据库管理员，就代表了对数据库这个资源组进行所有操作的角色。通过将角色赋予某个用户从而使得某个用户具有了角色所代表的权限。用组(Group)的概念来说，角色就是多个权限形成的权限组，称他为角色。&lt;/p&gt; 
+    &lt;/dd&gt; 
+    &lt;dt class=&quot;hdlist1&quot;&gt;
+     授权(Authorization)
+    &lt;/dt&gt; 
+    &lt;dd&gt; 
+     &lt;p&gt;授权就是将用、操作和资源通过角色关联起来，也就是生成权限的过程，进一步可以扩展为权限管理。&lt;/p&gt; 
+    &lt;/dd&gt; 
+    &lt;dt class=&quot;hdlist1&quot;&gt;
+     鉴权(Authentication)
+    &lt;/dt&gt; 
+    &lt;dd&gt; 
+     &lt;p&gt;鉴权是判定正在进行的行为是否被允许的过程。&lt;/p&gt; 
+    &lt;/dd&gt; 
+   &lt;/dl&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;sect1&quot;&gt; 
+ &lt;h2 id=&quot;实体关系&quot;&gt;实体关系&lt;/h2&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;有了上面的解释说明，我们现在就可以理解他们之间的关系了：&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;listingblock&quot;&gt; 
+   &lt;div class=&quot;title&quot;&gt;
+    实体关系图
+   &lt;/div&gt; 
+   &lt;div class=&quot;content&quot;&gt; 
+    &lt;pre&gt;digraph auth {
+    rankdir = LR;
+    subgraph cluster_0 {
+    object [label = &quot;资源&quot;];
+    operation [label = &quot;操作&quot;];
+    operation -&amp;gt; object [dir = both];
+    label = &quot;权限&quot;;
+    }
+    subgraph cluster_1 {
+    object_group [label = &quot;资源组&quot;];
+    operation_group [label = &quot;操作组&quot;];
+    operation_group -&amp;gt; object_group [dir = both];
+    label = &quot;权限组&quot;;
+    }
+    subgraph cluster_2 {
+    rankdir = TD;
+    user [label = &quot;用户&quot;];
+    user_group [label = &quot;用户组&quot;];
+    }
+    role [label = &quot;角色&quot;];
+
+    user -&amp;gt; role [dir = both];
+    user_group -&amp;gt; role [dir = both];
+    role -&amp;gt; operation [dir = both];
+    role -&amp;gt; operation_group [dir = both];
+    operation -&amp;gt; operation_group [dir = both];
+    user -&amp;gt; user_group [dir = both];
+    object -&amp;gt; object_group [dir = both];
+    {rank = min; user; user_group;}
+    {rank = same; operation; operation_group;}
+    {rank = same; object; object_group;}
+}&lt;/pre&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;有了角色和组的概念之后，就可以实现分阶段的批量授权了：&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;olist arabic&quot;&gt; 
+   &lt;ol class=&quot;arabic&quot;&gt; 
+    &lt;li&gt; &lt;p&gt;角色定义：前面我们说角色就是一个权限组，代表了过个权限的组合。这样我们就可以体现先把角色定义出来，通过这种一对多的关系来减少权限的数量，进而减少授权工作量。&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;用户授权：将用户关联到特定的角色上，赋予用户该角色所具有的权限。&lt;/p&gt; &lt;/li&gt; 
+   &lt;/ol&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;除了角色，也可以把利用组把授权工作量进一步的降低，行为就会变为：用户组-操作组-资源组了，其他的考虑应该是一样的。&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;有些时候我们只是对操作授权，也就是是不能能访问某个API这种力度的ACL，一旦授权哪怕这个API需要依赖多个资源也是可以的。 比如一个网页上不同的模块需要操作不同的数据，这时候该怎么管理权限呢？&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;ulist&quot;&gt; 
+   &lt;ul&gt; 
+    &lt;li&gt; &lt;p&gt;一种做法就是识别出模块中的所有资源，分别细粒度的管理，&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;一种就是针对URL进行粗粒度的授权,&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;还有一种中间状态，就是考虑把模块抽象为资源进行授权。&lt;/p&gt; &lt;/li&gt; 
+   &lt;/ul&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;权限管理实现的层次不同可以让这种授权也变为可能。假设一个应用的拓扑层次是：&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;listingblock&quot;&gt; 
+   &lt;div class=&quot;content&quot;&gt; 
+    &lt;pre&gt;digraph top {
+gateway[label=&quot;网关层&quot;];
+app[label=&quot;应用层&quot;];
+db[label=&quot;数据库&quot;];
+
+gateway -&amp;gt; app -&amp;gt; db;
+}&lt;/pre&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;鉴权的过程我们可以选择在任意一层或者多层来实现，这样就可以通过定义丰富的资源(比如API，URL作为资源)来实现权限管理了。&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;在这里的关系都是多对多的，从任意一个实体看过去，都是一个一对多的关系。 也就是一个用户可以属于多个用户组，一个用户组可以包含多个用户；同样的一个权限可以属于多个角色；一个角色也可以包含多个权限。&lt;/p&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;sect1&quot;&gt; 
+ &lt;h2 id=&quot;冲突解决&quot;&gt;冲突解决&lt;/h2&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;这样就带来一个问题，比如一个用户有多个角色，角色中相同资源的操作是不一样的，也就是权限有重复定义了。 面对这种情况常见的是使用 &lt;strong&gt;最小权限原则&lt;/strong&gt; 来决定具有那个权限。这里需要应用策略来解决问题。&lt;/p&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;sect1&quot;&gt; 
+ &lt;h2 id=&quot;权限继承&quot;&gt;权限继承&lt;/h2&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;人的组织，尤其是公司内人的组织一般是一个树形的组织结构，需要针对树形中不同层次的范围进行权限管理。 一个方案是让角色具有这种层级关系，并且有继承关系的；另一个是让用户就是这种层次关系，同时也继承权限。基于角色的权限管理一般是角色具有这种层次关系。&lt;/p&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;sect1&quot;&gt; 
+ &lt;h2 id=&quot;结论&quot;&gt;结论&lt;/h2&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;从用户-操作-资源这个行为出发逐步理解基于角色的权限系统设计过程中面临的挑战以及相应的解决方案，有助于理解外面各种开源权限系统，也能帮助设计内部系统的权限认证系统。&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;这里面的资源是作为一个整体来进行管理的，其实资源可以进一步细分为不同的属性，然后对属性进行访问控制。使用过OAuth的大概是都知道一个scope的概念，比如可以针对用户的name和email进行鉴权。这种可以归为Attribute based Access Control aka ABAC，以后在分析一下。&lt;/p&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt;
+                </description>
+            </item>
             <item>
                 <title>Netty 4 线程模型</title>
                 <link>https://www.reploop.org/blog/2020/08/netty-4-thread-model.html</link>

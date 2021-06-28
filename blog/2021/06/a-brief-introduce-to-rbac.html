@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+  <head>
+    <meta charset="utf-8"/>
+    <title>基于角色的权限与认证</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="乔治">
+    <meta name="keywords" content="权限,角色,授权,认证,鉴权,rbac,abac">
+    <meta name="generator" content="JBake v2.7.0.1">
+    <meta property=og:locale content=zh_CN>
+    <!-- Le styles -->
+    <link href="../../../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../../../css/asciidoctor.css" rel="stylesheet">
+    <link href="../../../css/base.css" rel="stylesheet">
+    <link href="../../../css/prettify.css" rel="stylesheet">
+
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+
+    <!-- Fav and touch icons -->
+    <!--<link rel="apple-touch-icon-precomposed" sizes="144x144" href="../assets/ico/apple-touch-icon-144-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="../assets/ico/apple-touch-icon-114-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="../assets/ico/apple-touch-icon-72-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" href="../assets/ico/apple-touch-icon-57-precomposed.png">-->
+    <link rel="shortcut icon" href="../../../img/favicon.svg">
+      <link rel="canonical" href="https://www.reploop.org/blog/2021/06/a-brief-introduce-to-rbac.html" />
+    <script data-ad-client="ca-pub-2350040335860411" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  </head>
+  <body onload="prettyPrint()">
+    <div id="wrap">	
+	<!-- Fixed navbar -->
+    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../../../">REPLoop</a>
+        </div>
+        <div class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li><a href="../../../index.html">博客</a></li>
+            <li><a href="../../../archive.html">归档</a></li>
+            <li><a href="../../../tags/index.html">标签</a></li>
+            <li><a href="../../../about.html">关于</a></li>
+            <li><a href="../../../feed.xml">订阅</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </div>
+    <div class="container">
+		<div class="page-header">
+			<h1>基于角色的权限与认证</h1>
+		</div>
+
+<p><a href="/about.html"><strong>乔治</strong></a>于2021年06月28日
+				<span class="badge badge-dark">权限</span>
+				<span class="badge badge-dark">角色</span>
+				<span class="badge badge-dark">授权</span>
+				<span class="badge badge-dark">认证</span>
+				<span class="badge badge-dark">鉴权</span>
+				<span class="badge badge-dark">rbac</span>
+				<span class="badge badge-dark">abac</span>
+	</p>
+	<p><div id="preamble"> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>权限管理管理涉及用户，操作和资源，主要就是回答"用户-操作-资源"是不是被允许的。这就通过现实中的"主-谓-宾"的形式定义了一个完整行为，权限管理就是决定这个行为是不是被允许的。给出这个理解，实现一个权限管理最简单的做法就是三个实体表再加一个权限的关联表。这个关联表每条记录都包含了用户，操作，资源，是否允许这几个关键属性。这个表的数量是一个笛卡尔乘积 = <strong>用户数*操作数*资源数</strong>。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>在数量相对较少的情况下这个方案不管是授权还是鉴权都很简单，但是当数量稍微多一点之后授权成本对人来说就太大了。比如一个1000人企业内部的WIKI权限系统，划分了不同的团队空间200个，对团队空间的操作有4个（仅仅考虑最简单的CRUD），那么这个管理复杂度：1000*4*200=80万。这对计算机来说不足为虑了，对那个要进行权限管理的管理员来说负担大的是个不可能完成的任务。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>从这里演化出2个重要概念，组(Group)和角色(Role)，用他们能大大降低授权的工作量。以下是权限管理中涉及到的实体，先说明一下方便后面讨论。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="名词解释">名词解释</h2> 
+ <div class="sectionbody"> 
+  <div class="dlist"> 
+   <dl> 
+    <dt class="hdlist1">
+     用户(User)
+    </dt> 
+    <dd> 
+     <p>最好理解的是用户，这就是上面提到的行为的主体，可以是各种需要权限的人等，比如员工等。</p> 
+    </dd> 
+    <dt class="hdlist1">
+     资源(Object)
+    </dt> 
+    <dd> 
+     <p>受权限保护的资源，常见的比如数据库注册用户表， WIKI，代码仓库等等。资源是操作的对象。</p> 
+    </dd> 
+    <dt class="hdlist1">
+     操作(Operation)
+    </dt> 
+    <dd> 
+     <p>对资源的操作，细粒度的比如创建(Create)，读取(Read)，更新(Update)，删除(Delete)，合起来就是常说的CRUD。</p> 
+    </dd> 
+   </dl> 
+  </div> 
+  <div class="paragraph"> 
+   <p>以上三个实体可以认为是最基础的实体，权限管理过程中其他实体都是他们各自或者相互结合之后演化出来的。</p> 
+  </div> 
+  <div class="dlist"> 
+   <dl> 
+    <dt class="hdlist1">
+     组(Group)
+    </dt> 
+    <dd> 
+     <p>相同的实体合在一起形成组，多用户可以成为用户组，多资源可以成为资源组，多操作可以成为操作组。</p> 
+    </dd> 
+    <dt class="hdlist1">
+     权限(Permission)
+    </dt> 
+    <dd> 
+     <p>权限是操作和资源的组合。</p> 
+    </dd> 
+    <dt class="hdlist1">
+     角色(Role)
+    </dt> 
+    <dd> 
+     <p>角色是通过该角色所具备的权限来定义的，也就是多个操作和资源的组合定义为一个角色，反过来角色代表了一些操作和资源的有效组合。比如我们常说的数据库管理员，就代表了对数据库这个资源组进行所有操作的角色。通过将角色赋予某个用户从而使得某个用户具有了角色所代表的权限。用组(Group)的概念来说，角色就是多个权限形成的权限组，称他为角色。</p> 
+    </dd> 
+    <dt class="hdlist1">
+     授权(Authorization)
+    </dt> 
+    <dd> 
+     <p>授权就是将用、操作和资源通过角色关联起来，也就是生成权限的过程，进一步可以扩展为权限管理。</p> 
+    </dd> 
+    <dt class="hdlist1">
+     鉴权(Authentication)
+    </dt> 
+    <dd> 
+     <p>鉴权是判定正在进行的行为是否被允许的过程。</p> 
+    </dd> 
+   </dl> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="实体关系">实体关系</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>有了上面的解释说明，我们现在就可以理解他们之间的关系了：</p> 
+  </div> 
+  <div class="listingblock"> 
+   <div class="title">
+    实体关系图
+   </div> 
+   <div class="content"> 
+    <pre>digraph auth {
+    rankdir = LR;
+    subgraph cluster_0 {
+    object [label = "资源"];
+    operation [label = "操作"];
+    operation -&gt; object [dir = both];
+    label = "权限";
+    }
+    subgraph cluster_1 {
+    object_group [label = "资源组"];
+    operation_group [label = "操作组"];
+    operation_group -&gt; object_group [dir = both];
+    label = "权限组";
+    }
+    subgraph cluster_2 {
+    rankdir = TD;
+    user [label = "用户"];
+    user_group [label = "用户组"];
+    }
+    role [label = "角色"];
+
+    user -&gt; role [dir = both];
+    user_group -&gt; role [dir = both];
+    role -&gt; operation [dir = both];
+    role -&gt; operation_group [dir = both];
+    operation -&gt; operation_group [dir = both];
+    user -&gt; user_group [dir = both];
+    object -&gt; object_group [dir = both];
+    {rank = min; user; user_group;}
+    {rank = same; operation; operation_group;}
+    {rank = same; object; object_group;}
+}</pre> 
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>有了角色和组的概念之后，就可以实现分阶段的批量授权了：</p> 
+  </div> 
+  <div class="olist arabic"> 
+   <ol class="arabic"> 
+    <li> <p>角色定义：前面我们说角色就是一个权限组，代表了过个权限的组合。这样我们就可以体现先把角色定义出来，通过这种一对多的关系来减少权限的数量，进而减少授权工作量。</p> </li> 
+    <li> <p>用户授权：将用户关联到特定的角色上，赋予用户该角色所具有的权限。</p> </li> 
+   </ol> 
+  </div> 
+  <div class="paragraph"> 
+   <p>除了角色，也可以把利用组把授权工作量进一步的降低，行为就会变为：用户组-操作组-资源组了，其他的考虑应该是一样的。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>有些时候我们只是对操作授权，也就是是不能能访问某个API这种力度的ACL，一旦授权哪怕这个API需要依赖多个资源也是可以的。 比如一个网页上不同的模块需要操作不同的数据，这时候该怎么管理权限呢？</p> 
+  </div> 
+  <div class="ulist"> 
+   <ul> 
+    <li> <p>一种做法就是识别出模块中的所有资源，分别细粒度的管理，</p> </li> 
+    <li> <p>一种就是针对URL进行粗粒度的授权,</p> </li> 
+    <li> <p>还有一种中间状态，就是考虑把模块抽象为资源进行授权。</p> </li> 
+   </ul> 
+  </div> 
+  <div class="paragraph"> 
+   <p>权限管理实现的层次不同可以让这种授权也变为可能。假设一个应用的拓扑层次是：</p> 
+  </div> 
+  <div class="listingblock"> 
+   <div class="content"> 
+    <pre>digraph top {
+gateway[label="网关层"];
+app[label="应用层"];
+db[label="数据库"];
+
+gateway -&gt; app -&gt; db;
+}</pre> 
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>鉴权的过程我们可以选择在任意一层或者多层来实现，这样就可以通过定义丰富的资源(比如API，URL作为资源)来实现权限管理了。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>在这里的关系都是多对多的，从任意一个实体看过去，都是一个一对多的关系。 也就是一个用户可以属于多个用户组，一个用户组可以包含多个用户；同样的一个权限可以属于多个角色；一个角色也可以包含多个权限。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="冲突解决">冲突解决</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>这样就带来一个问题，比如一个用户有多个角色，角色中相同资源的操作是不一样的，也就是权限有重复定义了。 面对这种情况常见的是使用 <strong>最小权限原则</strong> 来决定具有那个权限。这里需要应用策略来解决问题。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="权限继承">权限继承</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>人的组织，尤其是公司内人的组织一般是一个树形的组织结构，需要针对树形中不同层次的范围进行权限管理。 一个方案是让角色具有这种层级关系，并且有继承关系的；另一个是让用户就是这种层次关系，同时也继承权限。基于角色的权限管理一般是角色具有这种层次关系。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="结论">结论</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>从用户-操作-资源这个行为出发逐步理解基于角色的权限系统设计过程中面临的挑战以及相应的解决方案，有助于理解外面各种开源权限系统，也能帮助设计内部系统的权限认证系统。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>这里面的资源是作为一个整体来进行管理的，其实资源可以进一步细分为不同的属性，然后对属性进行访问控制。使用过OAuth的大概是都知道一个scope的概念，比如可以针对用户的name和email进行鉴权。这种可以归为Attribute based Access Control aka ABAC，以后在分析一下。</p> 
+  </div> 
+ </div> 
+</div></p>
+
+	<hr />
+<div id="disqus_thread"></div>
+<script>
+
+    /**
+     *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+     *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
+    var disqus_config = function () {
+        this.page.url = "https://www.reploop.org/blog/2021/06/a-brief-introduce-to-rbac.html";  // Replace PAGE_URL with your page's canonical URL variable
+        this.page.identifier = "https://www.reploop.org/blog/2021/06/a-brief-introduce-to-rbac.html"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+    };
+    (function () { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://reploop.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by
+        Disqus.</a></noscript>
+		</div>
+		<div id="push"></div>
+    </div>
+    
+    <div id="footer">
+      <div class="container">
+        <p class="muted credit">&copy; 2020 | Mixed with <a href="http://getbootstrap.com/">Bootstrap v3.1.1</a> | Baked with <a href="http://jbake.org">JBake v2.7.0.1</a></p>
+      </div>
+    </div>
+    
+    <!-- Le javascript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="../../../js/jquery-1.11.1.min.js"></script>
+    <script src="../../../js/bootstrap.min.js"></script>
+    <script src="../../../js/prettify.js"></script>
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  messageStyle: "none",
+  tex2jax: {
+    inlineMath: [["\\(", "\\)"]],
+    displayMath: [["\\[", "\\]"]],
+    ignoreClass: "nostem|nolatexmath"
+  },
+  asciimath2jax: {
+    delimiters: [["\\$", "\\$"]],
+    ignoreClass: "nostem|noasciimath"
+  },
+  TeX: { equationNumbers: { autoNumber: "none" } }
+})
+MathJax.Hub.Register.StartupHook("AsciiMath Jax Ready", function () {
+  MathJax.InputJax.AsciiMath.postfilterHooks.Add(function (data, node) {
+    if ((node = data.script.parentNode) && (node = node.parentNode) && node.classList.contains('stemblock')) {
+      data.math.root.display = "block"
+    }
+    return data
+  })
+})
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_HTMLorMML"></script>
+  </body>
+</html>
