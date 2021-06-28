@@ -6,8 +6,8 @@
         <atom:link href="https://www.reploop.org/feed.xml" rel="self" type="application/rss+xml"/>
         <description>REPLoop，在脚本编程语言中经常能看到REPL，也就是Read-Evaluate-Print-Loop，意思是读取源代码，评估执行，打印结果的循环。这个过程能够快速的学习实践然后得到结果。非常像一个学习成长的过程：输入信息，消化吸收，输出知识并用于实践，然后持之以恒的坚持。4个环节缺一不可，而且最难做到的大概是持之以恒了。</description>
         <language>en-gb</language>
-        <pubDate>Mon, 28 Jun 2021 17:11:45 +0800</pubDate>
-        <lastBuildDate>Mon, 28 Jun 2021 17:11:45 +0800</lastBuildDate>
+        <pubDate>Mon, 28 Jun 2021 18:02:31 +0800</pubDate>
+        <lastBuildDate>Mon, 28 Jun 2021 18:02:31 +0800</lastBuildDate>
 
             <item>
                 <title>基于角色的权限与认证</title>
@@ -98,43 +98,12 @@
   &lt;div class=&quot;paragraph&quot;&gt; 
    &lt;p&gt;有了上面的解释说明，我们现在就可以理解他们之间的关系了：&lt;/p&gt; 
   &lt;/div&gt; 
-  &lt;div class=&quot;listingblock&quot;&gt; 
-   &lt;div class=&quot;title&quot;&gt;
-    实体关系图
-   &lt;/div&gt; 
+  &lt;div class=&quot;imageblock&quot;&gt; 
    &lt;div class=&quot;content&quot;&gt; 
-    &lt;pre&gt;digraph auth {
-    rankdir = LR;
-    subgraph cluster_0 {
-    object [label = &quot;资源&quot;];
-    operation [label = &quot;操作&quot;];
-    operation -&amp;gt; object [dir = both];
-    label = &quot;权限&quot;;
-    }
-    subgraph cluster_1 {
-    object_group [label = &quot;资源组&quot;];
-    operation_group [label = &quot;操作组&quot;];
-    operation_group -&amp;gt; object_group [dir = both];
-    label = &quot;权限组&quot;;
-    }
-    subgraph cluster_2 {
-    rankdir = TD;
-    user [label = &quot;用户&quot;];
-    user_group [label = &quot;用户组&quot;];
-    }
-    role [label = &quot;角色&quot;];
-
-    user -&amp;gt; role [dir = both];
-    user_group -&amp;gt; role [dir = both];
-    role -&amp;gt; operation [dir = both];
-    role -&amp;gt; operation_group [dir = both];
-    operation -&amp;gt; operation_group [dir = both];
-    user -&amp;gt; user_group [dir = both];
-    object -&amp;gt; object_group [dir = both];
-    {rank = min; user; user_group;}
-    {rank = same; operation; operation_group;}
-    {rank = same; object; object_group;}
-}&lt;/pre&gt; 
+    &lt;img src=&quot;https://www.reploop.org/blog/2021/06/images/auth.svg&quot; alt=&quot;实体关系图&quot;&gt; 
+   &lt;/div&gt; 
+   &lt;div class=&quot;title&quot;&gt;
+    Figure 1. 实体关系图
    &lt;/div&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
@@ -162,15 +131,12 @@
   &lt;div class=&quot;paragraph&quot;&gt; 
    &lt;p&gt;权限管理实现的层次不同可以让这种授权也变为可能。假设一个应用的拓扑层次是：&lt;/p&gt; 
   &lt;/div&gt; 
-  &lt;div class=&quot;listingblock&quot;&gt; 
+  &lt;div class=&quot;imageblock&quot;&gt; 
    &lt;div class=&quot;content&quot;&gt; 
-    &lt;pre&gt;digraph top {
-gateway[label=&quot;网关层&quot;];
-app[label=&quot;应用层&quot;];
-db[label=&quot;数据库&quot;];
-
-gateway -&amp;gt; app -&amp;gt; db;
-}&lt;/pre&gt; 
+    &lt;img src=&quot;https://www.reploop.org/blog/2021/06/images/top.svg&quot; alt=&quot;应用拓扑图&quot;&gt; 
+   &lt;/div&gt; 
+   &lt;div class=&quot;title&quot;&gt;
+    Figure 2. 应用拓扑图
    &lt;/div&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
@@ -231,7 +197,7 @@ gateway -&amp;gt; app -&amp;gt; db;
   &lt;/div&gt; 
   &lt;div class=&quot;listingblock&quot;&gt; 
    &lt;div class=&quot;content&quot;&gt; 
-    &lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code data-lang=&quot;java&quot;&gt;int size = 100;
+    &lt;pre class=&quot;highlight&quot;&gt;&lt;code class=&quot;language-java&quot; data-lang=&quot;java&quot;&gt;int size = 100;
 Thread[size] = new Thread[size]; //线程池&lt;/code&gt;&lt;/pre&gt; 
    &lt;/div&gt; 
   &lt;/div&gt; 
@@ -389,7 +355,7 @@ ClassLoader.getSystemResource(path); &lt;i class=&quot;conum&quot; data-value=&q
    &lt;/div&gt; 
    &lt;div class=&quot;listingblock&quot;&gt; 
     &lt;div class=&quot;content&quot;&gt; 
-     &lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code&gt;System.currentTimeMillis();&lt;/code&gt;&lt;/pre&gt; 
+     &lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;System.currentTimeMillis();&lt;/code&gt;&lt;/pre&gt; 
     &lt;/div&gt; 
    &lt;/div&gt; 
    &lt;div class=&quot;paragraph&quot;&gt; 
@@ -475,7 +441,7 @@ ClassLoader.getSystemResource(path); &lt;i class=&quot;conum&quot; data-value=&q
     启动参数设置系统默认时区：
    &lt;/div&gt; 
    &lt;div class=&quot;content&quot;&gt; 
-    &lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code&gt;java -Duser.timezone=Asia/Shanghai Main&lt;/code&gt;&lt;/pre&gt; 
+    &lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;java -Duser.timezone=Asia/Shanghai Main&lt;/code&gt;&lt;/pre&gt; 
    &lt;/div&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
@@ -1082,7 +1048,7 @@ ClassLoader.getSystemResource(path); &lt;i class=&quot;conum&quot; data-value=&q
   &lt;/div&gt; 
   &lt;div class=&quot;listingblock&quot;&gt; 
    &lt;div class=&quot;content&quot;&gt; 
-    &lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code data-lang=&quot;bash&quot;&gt;location ~ /uri {}           &lt;i class=&quot;conum&quot; data-value=&quot;1&quot;&gt;&lt;/i&gt;&lt;b&gt;(1)&lt;/b&gt;
+    &lt;pre class=&quot;highlight&quot;&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;location ~ /uri {}           &lt;i class=&quot;conum&quot; data-value=&quot;1&quot;&gt;&lt;/i&gt;&lt;b&gt;(1)&lt;/b&gt;
 location ~ /uri/\d{1,}/ {}   &lt;i class=&quot;conum&quot; data-value=&quot;2&quot;&gt;&lt;/i&gt;&lt;b&gt;(2)&lt;/b&gt;&lt;/code&gt;&lt;/pre&gt; 
    &lt;/div&gt; 
   &lt;/div&gt; 
@@ -1306,7 +1272,7 @@ location ~ /uri/\d{1,}/ {}   &lt;i class=&quot;conum&quot; data-value=&quot;2&qu
   &lt;/div&gt; 
   &lt;div class=&quot;listingblock&quot;&gt; 
    &lt;div class=&quot;content&quot;&gt; 
-    &lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code data-lang=&quot;c&quot;&gt;x = 0
+    &lt;pre class=&quot;highlight&quot;&gt;&lt;code class=&quot;language-c&quot; data-lang=&quot;c&quot;&gt;x = 0
 v = false
 
 thread_one():
@@ -1397,7 +1363,7 @@ thread_two():
    &lt;/div&gt; 
    &lt;div class=&quot;listingblock&quot;&gt; 
     &lt;div class=&quot;content&quot;&gt; 
-     &lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code data-lang=&quot;c&quot;&gt;x = 0
+     &lt;pre class=&quot;highlight&quot;&gt;&lt;code class=&quot;language-c&quot; data-lang=&quot;c&quot;&gt;x = 0
 y = 0
 
 thread_A:
@@ -1631,7 +1597,7 @@ thread_D:
   &lt;/div&gt; 
   &lt;div class=&quot;listingblock&quot;&gt; 
    &lt;div class=&quot;content&quot;&gt; 
-    &lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code data-lang=&quot;c&quot;&gt;mutex = initialize_mutex()
+    &lt;pre class=&quot;highlight&quot;&gt;&lt;code class=&quot;language-c&quot; data-lang=&quot;c&quot;&gt;mutex = initialize_mutex()
 x     = 0
 
 reader_thread()
@@ -1653,7 +1619,7 @@ writer_thread()
   &lt;/div&gt; 
   &lt;div class=&quot;listingblock&quot;&gt; 
    &lt;div class=&quot;content&quot;&gt; 
-    &lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code data-lang=&quot;c&quot;&gt;x = 0
+    &lt;pre class=&quot;highlight&quot;&gt;&lt;code class=&quot;language-c&quot; data-lang=&quot;c&quot;&gt;x = 0
 
 reader_thread()
     print(load(x))
@@ -1696,7 +1662,7 @@ writer_thread()
    &lt;/div&gt; 
    &lt;div class=&quot;listingblock&quot;&gt; 
     &lt;div class=&quot;content&quot;&gt; 
-     &lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code data-lang=&quot;c&quot;&gt;boolean compare_and_swap(shared_data, expected_value, new_value);&lt;/code&gt;&lt;/pre&gt; 
+     &lt;pre class=&quot;highlight&quot;&gt;&lt;code class=&quot;language-c&quot; data-lang=&quot;c&quot;&gt;boolean compare_and_swap(shared_data, expected_value, new_value);&lt;/code&gt;&lt;/pre&gt; 
     &lt;/div&gt; 
    &lt;/div&gt; 
    &lt;div class=&quot;paragraph&quot;&gt; 
@@ -1710,7 +1676,7 @@ writer_thread()
    &lt;/div&gt; 
    &lt;div class=&quot;listingblock&quot;&gt; 
     &lt;div class=&quot;content&quot;&gt; 
-     &lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code data-lang=&quot;c&quot;&gt;x = 0
+     &lt;pre class=&quot;highlight&quot;&gt;&lt;code class=&quot;language-c&quot; data-lang=&quot;c&quot;&gt;x = 0
 
 reader_thread()
     print(load(x))
@@ -2259,7 +2225,7 @@ writer_thread()
   &lt;/div&gt; 
   &lt;div class=&quot;listingblock&quot;&gt; 
    &lt;div class=&quot;content&quot;&gt; 
-    &lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code data-lang=&quot;c&quot;&gt;writer_thread.start()
+    &lt;pre class=&quot;highlight&quot;&gt;&lt;code class=&quot;language-c&quot; data-lang=&quot;c&quot;&gt;writer_thread.start()
 reader_thread.start()&lt;/code&gt;&lt;/pre&gt; 
    &lt;/div&gt; 
   &lt;/div&gt; 
@@ -2555,7 +2521,7 @@ reader_thread.start()&lt;/code&gt;&lt;/pre&gt;
   &lt;/div&gt; 
   &lt;div class=&quot;listingblock&quot;&gt; 
    &lt;div class=&quot;content&quot;&gt; 
-    &lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code data-lang=&quot;java&quot;&gt;// HashMap
+    &lt;pre class=&quot;highlight&quot;&gt;&lt;code class=&quot;language-java&quot; data-lang=&quot;java&quot;&gt;// HashMap
 Map&amp;lt;String, String&amp;gt; map = new HashMap&amp;lt;&amp;gt;();
 map.put(null, null);
 assert(1 == map.size());
@@ -2611,7 +2577,7 @@ assert(1 == set.size());&lt;/code&gt;&lt;/pre&gt;
   &lt;/div&gt; 
   &lt;div class=&quot;listingblock&quot;&gt; 
    &lt;div class=&quot;content&quot;&gt; 
-    &lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code data-lang=&quot;thrift&quot;&gt;service UserService{
+    &lt;pre class=&quot;highlight&quot;&gt;&lt;code class=&quot;language-thrift&quot; data-lang=&quot;thrift&quot;&gt;service UserService{
   bool checkNickname(1:string nickname);
 }&lt;/code&gt;&lt;/pre&gt; 
    &lt;/div&gt; 
@@ -2621,7 +2587,7 @@ assert(1 == set.size());&lt;/code&gt;&lt;/pre&gt;
   &lt;/div&gt; 
   &lt;div class=&quot;listingblock&quot;&gt; 
    &lt;div class=&quot;content&quot;&gt; 
-    &lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code data-lang=&quot;thrift&quot;&gt;struct NickNameRequest {
+    &lt;pre class=&quot;highlight&quot;&gt;&lt;code class=&quot;language-thrift&quot; data-lang=&quot;thrift&quot;&gt;struct NickNameRequest {
   1: string nickname,
   2: string authUser,
 }

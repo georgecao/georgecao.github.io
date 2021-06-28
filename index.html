@@ -146,43 +146,12 @@
   <div class="paragraph"> 
    <p>有了上面的解释说明，我们现在就可以理解他们之间的关系了：</p> 
   </div> 
-  <div class="listingblock"> 
-   <div class="title">
-    实体关系图
-   </div> 
+  <div class="imageblock"> 
    <div class="content"> 
-    <pre>digraph auth {
-    rankdir = LR;
-    subgraph cluster_0 {
-    object [label = "资源"];
-    operation [label = "操作"];
-    operation -&gt; object [dir = both];
-    label = "权限";
-    }
-    subgraph cluster_1 {
-    object_group [label = "资源组"];
-    operation_group [label = "操作组"];
-    operation_group -&gt; object_group [dir = both];
-    label = "权限组";
-    }
-    subgraph cluster_2 {
-    rankdir = TD;
-    user [label = "用户"];
-    user_group [label = "用户组"];
-    }
-    role [label = "角色"];
-
-    user -&gt; role [dir = both];
-    user_group -&gt; role [dir = both];
-    role -&gt; operation [dir = both];
-    role -&gt; operation_group [dir = both];
-    operation -&gt; operation_group [dir = both];
-    user -&gt; user_group [dir = both];
-    object -&gt; object_group [dir = both];
-    {rank = min; user; user_group;}
-    {rank = same; operation; operation_group;}
-    {rank = same; object; object_group;}
-}</pre> 
+    <img src="https://www.reploop.org/blog/2021/06/images/auth.svg" alt="实体关系图"> 
+   </div> 
+   <div class="title">
+    Figure 1. 实体关系图
    </div> 
   </div> 
   <div class="paragraph"> 
@@ -210,15 +179,12 @@
   <div class="paragraph"> 
    <p>权限管理实现的层次不同可以让这种授权也变为可能。假设一个应用的拓扑层次是：</p> 
   </div> 
-  <div class="listingblock"> 
+  <div class="imageblock"> 
    <div class="content"> 
-    <pre>digraph top {
-gateway[label="网关层"];
-app[label="应用层"];
-db[label="数据库"];
-
-gateway -&gt; app -&gt; db;
-}</pre> 
+    <img src="https://www.reploop.org/blog/2021/06/images/top.svg" alt="应用拓扑图"> 
+   </div> 
+   <div class="title">
+    Figure 2. 应用拓扑图
    </div> 
   </div> 
   <div class="paragraph"> 
@@ -278,7 +244,7 @@ gateway -&gt; app -&gt; db;
   </div> 
   <div class="listingblock"> 
    <div class="content"> 
-    <pre class="prettyprint highlight"><code data-lang="java">int size = 100;
+    <pre class="highlight"><code class="language-java" data-lang="java">int size = 100;
 Thread[size] = new Thread[size]; //线程池</code></pre> 
    </div> 
   </div> 
