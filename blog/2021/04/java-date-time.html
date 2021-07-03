@@ -29,8 +29,7 @@
     <script data-ad-client="ca-pub-2350040335860411" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
   </head>
   <body onload="prettyPrint()">
-    <div id="wrap">	
-	<!-- Fixed navbar -->
+    <div id="wrap">	<!-- Fixed navbar -->
     <div class="navbar navbar-default navbar-fixed-top" role="navigation">
       <div class="container">
         <div class="navbar-header">
@@ -53,16 +52,17 @@
       </div>
     </div>
     <div class="container">
-		<div class="page-header">
-			<h1>Java日期与时间的一些理解</h1>
-		</div>
+    <div class="page-header">
+        <h1>Java日期与时间的一些理解</h1>
+    </div>
 
-<p><a href="/about.html"><strong>乔治</strong></a>于2021年04月22日
-				<span class="badge badge-dark">日期</span>
-				<span class="badge badge-dark">时间</span>
-				<span class="badge badge-dark">时区</span>
-	</p>
-	<p><div id="preamble"> 
+<p>
+    <a href="/about.html"><strong>乔治</strong></a>于2021年04月22日
+            <span class="badge badge-dark">日期</span>
+            <span class="badge badge-dark">时间</span>
+            <span class="badge badge-dark">时区</span>
+</p>
+<p><div id="preamble"> 
  <div class="sectionbody"> 
   <div class="paragraph"> 
    <p>日期和时间是表达周期性运动的一种方式，反过来说所有的周期性运动都可以用来计算时间。 地球人都知道有2种周期性运动，一个是地球绕太阳的公转，一个是地球自身的自转。地球的公转决定了日期，也就是 <strong>年-月-日</strong>。地球的自转决定了时间，也就是 <strong>时-分-秒</strong>。我们所说的一年就是地球公转一圈的时间，一日就是地球自转一圈的时间。所谓的周期性就是这个意思。日期的最小单位 <strong>日</strong> 就是地球自转一圈的时间，也就是24小时。 中国的农历和节气还和月球绕地球公转有关系。 而现在最精确的 <a href="https://zh.wikipedia.org/wiki/%E5%8E%9F%E5%AD%90%E9%90%98"><strong>原子钟</strong></a> 则是以原子共振频率标准来计算时间的。</p> 
@@ -82,7 +82,7 @@
    </div> 
    <div class="listingblock"> 
     <div class="content"> 
-     <pre class="highlight"><code>System.currentTimeMillis();</code></pre> 
+     <pre class="highlight"><code class="language-java" data-lang="java">System.currentTimeMillis();</code></pre> 
     </div> 
    </div> 
    <div class="paragraph"> 
@@ -95,7 +95,8 @@
      </div> 
     </blockquote> 
     <div class="attribution">
-      — https://stackoverflow.com/questions/46093200/showing-correct-time-from-milliseconds-with-desired-timezone 
+      — user7605325
+     <br> <cite>https://stackoverflow.com/questions/46093200/showing-correct-time-from-milliseconds-with-desired-timezone</cite> 
     </div> 
    </div> 
    <div class="paragraph"> 
@@ -105,7 +106,7 @@
  </div> 
 </div> 
 <div class="sect1"> 
- <h2 id="locale_vs_timezone">Locale vs Timezone</h2> 
+ <h2 id="locale与timezone">Locale与Timezone</h2> 
  <div class="sectionbody"> 
   <div class="paragraph"> 
    <p>Locale是指所属的地区以及该地区的语言，而Timezone则是时区。 直觉上我们一直说的是中国的时区是东八区，所以在系统层面就理解地区和时区之间是有关系的，也就是设置了Locale则自动设置了该地区的时区。这也是我曾经的一个误解，其实他们两个之间是相互独立的。Locale作用于系统语言，比如国际化等。 TimeZone作用于日期和时间。 设置Locale不会影响日期与时间，反之亦然。如果非要有点关系的话，就是如果时间的字符串中有特殊语言，则可以使用Locale让系统知道，然后正确展示。</p> 
@@ -123,17 +124,18 @@
 <div class="sect1"> 
  <h2 id="utc与gmt">UTC与GMT</h2> 
  <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>先来看2段引用：</p> 
+  </div> 
   <div class="quoteblock"> 
    <blockquote> 
     <div class="paragraph"> 
-     <p>To begin with, GMT (which stands for Greenwich Mean Time) is not the same as UTC (which stands for Coordinated Universal Time):</p> 
-    </div> 
-    <div class="paragraph"> 
-     <p>GMT is a time zone used in some but not all parts of the world (mainly Europe and Africa). It uses either a 24-hour format or a 12-hour format for display and its based on astronomical observations. UTC is not a time zone. It is a standard which we can use to display time zones. It is more stable as it takes time from an atomic clock.</p> 
+     <p>To begin with, GMT (which stands for Greenwich Mean Time) is not the same as UTC (which stands for Coordinated Universal Time): GMT is a time zone used in some but not all parts of the world (mainly Europe and Africa). It uses either a 24-hour format or a 12-hour format for display and its based on astronomical observations. UTC is not a time zone. It is a standard which we can use to display time zones. It is more stable as it takes time from an atomic clock.</p> 
     </div> 
    </blockquote> 
    <div class="attribution">
-     — https://phrase.com/blog/posts/how-to-get-date-time-in-utc-or-gmt-in-java/ 
+     — Theo
+    <br> <cite>https://phrase.com/blog/posts/how-to-get-date-time-in-utc-or-gmt-in-java</cite> 
    </div> 
   </div> 
   <div class="quoteblock"> 
@@ -143,7 +145,8 @@
     </div> 
    </blockquote> 
    <div class="attribution">
-     — https://www.worldtimeserver.com/learn/utc-vs-gmt/ 
+     — UTC vs GMT
+    <br> <cite>https://www.worldtimeserver.com/learn/utc-vs-gmt/</cite> 
    </div> 
   </div> 
   <div class="paragraph"> 
@@ -168,7 +171,7 @@
     启动参数设置系统默认时区：
    </div> 
    <div class="content"> 
-    <pre class="highlight"><code>java -Duser.timezone=Asia/Shanghai Main</code></pre> 
+    <pre class="highlight"><code class="language-shell" data-lang="shell">java -Duser.timezone=Asia/Shanghai Main</code></pre> 
    </div> 
   </div> 
   <div class="paragraph"> 
@@ -177,7 +180,15 @@
  </div> 
 </div></p>
 
-	<hr />
+<hr/>
+<div>
+    <span class="left">
+        <a href="https://www.reploop.org/blog/2021/03/pay.html" title="Java日期与时间的一些理解">上一篇</a>
+	</span>
+    <span class="right">
+        <a href="https://www.reploop.org/blog/2021/04/path-and-namespace.html" title="Java日期与时间的一些理解">下一篇</a>
+	</span>
+</div>
 <div id="disqus_thread"></div>
 <script>
 

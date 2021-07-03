@@ -29,8 +29,7 @@
     <script data-ad-client="ca-pub-2350040335860411" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
   </head>
   <body onload="prettyPrint()">
-    <div id="wrap">	
-	<!-- Fixed navbar -->
+    <div id="wrap">	<!-- Fixed navbar -->
     <div class="navbar navbar-default navbar-fixed-top" role="navigation">
       <div class="container">
         <div class="navbar-header">
@@ -53,16 +52,17 @@
       </div>
     </div>
     <div class="container">
-		<div class="page-header">
-			<h1>Netty 4 线程模型</h1>
-		</div>
+    <div class="page-header">
+        <h1>Netty 4 线程模型</h1>
+    </div>
 
-<p><a href="/about.html"><strong>乔治</strong></a>于2021年05月12日
-				<span class="badge badge-dark">netty</span>
-				<span class="badge badge-dark">多线程</span>
-				<span class="badge badge-dark">线程模型</span>
-	</p>
-	<p><div id="preamble"> 
+<p>
+    <a href="/about.html"><strong>乔治</strong></a>于2021年05月12日
+            <span class="badge badge-dark">netty</span>
+            <span class="badge badge-dark">多线程</span>
+            <span class="badge badge-dark">线程模型</span>
+</p>
+<p><div id="preamble"> 
  <div class="sectionbody"> 
   <div class="paragraph"> 
    <p>Netty 4 的线程模型核心是一个连接(channel)一个线程(thread)，但是一个线程可以绑定到多个不同的连接。也就是每一个连接上的所有I/O事件都是一个线程(EventLoop)来执行的，这个线程也可以叫I/O线程。这样从连接的角度看就是一个连接一个线程的单线程模型，省去了多线程同步的代价，写起代码简单可靠；从线程的角度看一个线程可以管理多个连接，工作起来也不需要大量的线程。当遇到业务逻辑比较耗时的情况，Netty允许这部分工作交给单独的线程池(EventExecutor)执行，执行完成产生的事件在通过提交到连接绑定的线程工作队列中，回到I/O线程中来继续流转。</p> 
@@ -166,7 +166,15 @@ Thread[size] = new Thread[size]; //线程池</code></pre>
  </div> 
 </div></p>
 
-	<hr />
+<hr/>
+<div>
+    <span class="left">
+        <a href="https://www.reploop.org/blog/2021/05/what-is-a-thread.html" title="Netty 4 线程模型">上一篇</a>
+	</span>
+    <span class="right">
+        <a href="https://www.reploop.org/blog/2021/06/a-brief-introduce-to-rbac.html" title="Netty 4 线程模型">下一篇</a>
+	</span>
+</div>
 <div id="disqus_thread"></div>
 <script>
 

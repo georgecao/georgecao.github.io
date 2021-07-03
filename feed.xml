@@ -6,8 +6,8 @@
         <atom:link href="https://www.reploop.org/feed.xml" rel="self" type="application/rss+xml"/>
         <description>REPLoop，在脚本编程语言中经常能看到REPL，也就是Read-Evaluate-Print-Loop，意思是读取源代码，评估执行，打印结果的循环。这个过程能够快速的学习实践然后得到结果。非常像一个学习成长的过程：输入信息，消化吸收，输出知识并用于实践，然后持之以恒的坚持。4个环节缺一不可，而且最难做到的大概是持之以恒了。</description>
         <language>en-gb</language>
-        <pubDate>Sat, 3 Jul 2021 10:32:31 +0800</pubDate>
-        <lastBuildDate>Sat, 3 Jul 2021 10:32:31 +0800</lastBuildDate>
+        <pubDate>Sat, 3 Jul 2021 22:32:09 +0800</pubDate>
+        <lastBuildDate>Sat, 3 Jul 2021 22:32:09 +0800</lastBuildDate>
 
             <item>
                 <title>一些客户端的实现方案</title>
@@ -431,7 +431,7 @@ ClassLoader.getSystemResource(path); &lt;i class=&quot;conum&quot; data-value=&q
    &lt;/div&gt; 
    &lt;div class=&quot;listingblock&quot;&gt; 
     &lt;div class=&quot;content&quot;&gt; 
-     &lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;System.currentTimeMillis();&lt;/code&gt;&lt;/pre&gt; 
+     &lt;pre class=&quot;highlight&quot;&gt;&lt;code class=&quot;language-java&quot; data-lang=&quot;java&quot;&gt;System.currentTimeMillis();&lt;/code&gt;&lt;/pre&gt; 
     &lt;/div&gt; 
    &lt;/div&gt; 
    &lt;div class=&quot;paragraph&quot;&gt; 
@@ -444,7 +444,8 @@ ClassLoader.getSystemResource(path); &lt;i class=&quot;conum&quot; data-value=&q
      &lt;/div&gt; 
     &lt;/blockquote&gt; 
     &lt;div class=&quot;attribution&quot;&gt;
-      — https://stackoverflow.com/questions/46093200/showing-correct-time-from-milliseconds-with-desired-timezone 
+      — user7605325
+     &lt;br&gt; &lt;cite&gt;https://stackoverflow.com/questions/46093200/showing-correct-time-from-milliseconds-with-desired-timezone&lt;/cite&gt; 
     &lt;/div&gt; 
    &lt;/div&gt; 
    &lt;div class=&quot;paragraph&quot;&gt; 
@@ -454,7 +455,7 @@ ClassLoader.getSystemResource(path); &lt;i class=&quot;conum&quot; data-value=&q
  &lt;/div&gt; 
 &lt;/div&gt; 
 &lt;div class=&quot;sect1&quot;&gt; 
- &lt;h2 id=&quot;locale_vs_timezone&quot;&gt;Locale vs Timezone&lt;/h2&gt; 
+ &lt;h2 id=&quot;locale与timezone&quot;&gt;Locale与Timezone&lt;/h2&gt; 
  &lt;div class=&quot;sectionbody&quot;&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
    &lt;p&gt;Locale是指所属的地区以及该地区的语言，而Timezone则是时区。 直觉上我们一直说的是中国的时区是东八区，所以在系统层面就理解地区和时区之间是有关系的，也就是设置了Locale则自动设置了该地区的时区。这也是我曾经的一个误解，其实他们两个之间是相互独立的。Locale作用于系统语言，比如国际化等。 TimeZone作用于日期和时间。 设置Locale不会影响日期与时间，反之亦然。如果非要有点关系的话，就是如果时间的字符串中有特殊语言，则可以使用Locale让系统知道，然后正确展示。&lt;/p&gt; 
@@ -472,17 +473,18 @@ ClassLoader.getSystemResource(path); &lt;i class=&quot;conum&quot; data-value=&q
 &lt;div class=&quot;sect1&quot;&gt; 
  &lt;h2 id=&quot;utc与gmt&quot;&gt;UTC与GMT&lt;/h2&gt; 
  &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;先来看2段引用：&lt;/p&gt; 
+  &lt;/div&gt; 
   &lt;div class=&quot;quoteblock&quot;&gt; 
    &lt;blockquote&gt; 
     &lt;div class=&quot;paragraph&quot;&gt; 
-     &lt;p&gt;To begin with, GMT (which stands for Greenwich Mean Time) is not the same as UTC (which stands for Coordinated Universal Time):&lt;/p&gt; 
-    &lt;/div&gt; 
-    &lt;div class=&quot;paragraph&quot;&gt; 
-     &lt;p&gt;GMT is a time zone used in some but not all parts of the world (mainly Europe and Africa). It uses either a 24-hour format or a 12-hour format for display and its based on astronomical observations. UTC is not a time zone. It is a standard which we can use to display time zones. It is more stable as it takes time from an atomic clock.&lt;/p&gt; 
+     &lt;p&gt;To begin with, GMT (which stands for Greenwich Mean Time) is not the same as UTC (which stands for Coordinated Universal Time): GMT is a time zone used in some but not all parts of the world (mainly Europe and Africa). It uses either a 24-hour format or a 12-hour format for display and its based on astronomical observations. UTC is not a time zone. It is a standard which we can use to display time zones. It is more stable as it takes time from an atomic clock.&lt;/p&gt; 
     &lt;/div&gt; 
    &lt;/blockquote&gt; 
    &lt;div class=&quot;attribution&quot;&gt;
-     — https://phrase.com/blog/posts/how-to-get-date-time-in-utc-or-gmt-in-java/ 
+     — Theo
+    &lt;br&gt; &lt;cite&gt;https://phrase.com/blog/posts/how-to-get-date-time-in-utc-or-gmt-in-java&lt;/cite&gt; 
    &lt;/div&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;quoteblock&quot;&gt; 
@@ -492,7 +494,8 @@ ClassLoader.getSystemResource(path); &lt;i class=&quot;conum&quot; data-value=&q
     &lt;/div&gt; 
    &lt;/blockquote&gt; 
    &lt;div class=&quot;attribution&quot;&gt;
-     — https://www.worldtimeserver.com/learn/utc-vs-gmt/ 
+     — UTC vs GMT
+    &lt;br&gt; &lt;cite&gt;https://www.worldtimeserver.com/learn/utc-vs-gmt/&lt;/cite&gt; 
    &lt;/div&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
@@ -517,7 +520,7 @@ ClassLoader.getSystemResource(path); &lt;i class=&quot;conum&quot; data-value=&q
     启动参数设置系统默认时区：
    &lt;/div&gt; 
    &lt;div class=&quot;content&quot;&gt; 
-    &lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;java -Duser.timezone=Asia/Shanghai Main&lt;/code&gt;&lt;/pre&gt; 
+    &lt;pre class=&quot;highlight&quot;&gt;&lt;code class=&quot;language-shell&quot; data-lang=&quot;shell&quot;&gt;java -Duser.timezone=Asia/Shanghai Main&lt;/code&gt;&lt;/pre&gt; 
    &lt;/div&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
