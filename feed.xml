@@ -6,9 +6,85 @@
         <atom:link href="https://www.reploop.org/feed.xml" rel="self" type="application/rss+xml"/>
         <description>REPLoop，在脚本编程语言中经常能看到REPL，也就是Read-Evaluate-Print-Loop，意思是读取源代码，评估执行，打印结果的循环。这个过程能够快速的学习实践然后得到结果。非常像一个学习成长的过程：输入信息，消化吸收，输出知识并用于实践，然后持之以恒的坚持。4个环节缺一不可，而且最难做到的大概是持之以恒了。</description>
         <language>en-gb</language>
-        <pubDate>Mon, 28 Jun 2021 18:02:31 +0800</pubDate>
-        <lastBuildDate>Mon, 28 Jun 2021 18:02:31 +0800</lastBuildDate>
+        <pubDate>Sat, 3 Jul 2021 10:32:31 +0800</pubDate>
+        <lastBuildDate>Sat, 3 Jul 2021 10:32:31 +0800</lastBuildDate>
 
+            <item>
+                <title>一些客户端的实现方案</title>
+                <link>https://www.reploop.org/blog/2021/07/some-clients-implementions.html</link>
+                <pubDate>Sat, 3 Jul 2021 00:00:00 +0800</pubDate>
+                <guid isPermaLink="false">blog/2021/07/some-clients-implementions.html</guid>
+                <description>
+                        &lt;div id=&quot;preamble&quot;&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;对于需要通过网络传输进行交互的服务，都有一个称之为客户端或者驱动(driver)的来实现不同服务的应用层的协议解析处理。比如MySql，Couchbase， Redis， MongoDB， Memcached和MQ等等都有对应的驱动或者各种语言实现的客户端。&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;而每种客户端的实现都有各自的考虑，有些是服务端的特点决定的，有些是实现者所推崇的软件哲学起主要作用。&lt;/p&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;sect1&quot;&gt; 
+ &lt;h2 id=&quot;客户端设计的逻辑&quot;&gt;客户端设计的逻辑&lt;/h2&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;客户端的最主要的职责是实现其对应的服务要求的应用层协议。除此之外，互联网应用基本上对应了集群的环境，意味着服务端一般来讲都会有多台机器组成的。那么客户端的另外一个关键因素就是基于每次请求，决定发送给哪些机器。这块实现的好坏直接决定了你的睡眠质量。&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;sect2&quot;&gt; 
+   &lt;h3 id=&quot;jdbc&quot;&gt;JDBC&lt;/h3&gt; 
+   &lt;div class=&quot;paragraph&quot;&gt; 
+    &lt;p&gt;连接关系型数据库的时候都离不开JDBC，这个大概也是大家最早接触也是最熟悉的了。JDBC是一个非常基础的应用层协议，负责把SQL发送给服务端，然后按照基础的行结构读取结果。&lt;/p&gt; 
+   &lt;/div&gt; 
+   &lt;div class=&quot;paragraph&quot;&gt; 
+    &lt;p&gt;使用关系数据库的时候，一个应用使用到的类库可能非常多：&lt;/p&gt; 
+   &lt;/div&gt; 
+   &lt;div class=&quot;ulist&quot;&gt; 
+    &lt;ul&gt; 
+     &lt;li&gt; &lt;p&gt;ORM框架，&lt;/p&gt; &lt;/li&gt; 
+     &lt;li&gt; &lt;p&gt;连接池,&lt;/p&gt; &lt;/li&gt; 
+     &lt;li&gt; &lt;p&gt;分库分表的框架，&lt;/p&gt; &lt;/li&gt; 
+     &lt;li&gt; &lt;p&gt;读/写分离&lt;/p&gt; &lt;/li&gt; 
+     &lt;li&gt; &lt;p&gt;集群支持&lt;/p&gt; &lt;/li&gt; 
+    &lt;/ul&gt; 
+   &lt;/div&gt; 
+   &lt;div class=&quot;paragraph&quot;&gt; 
+    &lt;p&gt;也就是JDBC本身的定位和实现是简单的，这些都是应用开发者该考虑的问题。&lt;/p&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;sect2&quot;&gt; 
+   &lt;h3 id=&quot;redis的实现逻辑&quot;&gt;Redis的实现逻辑&lt;/h3&gt; 
+   &lt;div class=&quot;paragraph&quot;&gt; 
+    &lt;p&gt;Redis 2.x系列的Java客户端的实现基本上只是负责Redis协议的解析执行。他实现的时候也不关心线程安全性，认为这是开发着的职责；也不关心网络错误处理，只汇报必要的错误，留给开发者处理。同时，也不能感知服务端的拓扑变化，你指定哪个IP我就去连接，这个IP宕了，我就告诉你连不上了。&lt;/p&gt; 
+   &lt;/div&gt; 
+   &lt;div class=&quot;paragraph&quot;&gt; 
+    &lt;p&gt;没错，说的就是Jedis客户端。&lt;/p&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;sect2&quot;&gt; 
+   &lt;h3 id=&quot;mongodb的实现逻辑&quot;&gt;MongoDB的实现逻辑&lt;/h3&gt; 
+   &lt;div class=&quot;paragraph&quot;&gt; 
+    &lt;p&gt;MongoDB的官方客户端实现相比Jedis则考虑的因素变得非常多了。客户端知道整个服务拓扑结构，还实现了客户端的连接池以及基于统计的服务端节点选择器。比如统计响应时间（RTT）最短的服务器来发送请求。这时候的服务节点不仅仅是一个IP信息，而且包含了更多的附加属性，如tagSet，角色等给了客户端更多的数据供决策。&lt;/p&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;sect2&quot;&gt; 
+   &lt;h3 id=&quot;cassandra&quot;&gt;Cassandra&lt;/h3&gt; 
+   &lt;div class=&quot;paragraph&quot;&gt; 
+    &lt;p&gt;Cassandra的客户端不仅仅能知道整个服务的拓扑结构，而且也能知道一部分数据结构。这当然是和Cassandra整个服务的设计有关，但是这个客户端基本上能做的事情非常多，比如客户端负载均衡等等。这样一个客户端就做了很多事情，可以让应用开发者专注在应用上。&lt;/p&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;sect1&quot;&gt; 
+ &lt;h2 id=&quot;结论&quot;&gt;结论&lt;/h2&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;上面的几个客户端可以看出，在越来越多的面对分布式，大数据量的场景下，客户端掌握的数据越来越多了，实现也是越来越重了，越来越多的功能和特性都落在客户端了。而微服务的发展，客户端的职责也更多了。比如说服务发现，服务路由，限流，调用链，统计分析等等都是在客户端的参与下完成的。&lt;/p&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt;
+                </description>
+            </item>
             <item>
                 <title>基于角色的权限与认证</title>
                 <link>https://www.reploop.org/blog/2021/06/a-brief-introduce-to-rbac.html</link>
