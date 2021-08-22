@@ -6,9 +6,95 @@
         <atom:link href="https://www.reploop.org/feed.xml" rel="self" type="application/rss+xml"/>
         <description>REPLoop，在脚本编程语言中经常能看到REPL，也就是Read-Evaluate-Print-Loop，意思是读取源代码，评估执行，打印结果的循环。这个过程能够快速的学习实践然后得到结果。非常像一个学习成长的过程：输入信息，消化吸收，输出知识并用于实践，然后持之以恒的坚持。4个环节缺一不可，而且最难做到的大概是持之以恒了。</description>
         <language>en-gb</language>
-        <pubDate>Sat, 3 Jul 2021 22:36:24 +0800</pubDate>
-        <lastBuildDate>Sat, 3 Jul 2021 22:36:24 +0800</lastBuildDate>
+        <pubDate>Sun, 22 Aug 2021 14:22:13 +0800</pubDate>
+        <lastBuildDate>Sun, 22 Aug 2021 14:22:13 +0800</lastBuildDate>
 
+            <item>
+                <title>苹果APP开发的安全机制</title>
+                <link>https://www.reploop.org/blog/2021/08/apple-app-publish.html</link>
+                <pubDate>Thu, 19 Aug 2021 00:00:00 +0800</pubDate>
+                <guid isPermaLink="false">blog/2021/08/apple-app-publish.html</guid>
+                <description>
+                        &lt;div id=&quot;preamble&quot;&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;众所周知，苹果的应用商店是苹果自己的独家的，而且也不允许第三方应用商店的存在。所以开发者想要让苹果手机用户能用自己的应用，就必须要遵守苹果的规则。现在我们从苹果的角度看一下，苹果要如何做到这个呢？核心就是 &lt;strong&gt;数字签名&lt;/strong&gt;，而数字签名的基础就是 &lt;strong&gt;非对称加密&lt;/strong&gt;。&lt;/p&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;sect1&quot;&gt; 
+ &lt;h2 id=&quot;非对称加密&quot;&gt;非对称加密&lt;/h2&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;非对称加密(RSA)数学原理以及证明的过程主要是欧拉函数和中国剩余定理，其安全性以及证明暂时略去。&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;RSA工作起来就是生成一对公钥和私钥，这一对密钥有个重要的特性是公钥加密的数据只能用配对的私钥解密；反过来，私钥加密的数据也只能用配对的公钥解密。这样就可以放心的把公钥公开，然后私钥自己安全的保存起来。&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;大部分的加密过程是使用公钥加密数据，然后使用私钥解密数据。这样就允许了不共享密钥的情况下，让许多人可以安全的发送数据。&lt;/p&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;sect1&quot;&gt; 
+ &lt;h2 id=&quot;数字签名&quot;&gt;数字签名&lt;/h2&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;数字签名其实也是RSA，只不过是用私钥加密数据。因为私钥是安全保存，不对外公开的，如果私钥对应的公钥能够解密这个密文，我们就知道这个数据一定是私钥的拥有者发出来的。这也是数字签名的本意，证明数据的归属。&lt;/p&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;sect1&quot;&gt; 
+ &lt;h2 id=&quot;苹果应用商店的规则&quot;&gt;苹果应用商店的规则&lt;/h2&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;苹果要求应用开发者必须先注册成功苹果的开发者，然后开发者所开发的APP必须经过苹果的审核才能安装到苹果设备上。也就是：&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;olist arabic&quot;&gt; 
+   &lt;ol class=&quot;arabic&quot;&gt; 
+    &lt;li&gt; &lt;p&gt;认证过的开发者才能发App&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;App必须经过苹果的审核&lt;/p&gt; &lt;/li&gt; 
+   &lt;/ol&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;但是APP开发都有一个开发测试的过程，这期间APP会频繁的变化，都要审核吗？不需要。苹果的解决方案是可以不经过苹果审核，但是限制APP只能安装到一定数量的已知设备(Device)上用来测试。&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;这样整个流程就涉及开发者、苹果、设备以及APP。&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;这两个过程都需要用到数字签名。苹果和开发者各自都有自己的公钥和私钥对，苹果在这个过程中还充当了CA的角色。&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;sect2&quot;&gt; 
+   &lt;h3 id=&quot;开发者&quot;&gt;开发者&lt;/h3&gt; 
+   &lt;div class=&quot;paragraph&quot;&gt; 
+    &lt;p&gt;首先开发者需要有一对公钥和私钥。然后把公钥交给苹果签发一个证书。这就是苹果认证过的开发者凭证了。 这个证书是可以用到签名APP签名的过程。&lt;/p&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;sect2&quot;&gt; 
+   &lt;h3 id=&quot;苹果&quot;&gt;苹果&lt;/h3&gt; 
+   &lt;div class=&quot;paragraph&quot;&gt; 
+    &lt;p&gt;苹果也有自己的公钥和私钥对。苹果审核过的APP可以通过苹果的私钥进行签名，安装过程中使用设备上已经预置的公钥进行验证。通过就能肯定这是苹果签发的APP的。&lt;/p&gt; 
+   &lt;/div&gt; 
+   &lt;div class=&quot;paragraph&quot;&gt; 
+    &lt;p&gt;这样就控制了App的生命周期。&lt;/p&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;sect1&quot;&gt; 
+ &lt;h2 id=&quot;参考&quot;&gt;参考&lt;/h2&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;ulist&quot;&gt; 
+   &lt;ul&gt; 
+    &lt;li&gt; &lt;p&gt;&lt;a href=&quot;https://www.reploop.org/blog/2021/08/.../2020/03/how-https-works.html&quot;&gt;HTTPS如何工作的?&lt;/a&gt;&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;iOS App 签名的原理, &lt;a href=&quot;http://blog.cnbang.net/tech/3386/&quot; class=&quot;bare&quot;&gt;http://blog.cnbang.net/tech/3386/&lt;/a&gt;&lt;/p&gt; &lt;/li&gt; 
+   &lt;/ul&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt;
+                </description>
+            </item>
             <item>
                 <title>一些客户端的实现方案</title>
                 <link>https://www.reploop.org/blog/2021/07/some-clients-implementions.html</link>
@@ -156,7 +242,7 @@
      授权(Authorization)
     &lt;/dt&gt; 
     &lt;dd&gt; 
-     &lt;p&gt;授权就是将用、操作和资源通过角色关联起来，也就是生成权限的过程，进一步可以扩展为权限管理。&lt;/p&gt; 
+     &lt;p&gt;授权就是将用户、操作和资源通过角色关联起来，也就是生成权限的过程，进一步可以扩展为权限管理。&lt;/p&gt; 
     &lt;/dd&gt; 
     &lt;dt class=&quot;hdlist1&quot;&gt;
      鉴权(Authentication)
@@ -187,12 +273,12 @@
   &lt;/div&gt; 
   &lt;div class=&quot;olist arabic&quot;&gt; 
    &lt;ol class=&quot;arabic&quot;&gt; 
-    &lt;li&gt; &lt;p&gt;角色定义：前面我们说角色就是一个权限组，代表了过个权限的组合。这样我们就可以体现先把角色定义出来，通过这种一对多的关系来减少权限的数量，进而减少授权工作量。&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;角色定义：前面我们说角色就是一个权限组，代表了多个权限的组合。这样我们就可以提前先把角色定义出来，通过这种一对多的关系来减少权限的数量，进而减少授权工作量。&lt;/p&gt; &lt;/li&gt; 
     &lt;li&gt; &lt;p&gt;用户授权：将用户关联到特定的角色上，赋予用户该角色所具有的权限。&lt;/p&gt; &lt;/li&gt; 
    &lt;/ol&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
-   &lt;p&gt;除了角色，也可以把利用组把授权工作量进一步的降低，行为就会变为：用户组-操作组-资源组了，其他的考虑应该是一样的。&lt;/p&gt; 
+   &lt;p&gt;除了角色，也可以利用 &lt;strong&gt;组&lt;/strong&gt; 把授权工作量进一步的降低，行为就会变为：用户组-操作组-资源组了，其他实体也可以做一样的考量。&lt;/p&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
    &lt;p&gt;有些时候我们只是对操作授权，也就是是不能能访问某个API这种力度的ACL，一旦授权哪怕这个API需要依赖多个资源也是可以的。 比如一个网页上不同的模块需要操作不同的数据，这时候该怎么管理权限呢？&lt;/p&gt; 
@@ -227,7 +313,7 @@
  &lt;h2 id=&quot;冲突解决&quot;&gt;冲突解决&lt;/h2&gt; 
  &lt;div class=&quot;sectionbody&quot;&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
-   &lt;p&gt;这样就带来一个问题，比如一个用户有多个角色，角色中相同资源的操作是不一样的，也就是权限有重复定义了。 面对这种情况常见的是使用 &lt;strong&gt;最小权限原则&lt;/strong&gt; 来决定具有那个权限。这里需要应用策略来解决问题。&lt;/p&gt; 
+   &lt;p&gt;这样就带来一个问题，比如一个用户有多个角色，角色中相同资源的操作是不一样的，也就是权限有重复定义了。 面对这种情况常见的是使用 &lt;strong&gt;最小权限原则&lt;/strong&gt; 来决定具有哪个权限。这里需要应用策略来解决问题。&lt;/p&gt; 
   &lt;/div&gt; 
  &lt;/div&gt; 
 &lt;/div&gt; 

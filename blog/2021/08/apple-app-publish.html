@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+  <head>
+    <meta charset="utf-8"/>
+    <title>苹果APP开发的安全机制</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="乔治">
+    <meta name="keywords" content="应用商店,私钥,公钥,非对称加密,证书,数字签名">
+    <meta name="generator" content="JBake v2.7.0.1">
+    <meta property=og:locale content=zh_CN>
+    <!-- Le styles -->
+    <link href="../../../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../../../css/asciidoctor.css" rel="stylesheet">
+    <link href="../../../css/base.css" rel="stylesheet">
+    <link href="../../../css/prettify.css" rel="stylesheet">
+
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+
+    <!-- Fav and touch icons -->
+    <!--<link rel="apple-touch-icon-precomposed" sizes="144x144" href="../assets/ico/apple-touch-icon-144-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="../assets/ico/apple-touch-icon-114-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="../assets/ico/apple-touch-icon-72-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" href="../assets/ico/apple-touch-icon-57-precomposed.png">-->
+    <link rel="shortcut icon" href="../../../img/favicon.svg">
+      <link rel="canonical" href="https://www.reploop.org/blog/2021/08/apple-app-publish.html" />
+    <script data-ad-client="ca-pub-2350040335860411" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  </head>
+  <body onload="prettyPrint()">
+    <div id="wrap">	<!-- Fixed navbar -->
+    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../../../">REPLoop</a>
+        </div>
+        <div class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li><a href="../../../index.html">博客</a></li>
+            <li><a href="../../../archive.html">归档</a></li>
+            <li><a href="../../../tags/index.html">标签</a></li>
+            <li><a href="../../../about.html">关于</a></li>
+            <li><a href="../../../feed.xml">订阅</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </div>
+    <div class="container">
+    <div class="page-header">
+        <h1>苹果APP开发的安全机制</h1>
+    </div>
+
+<p>
+    <a href="/about.html"><strong>乔治</strong></a>于2021年08月19日
+            <span class="badge badge-dark">应用商店</span>
+            <span class="badge badge-dark">私钥</span>
+            <span class="badge badge-dark">公钥</span>
+            <span class="badge badge-dark">非对称加密</span>
+            <span class="badge badge-dark">证书</span>
+            <span class="badge badge-dark">数字签名</span>
+</p>
+<p><div id="preamble"> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>众所周知，苹果的应用商店是苹果自己的独家的，而且也不允许第三方应用商店的存在。所以开发者想要让苹果手机用户能用自己的应用，就必须要遵守苹果的规则。现在我们从苹果的角度看一下，苹果要如何做到这个呢？核心就是 <strong>数字签名</strong>，而数字签名的基础就是 <strong>非对称加密</strong>。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="非对称加密">非对称加密</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>非对称加密(RSA)数学原理以及证明的过程主要是欧拉函数和中国剩余定理，其安全性以及证明暂时略去。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>RSA工作起来就是生成一对公钥和私钥，这一对密钥有个重要的特性是公钥加密的数据只能用配对的私钥解密；反过来，私钥加密的数据也只能用配对的公钥解密。这样就可以放心的把公钥公开，然后私钥自己安全的保存起来。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>大部分的加密过程是使用公钥加密数据，然后使用私钥解密数据。这样就允许了不共享密钥的情况下，让许多人可以安全的发送数据。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="数字签名">数字签名</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>数字签名其实也是RSA，只不过是用私钥加密数据。因为私钥是安全保存，不对外公开的，如果私钥对应的公钥能够解密这个密文，我们就知道这个数据一定是私钥的拥有者发出来的。这也是数字签名的本意，证明数据的归属。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="苹果应用商店的规则">苹果应用商店的规则</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>苹果要求应用开发者必须先注册成功苹果的开发者，然后开发者所开发的APP必须经过苹果的审核才能安装到苹果设备上。也就是：</p> 
+  </div> 
+  <div class="olist arabic"> 
+   <ol class="arabic"> 
+    <li> <p>认证过的开发者才能发App</p> </li> 
+    <li> <p>App必须经过苹果的审核</p> </li> 
+   </ol> 
+  </div> 
+  <div class="paragraph"> 
+   <p>但是APP开发都有一个开发测试的过程，这期间APP会频繁的变化，都要审核吗？不需要。苹果的解决方案是可以不经过苹果审核，但是限制APP只能安装到一定数量的已知设备(Device)上用来测试。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>这样整个流程就涉及开发者、苹果、设备以及APP。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>这两个过程都需要用到数字签名。苹果和开发者各自都有自己的公钥和私钥对，苹果在这个过程中还充当了CA的角色。</p> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="开发者">开发者</h3> 
+   <div class="paragraph"> 
+    <p>首先开发者需要有一对公钥和私钥。然后把公钥交给苹果签发一个证书。这就是苹果认证过的开发者凭证了。 这个证书是可以用到签名APP签名的过程。</p> 
+   </div> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="苹果">苹果</h3> 
+   <div class="paragraph"> 
+    <p>苹果也有自己的公钥和私钥对。苹果审核过的APP可以通过苹果的私钥进行签名，安装过程中使用设备上已经预置的公钥进行验证。通过就能肯定这是苹果签发的APP的。</p> 
+   </div> 
+   <div class="paragraph"> 
+    <p>这样就控制了App的生命周期。</p> 
+   </div> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="参考">参考</h2> 
+ <div class="sectionbody"> 
+  <div class="ulist"> 
+   <ul> 
+    <li> <p><a href="https://www.reploop.org/blog/2021/08/.../2020/03/how-https-works.html">HTTPS如何工作的?</a></p> </li> 
+    <li> <p>iOS App 签名的原理, <a href="http://blog.cnbang.net/tech/3386/" class="bare">http://blog.cnbang.net/tech/3386/</a></p> </li> 
+   </ul> 
+  </div> 
+ </div> 
+</div></p>
+
+<hr/>
+<div id="disqus_thread"></div>
+<script>
+
+    /**
+     *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+     *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
+    var disqus_config = function () {
+        this.page.url = "https://www.reploop.org/blog/2021/08/apple-app-publish.html";  // Replace PAGE_URL with your page's canonical URL variable
+        this.page.identifier = "https://www.reploop.org/blog/2021/08/apple-app-publish.html"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+    };
+    (function () { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://reploop.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by
+        Disqus.</a></noscript>
+		</div>
+		<div id="push"></div>
+    </div>
+    
+    <div id="footer">
+      <div class="container">
+        <p class="muted credit">&copy; 2020 | Mixed with <a href="http://getbootstrap.com/">Bootstrap v3.1.1</a> | Baked with <a href="http://jbake.org">JBake v2.7.0.1</a></p>
+      </div>
+    </div>
+    
+    <!-- Le javascript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="../../../js/jquery-1.11.1.min.js"></script>
+    <script src="../../../js/bootstrap.min.js"></script>
+    <script src="../../../js/prettify.js"></script>
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  messageStyle: "none",
+  tex2jax: {
+    inlineMath: [["\\(", "\\)"]],
+    displayMath: [["\\[", "\\]"]],
+    ignoreClass: "nostem|nolatexmath"
+  },
+  asciimath2jax: {
+    delimiters: [["\\$", "\\$"]],
+    ignoreClass: "nostem|noasciimath"
+  },
+  TeX: { equationNumbers: { autoNumber: "none" } }
+})
+MathJax.Hub.Register.StartupHook("AsciiMath Jax Ready", function () {
+  MathJax.InputJax.AsciiMath.postfilterHooks.Add(function (data, node) {
+    if ((node = data.script.parentNode) && (node = node.parentNode) && node.classList.contains('stemblock')) {
+      data.math.root.display = "block"
+    }
+    return data
+  })
+})
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_HTMLorMML"></script>
+  </body>
+</html>
