@@ -6,8 +6,8 @@
         <atom:link href="https://www.reploop.org/feed.xml" rel="self" type="application/rss+xml"/>
         <description>REPLoop，在脚本编程语言中经常能看到REPL，也就是Read-Evaluate-Print-Loop，意思是读取源代码，评估执行，打印结果的循环。这个过程能够快速的学习实践然后得到结果。非常像一个学习成长的过程：输入信息，消化吸收，输出知识并用于实践，然后持之以恒的坚持。4个环节缺一不可，而且最难做到的大概是持之以恒了。</description>
         <language>en-gb</language>
-        <pubDate>Sun, 22 Aug 2021 14:22:13 +0800</pubDate>
-        <lastBuildDate>Sun, 22 Aug 2021 14:22:13 +0800</lastBuildDate>
+        <pubDate>Tue, 14 Sep 2021 13:39:16 +0800</pubDate>
+        <lastBuildDate>Tue, 14 Sep 2021 13:39:16 +0800</lastBuildDate>
 
             <item>
                 <title>苹果APP开发的安全机制</title>
@@ -87,7 +87,7 @@
  &lt;div class=&quot;sectionbody&quot;&gt; 
   &lt;div class=&quot;ulist&quot;&gt; 
    &lt;ul&gt; 
-    &lt;li&gt; &lt;p&gt;&lt;a href=&quot;https://www.reploop.org/blog/2021/08/.../2020/03/how-https-works.html&quot;&gt;HTTPS如何工作的?&lt;/a&gt;&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;&lt;a href=&quot;https://www.reploop.org/blog/2020/03/how-https-works.html&quot;&gt;HTTPS如何工作的?&lt;/a&gt;&lt;/p&gt; &lt;/li&gt; 
     &lt;li&gt; &lt;p&gt;iOS App 签名的原理, &lt;a href=&quot;http://blog.cnbang.net/tech/3386/&quot; class=&quot;bare&quot;&gt;http://blog.cnbang.net/tech/3386/&lt;/a&gt;&lt;/p&gt; &lt;/li&gt; 
    &lt;/ul&gt; 
   &lt;/div&gt; 
@@ -364,7 +364,7 @@ Thread[size] = new Thread[size]; //线程池&lt;/code&gt;&lt;/pre&gt;
    &lt;/div&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
-   &lt;p&gt;注：这里面的size如何决定，请参见 &lt;a href=&quot;https://www.reploop.org/blog/2020/08/../05/how-to-size-thread-pool.html&quot;&gt;如何设置线程池的大小&lt;/a&gt;。&lt;/p&gt; 
+   &lt;p&gt;注：这里面的size如何决定，请参见 &lt;a href=&quot;https://www.reploop.org/blog/2020/05/how-to-size-thread-pool.html&quot;&gt;如何设置线程池的大小&lt;/a&gt;。&lt;/p&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
    &lt;p&gt;不过Doug Lea大神在Java 1.5提供的线程池实现则不是这么简单粗暴，而是通过Executor抽象把线程池这部分透明化了，变成了提交一个异步任务，得到一个代表执行结果的Future对象。 这样就不需要处理线程同步、等待等问题了。&lt;/p&gt; 

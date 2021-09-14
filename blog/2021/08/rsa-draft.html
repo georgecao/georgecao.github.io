@@ -2,10 +2,10 @@
 <html lang="zh_CN">
   <head>
     <meta charset="utf-8"/>
-    <title>这些年学过/用过的编程语言</title>
+    <title>非对称加密(RSA)</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="author" content="乔治">
-    <meta name="keywords" content="Java,Ruby,Lua,Swift,Clojure,Scala,编程语言">
+    <meta name="keywords" content="应用商店,私钥,公钥,非对称加密,证书,数字签名">
     <meta name="generator" content="JBake v2.7.0.3">
     <meta property=og:locale content=zh_CN>
     <!-- Le styles -->
@@ -25,7 +25,7 @@
     <link rel="apple-touch-icon-precomposed" sizes="72x72" href="../assets/ico/apple-touch-icon-72-precomposed.png">
     <link rel="apple-touch-icon-precomposed" href="../assets/ico/apple-touch-icon-57-precomposed.png">-->
     <link rel="shortcut icon" href="../../../img/favicon.svg">
-      <link rel="canonical" href="https://www.reploop.org/blog/2020/04/languages-i-learned-those-years.html" />
+      <link rel="canonical" href="https://www.reploop.org/blog/2021/08/rsa.html" />
     <script data-ad-client="ca-pub-2350040335860411" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
   </head>
   <body onload="prettyPrint()">
@@ -53,21 +53,38 @@
     </div>
     <div class="container">
     <div class="page-header">
-        <h1>这些年学过/用过的编程语言</h1>
+        <h1>非对称加密(RSA)</h1>
     </div>
 
 <p>
-    <a href="/about.html"><strong>乔治</strong></a>于2020年04月24日
-            <span class="badge badge-dark">Java</span>
-            <span class="badge badge-dark">Ruby</span>
-            <span class="badge badge-dark">Lua</span>
-            <span class="badge badge-dark">Swift</span>
-            <span class="badge badge-dark">Clojure</span>
-            <span class="badge badge-dark">Scala</span>
-            <span class="badge badge-dark">编程语言</span>
+    <a href="/about.html"><strong>乔治</strong></a>于2021年08月23日
+            <span class="badge badge-dark">应用商店</span>
+            <span class="badge badge-dark">私钥</span>
+            <span class="badge badge-dark">公钥</span>
+            <span class="badge badge-dark">非对称加密</span>
+            <span class="badge badge-dark">证书</span>
+            <span class="badge badge-dark">数字签名</span>
 </p>
-<p><div class="paragraph"> 
- <p>这些年学习过使用过的编程语言</p> 
+<p><div class="sect1"> 
+ <h2 id="rsa">RSA</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>Euler’s theorem:</p> 
+  </div> 
+  <div class="stemblock"> 
+   <div class="content">
+     \[a^{\phi(n)}\equiv 1(\mod n) \ where \gcd(a,n) = 1\] 
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>Euler’s totient function:</p> 
+  </div> 
+  <div class="stemblock"> 
+   <div class="content">
+     \[let\ p\ is\ a\ prime\ number, \\ q\ is\ another\ prime\ number. \\ let\ n = p*q \\ \phi(p)=p-1 \\ \phi(q)=q-1 \\ \phi(n)=(p-1)*(q-1) \\ \phi(a*b)=\phi(a)*\phi(b) \ where \ gcd(a,b)=1 \\ a^{p-1} \equiv 1 (\mod p) \\ a^{q-1} \equiv 1 (\mod q) \\ a^{\phi(n)} \equiv 1 (\mod n) \\ a^{(p-1)*(q-1)} \equiv 1(\mod p*q)\] 
+   </div> 
+  </div> 
+ </div> 
 </div></p>
 
 <hr/>
@@ -78,8 +95,8 @@
      *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
      *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
     var disqus_config = function () {
-        this.page.url = "https://www.reploop.org/blog/2020/04/languages-i-learned-those-years.html";  // Replace PAGE_URL with your page's canonical URL variable
-        this.page.identifier = "https://www.reploop.org/blog/2020/04/languages-i-learned-those-years.html"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+        this.page.url = "https://www.reploop.org/blog/2021/08/rsa.html";  // Replace PAGE_URL with your page's canonical URL variable
+        this.page.identifier = "https://www.reploop.org/blog/2021/08/rsa.html"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
     };
     (function () { // DON'T EDIT BELOW THIS LINE
         var d = document, s = d.createElement('script');
