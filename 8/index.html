@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+  <head>
+    <meta charset="utf-8"/>
+    <title>REPLoop</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="乔治">
+    <meta name="keywords" content="REPL,REPLoop,George,乔治">
+    <meta name="generator" content="JBake v2.7.0.3">
+    <meta property=og:locale content=zh_CN>
+    <!-- Le styles -->
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../css/asciidoctor.css" rel="stylesheet">
+    <link href="../css/base.css" rel="stylesheet">
+    <link href="../css/prettify.css" rel="stylesheet">
+
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+
+    <!-- Fav and touch icons -->
+    <!--<link rel="apple-touch-icon-precomposed" sizes="144x144" href="../assets/ico/apple-touch-icon-144-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="../assets/ico/apple-touch-icon-114-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="../assets/ico/apple-touch-icon-72-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" href="../assets/ico/apple-touch-icon-57-precomposed.png">-->
+    <link rel="shortcut icon" href="../img/favicon.svg">
+    <script data-ad-client="ca-pub-2350040335860411" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  </head>
+  <body onload="prettyPrint()">
+    <div id="wrap">	
+	<!-- Fixed navbar -->
+    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../">REPLoop</a>
+        </div>
+        <div class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li><a href="../index.html">博客</a></li>
+            <li><a href="../archive.html">归档</a></li>
+            <li><a href="../tags/index.html">标签</a></li>
+            <li><a href="../about.html">关于</a></li>
+            <li><a href="../feed.xml">订阅</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </div>
+    <div class="container">
+  		<a href="blog/2020/01/the-bad-of-thrift.html"><h1>Thrift的坑</h1></a>
+  		<p>
+			<a href="/about.html"><strong>George Cao</strong></a>于2017年06月03日
+					<span class="badge badge-dark">thrift</span>
+					<span class="badge badge-dark">protobuf</span>
+					<span class="badge badge-dark">RPC</span>
+		</p>
+  		<p><div id="preamble"> 
+ <div class="sectionbody"> 
+  <div class="quoteblock abstract"> 
+   <blockquote>
+     Thrift虽好，但是吹毛求疵的讲，可以更好。 
+   </blockquote> 
+  </div> 
+  <div class="paragraph"> 
+   <p>Thrift作为一个经常拿来和Google的Protocol Buffers比较的二进制协议阵营中的重量级选手，我认为其最大的特点就是有个完整的RPC协议栈，而Protocol Buffers开源出来的版本基本上可以认为仅仅是个跨平台的数据序列化/反序列化的工具。</p> 
+  </div> 
+  <div class="imageblock"> 
+   <div class="content"> 
+    <img src="https://www.reploop.org/blog/2020/01/images/Apache_Thrift_Architecture.png" alt="Thrift结构图"> 
+   </div> 
+   <div class="title">
+    Figure 1. Thrift结构图, 来自Wikipedia
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>也是基于最大的理由，我们在RPC环境下选择了Thrift。但是在使用Thrift的过程中也逐渐发现她的一些不尽如我意的地方。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="集合里面不能有null值">集合里面不能有null值</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>集合是指Thrift原生支持的list，set和map这三个容器类的数据结构。使用Java语言的话，集合里面不能有null值这点要特别注意。Thrift使用的Java的ArrayList，HashSet和HashMap这3个数据结构分别实现list，set和map。从Java的语义来讲，ArrayList里面是允许有null值的，HashMap的键（key）和值（value）都是允许有null值的，而HashSet内部是用了一个HashMap来实现的，同样也是允许有null值的。</p> 
+  </div> 
+  <div class="listingblock"> 
+   <div class="content"> 
+    <pre class="highlight"><code class="language-java" data-lang="java">// HashMap
+Map&lt;String, String&gt; map = new HashMap&lt;&gt;();
+map.put(null, null);
+assert(1 == map.size());
+
+// HashSet
+Set&lt;String&gt; set = new HashSet&lt;&gt;();
+set.add(null);
+assert(1 == set.size());</code></pre> 
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>上面这段代码在Java语言范畴内是完全合法的，但是在Thrift里面，只要这些集合类里面混进了null值，而Thrift本身（libthrift）不做这方面的数据校验，就会导致客户端因为读不到预期的数据而报超时异常。所以写入的时候务必要对数据做非空的校验，从而避免这类异常的出现。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="集合中不建议直接用枚举类型">集合中不建议直接用枚举类型</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>在Java语言中，枚举类型做Map的key是一个常用的做法，而且遇到枚举类型，基本上可以放心使用，而不用担心null值的。但是在Thrift环境下，为了避免枚举值（enum）扩展而带来的问题，枚举类型不要用在任何容器类集合里面，比如map，set和list。一旦这些集合类中出现enum类型，如果enum扩展了，增加了一个新值，那么就 <strong>需要所有的客户端先升级，代价比较大</strong>。 这是因为一旦服务端先升级的话，客户端因为没有升级Schema而在读到这个新的枚举值的时候就会出现null值。这样的话，Map里面出现了null的key，相当于这个数据丢失了。从Java的角度来进一步讲，就会出现枚举属性为null的情况，这个会在业务代码中引起非常多的问题。为了避免这种潜在的问题，要确保枚举都用在struct中形成间接的关系而不能直接放入容器类集合中去。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="字符串不能压缩">字符串不能压缩</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>实际上Thrift是有TCompactProtocol的，但是这个Protocol做的大部分工作是数值的编码工作以减少数据量。 <strong>但是实际业务中，往往字符串传输占了非常大的比例。针对字符串的压缩，Thrift并没有原生的支持</strong>。自己扩展Protocol支持字符串压缩也不是很方面，这往往需要在Thrift协议之上在包装一个定制的协议。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="传输协议不支持动态探测">传输协议不支持动态探测</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>Protocol使用的时候只能通过服务端与客户端开发人员协商约定来确定，一旦确定之后很难变更。也就是协议没有动态探测功能，任何一端使用新的Protocol的话，都将导致对等的端不能解析数据。如何你的系统在Thrift上跑了几年，数据存储了非常，那么要实现一个字符串压缩功能，不停服，不更新存量数据的情况下基本上无法做到，而这个代价是相当大的。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="不规范json序列化输出">不规范JSON序列化输出</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>枚举值做key，序列化的时候适用枚举对应的数值，而不是字符串。这样用TSimpleJSONProtocol序列化就产生了不标准JSON。JSON里面的Key都要求是字符串，而不能出现数值。需要定制一个特殊的JSON序列化Protocol。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="没有header的支持">没有Header的支持</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>我们开头也说了，Thrift有完整的协议栈。如果仅仅使用协议栈就能满足业务的话，这个应该也不是问题。但是一个实战中的RPC服务，一般来讲都会涉及一些用户认证，背压，限流，降级，熔断等等，更别说调用链分析这种业务了。没有Header的支持，基本上要做到以上功能，都是需要侵入业务API的。比如一个检查用户昵称是否被占用的服务, 业务相关的API设计成这样应该是比较实用的:</p> 
+  </div> 
+  <div class="listingblock"> 
+   <div class="content"> 
+    <pre class="highlight"><code class="language-thrift" data-lang="thrift">service UserService{
+  bool checkNickname(1:string nickname);
+}</code></pre> 
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>这就没法携带更多的信息了。如果我们要做用户认证，侵入业务API的做法，一种可能的实现可能是这样的：</p> 
+  </div> 
+  <div class="listingblock"> 
+   <div class="content"> 
+    <pre class="highlight"><code class="language-thrift" data-lang="thrift">struct NickNameRequest {
+  1: string nickname,
+  2: string authUser,
+}
+service UserService{
+  bool checkNickname(1:NickNameRequest request);
+}</code></pre> 
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>这就对业务使用方不是特别方便。 那么如何让Thrift支持Header呢？可能的方案至少有2个：</p> 
+  </div> 
+  <div class="olist arabic"> 
+   <ol class="arabic"> 
+    <li> <p>根据Thrift支持service multiplexing的思路，在service name里面做文章。这个需要Thrift 0.9以上的版本。</p> </li> 
+    <li> <p>根据Thrift解析数据的特点定制Protocol，善用FiledId为0和-1这些保留的值。</p> </li> 
+   </ol> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="java类库代码质量不好">Java类库代码质量不好</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>用静态代码分析工具分析一下Thrift的Java代码，结果往往是不忍直视。把这些问题归为编码规范的范畴也能说得过去，毕竟，能工作的代码，无论多么丑陋，他的核心价值并没有因此而减少。但是从可扩展的角度来考虑一下，基本上Thrift的Java代码质量是不太好的，基于他的二次开发扩展很难。毕竟Thrift的大部分代码是编译器自动生成的，也不需要人工维护。要扩展功能的时候，Java体系内可借助Thrift的metadata和反射来处理。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="结论">结论</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>实际上，当前的RPC实现流行的做法使用netty做网络层，然后Thrift/Protocol Buffers用来描述数据结构以及序列化和反序列化数据。比如gRPC和armeria，基本上都抽象一个基本的Request和Response模型，然后使用分层的思路，或者类似Java语言中的Filter Chain模式来自由控制请求与响应，扩展性极强，可以和丰富的第三方类库整合。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>如果现在要评估Thrift和Protocol Buffers用哪个，我的第一选择可能是Protocol Buffers了。</p> 
+  </div> 
+ </div> 
+</div></p>
+
+	<hr />
+	
+	<p><a href="../archive.html">点击查看更多文章</a>.</p>
+
+		</div>
+		<div id="push"></div>
+    </div>
+    
+    <div id="footer">
+      <div class="container">
+        <p class="muted credit">&copy; 2020 | Mixed with <a href="http://getbootstrap.com/">Bootstrap v3.1.1</a> | Baked with <a href="http://jbake.org">JBake v2.7.0.3</a></p>
+      </div>
+    </div>
+    
+    <!-- Le javascript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="../js/jquery-1.11.1.min.js"></script>
+    <script src="../js/bootstrap.min.js"></script>
+    <script src="../js/prettify.js"></script>
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  messageStyle: "none",
+  tex2jax: {
+    inlineMath: [["\\(", "\\)"]],
+    displayMath: [["\\[", "\\]"]],
+    ignoreClass: "nostem|nolatexmath"
+  },
+  asciimath2jax: {
+    delimiters: [["\\$", "\\$"]],
+    ignoreClass: "nostem|noasciimath"
+  },
+  TeX: { equationNumbers: { autoNumber: "none" } }
+})
+MathJax.Hub.Register.StartupHook("AsciiMath Jax Ready", function () {
+  MathJax.InputJax.AsciiMath.postfilterHooks.Add(function (data, node) {
+    if ((node = data.script.parentNode) && (node = node.parentNode) && node.classList.contains('stemblock')) {
+      data.math.root.display = "block"
+    }
+    return data
+  })
+})
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_HTMLorMML"></script>
+  </body>
+</html>
