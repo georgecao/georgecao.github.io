@@ -6,8 +6,8 @@
         <atom:link href="https://www.reploop.org/feed.xml" rel="self" type="application/rss+xml"/>
         <description>REPLoop，在脚本编程语言中经常能看到REPL，也就是Read-Evaluate-Print-Loop，意思是读取源代码，评估执行，打印结果的循环。这个过程能够快速的学习实践然后得到结果。非常像一个学习成长的过程：输入信息，消化吸收，输出知识并用于实践，然后持之以恒的坚持。4个环节缺一不可，而且最难做到的大概是持之以恒了。</description>
         <language>en-gb</language>
-        <pubDate>Sat, 25 Sep 2021 20:38:50 +0800</pubDate>
-        <lastBuildDate>Sat, 25 Sep 2021 20:38:50 +0800</lastBuildDate>
+        <pubDate>Sun, 26 Sep 2021 11:58:49 +0800</pubDate>
+        <lastBuildDate>Sun, 26 Sep 2021 11:58:49 +0800</lastBuildDate>
 
             <item>
                 <title>Maven依赖管理理解</title>
@@ -99,7 +99,7 @@
    &lt;p&gt;pom.xml中声明parent节点之后，就是当前项目pom会继承指定的parent节点中的项目。 所谓的继承，也没啥特别的，其实就是一个把父项目中内容拷贝合并到子项目中的意思。只不过在拷贝合并的过程中，子项目中的元素会覆盖(overwrite)父项目中的相同元素。 而且一个项目只能有一个parent项目，这是不是和Java语言中的类的单继承机制很像？&lt;/p&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
-   &lt;p&gt;所以maven编译的时候就是直接递归的把当前项目的所有父项目的pom.xml内容以此拷贝到子项目的pom.xml文件中，同时在这个拷贝合并的过程中应用上面的覆盖原则。 之后就生成了一个effective pom，效果相当于执行如下命令：&lt;/p&gt; 
+   &lt;p&gt;所以maven编译的时候就是直接递归的把当前项目的所有父项目的pom.xml内容依次拷贝到子项目的pom.xml文件中，同时在这个拷贝合并的过程中应用上面的覆盖原则。 之后就生成了一个effective pom，效果相当于执行如下命令：&lt;/p&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;listingblock&quot;&gt; 
    &lt;div class=&quot;content&quot;&gt; 
@@ -112,7 +112,7 @@
  &lt;h2 id=&quot;传递依赖transitive_dependencies&quot;&gt;传递依赖(Transitive Dependencies)&lt;/h2&gt; 
  &lt;div class=&quot;sectionbody&quot;&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
-   &lt;p&gt;传递依赖是说当前项目能够自动的他依赖的类库的依赖引入过来。这样就省去了当前项目重复的逐个申明依赖的类库。&lt;/p&gt; 
+   &lt;p&gt;传递依赖是说当前项目能够自动的把它依赖的类库的依赖引入过来。这样就省去了当前项目重复的逐个申明依赖的类库。&lt;/p&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
    &lt;p&gt;假设有A项目申明了依赖B，而项目B申明了依赖C，D和E：&lt;/p&gt; 
@@ -220,6 +220,9 @@
 &lt;div class=&quot;sect1&quot;&gt; 
  &lt;h2 id=&quot;依赖优先级&quot;&gt;依赖优先级&lt;/h2&gt; 
  &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;整个依赖管理中的优先级从高到低依次如下：&lt;/p&gt; 
+  &lt;/div&gt; 
   &lt;div class=&quot;olist arabic&quot;&gt; 
    &lt;ol class=&quot;arabic&quot;&gt; 
     &lt;li&gt; &lt;p&gt;项目的dependencies中直接声明的依赖及其版本，一般同一个项目中不会申明相同依赖的不同版本，如果出现的话，优先使用先申明的依赖；&lt;/p&gt; &lt;/li&gt; 
@@ -227,6 +230,9 @@
     &lt;li&gt; &lt;p&gt;import pom中申明的依赖及其版本，import pom的顺序很关键，如有依赖有版本冲突，按照声明的顺序依次使用；&lt;/p&gt; &lt;/li&gt; 
     &lt;li&gt; &lt;p&gt;当前项目的间接传递依赖及其版本。&lt;/p&gt; &lt;/li&gt; 
    &lt;/ol&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;总结下来就是不同优先级的按照从高到低的优先级，相同优先级的按照他们的申明顺序从上到下(pom.xml文件解析顺序，也就是依赖申明顺序)。&lt;/p&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
    &lt;p&gt;按照这个优先级，如果你发现有依赖的版本不符合预期，则可以通过这个优先级顺序在合适的地方直接申明想要的依赖就可以了。常见的我们就会直接在当前项目的pom.xml中直接申明一下需要使用的版本就可以了。&lt;/p&gt; 
@@ -267,7 +273,18 @@
  &lt;h2 id=&quot;结论&quot;&gt;结论&lt;/h2&gt; 
  &lt;div class=&quot;sectionbody&quot;&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
-   &lt;p&gt;通过以上分析，就能回答前面提出的2个问题，过程中能够分析，理解并且解决版本冲突的问题。&lt;/p&gt; 
+   &lt;p&gt;整个Maven依赖管理以当前项目为中心分为2部分，当前项目以上部分适用继承合并pom.xml，当前项目以下的依赖部分适用传递依赖与最短申明距离的依赖协调机制。&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;imageblock&quot;&gt; 
+   &lt;div class=&quot;content&quot;&gt; 
+    &lt;img src=&quot;https://www.reploop.org/blog/2021/09/images/deps-tree.svg&quot; alt=&quot;项目树&quot;&gt; 
+   &lt;/div&gt; 
+   &lt;div class=&quot;title&quot;&gt;
+    Figure 6. Maven项目树
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;通过以上分析，就能回答前面提出的2个问题，并且解决版本冲突的问题。&lt;/p&gt; 
   &lt;/div&gt; 
  &lt;/div&gt; 
 &lt;/div&gt; 
