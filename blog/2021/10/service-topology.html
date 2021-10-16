@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+  <head>
+    <meta charset="utf-8"/>
+    <title>服务拓扑</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="乔治">
+    <meta name="keywords" content="服务拓扑,服务发现">
+    <meta name="generator" content="JBake v2.7.0.3">
+    <meta property=og:locale content=zh_CN>
+    <!-- Le styles -->
+    <link href="../../../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../../../css/asciidoctor.css" rel="stylesheet">
+    <link href="../../../css/base.css" rel="stylesheet">
+    <link href="../../../css/prettify.css" rel="stylesheet">
+
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+
+    <!-- Fav and touch icons -->
+    <!--<link rel="apple-touch-icon-precomposed" sizes="144x144" href="../assets/ico/apple-touch-icon-144-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="../assets/ico/apple-touch-icon-114-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="../assets/ico/apple-touch-icon-72-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" href="../assets/ico/apple-touch-icon-57-precomposed.png">-->
+    <link rel="shortcut icon" href="../../../img/favicon.svg">
+      <link rel="canonical" href="https://www.reploop.org/blog/2021/10/service-topology.html" />
+    <script data-ad-client="ca-pub-2350040335860411" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  </head>
+  <body onload="prettyPrint()">
+    <div id="wrap">	<!-- Fixed navbar -->
+    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../../../">REPLoop</a>
+        </div>
+        <div class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li><a href="../../../index.html">博客</a></li>
+            <li><a href="../../../archive.html">归档</a></li>
+            <li><a href="../../../tags/index.html">标签</a></li>
+            <li><a href="../../../about.html">关于</a></li>
+            <li><a href="../../../feed.xml">订阅</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </div>
+    <div class="container">
+    <div class="page-header">
+        <h1>服务拓扑</h1>
+    </div>
+
+<p>
+    <a href="/about.html"><strong>乔治</strong></a>于2021年10月16日
+            <span class="badge badge-dark">服务拓扑</span>
+            <span class="badge badge-dark">服务发现</span>
+</p>
+<p><div id="preamble"> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>使用服务器部署服务的时候，各个服务之间的依赖关系通常是需要额外的工作来维护的。比如有一个MySQL数据库，在典型的运维场景，你想知道哪些应用依赖他就比较费劲，尤其是在一个变换频繁的团队中是需要一个统筹来管理的。 开源项目 <a href="https://github.com/reploop/reploop-topology">reploop-topology</a>的目的就是快速发现服务拓扑，其基本假设是一台机器提供服务必须要监听服务端口，并且建立网络连接。这是典型的分布式场景下通过网络连接起来的多机器之间的交互方式。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="拓扑">拓扑</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>主要利用 <code>lsof</code> 与 <code>ps</code> 命令获取主机上的监听的端口与服务进程。 需要在目标机器上执行如下命令：</p> 
+  </div> 
+  <div class="listingblock"> 
+   <div class="content"> 
+    <pre class="highlight"><code class="language-shell script" data-lang="shell script">sudo lsof -i 4 -nPR;
+sudo ps -ef;</code></pre> 
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p><code>lsof</code> 命令获取机器上的所有网络连接，其中也包括了本地监听的端口信息，同时利用 <code>ps</code> 取得机器上的所有的服务进程。接着通过 <code>lsof</code> 和 <code>ps</code> 的输出结果中的相同的 <strong>pid</strong> 可以将网络连接归属到同一个服务进程，并且发现了进程之间的依赖关系。 接着将服务进程通过启动命令归属到同一个应用服务，这样就通过网络连接建立起此连接两端对应的服务之间的连接关系。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>一个网络连接，我们经常用5元组来唯一表示: (Source IP, Source Port, Destination IP, Destination Port, Protocol)。这就是源地址IP:Port，目的地址IP:Port ，以及相应的网络协议。下面就开始从基础的名词开始构建服务拓扑。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="名词">名词</h2> 
+ <div class="sectionbody"> 
+  <div class="dlist"> 
+   <dl> 
+    <dt class="hdlist1">
+     IP
+    </dt> 
+    <dd> 
+     <p>IP地址，每个网卡(NIC)有一个IP地址，并且在其子网内是唯一的。</p> 
+    </dd> 
+    <dt class="hdlist1">
+     Port
+    </dt> 
+    <dd> 
+     <p>网络端口，对于TCP协议，每个机器上是唯一的，同一时间不能被多个应用复用。有些端口是临时端口，可也就是只会出现一次的那种，处理的时候要注意。根据协议不同，有可能是TCP或者UDP协议。 TCP和UDP可以公用同一个端口，比如DNS服务可以同时绑定tcp/53和udp/53端口。 对于UDP的来说，一个端口可以同时被多个不同的应用绑定。</p> 
+    </dd> 
+    <dt class="hdlist1">
+     Process
+    </dt> 
+    <dd> 
+     <p>服务进程, 通过服务主入口区分不同的进程。也就是启动命令与main函数的命名空间。</p> 
+    </dd> 
+    <dt class="hdlist1">
+     Server
+    </dt> 
+    <dd> 
+     <p>机器，物理上的一台机器或者虚拟机。每台机器可以有多个网卡(NIC)，也就是多个IP。</p> 
+    </dd> 
+    <dt class="hdlist1">
+     Server Port
+    </dt> 
+    <dd> 
+     <p>服务器端口，一个服务的基本服务形式，一个服务上监听一个服务端口。 这里用(服务器:端口)取代通常理解的(IP:PORT)的形式，来处理一台机器上多网卡的情况。</p> 
+    </dd> 
+    <dt class="hdlist1">
+     Service
+    </dt> 
+    <dd> 
+     <p>应用服务，应用层面的服务，不考虑部署结构的应用服务。 这里需要注意的是一个服务可以仅仅作为请求的发起方(client模式)，从而不监听任何服务器端口。</p> 
+    </dd> 
+   </dl> 
+  </div> 
+  <div class="paragraph"> 
+   <div class="title">
+    ER图
+   </div> 
+   <p><span class="image"><img src="https://www.reploop.org/blog/2021/10/images/relation.svg" alt="ER图"></span></p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>通过lsof输出的网络连接IP:PORT→IP:PORT最终建立起Service之前的拓扑关系。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <div class="title">
+    服务拓扑
+   </div> 
+   <p><span class="image"><img src="https://www.reploop.org/blog/2021/10/images/service.svg" alt="服务拓扑"></span></p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>这里也可以看出，通常一个服务既可以作为客户端依赖其他服务，也可以作为服务器提供服务。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="ip地址处理">IP地址处理</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>在一个服务器上监听一个端口，通常有几种写法：</p> 
+  </div> 
+  <div class="ulist"> 
+   <ul> 
+    <li> <p>*:Port, 监听所有网卡端口，也就是机器上的所有IP都可以访问这个端口。</p> </li> 
+    <li> <p>0.0.0.0:Port, 监听IPv4的端口，</p> </li> 
+   </ul> 
+  </div> 
+  <div class="paragraph"> 
+   <p>以及本地回环地址127.0.0.1。 这些地址都将会处理为具体的IP地址。 具体是首先会通过 <code>lsof</code> 的输出结果中汇总出有连接建立的所有本地IP地址，然后用这些IP地址来替换上面出现的特殊形式的IP地址。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="process关系">Process关系</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>Linux服务器上的每个Process都有两个id，分别是PID与PPID。同一时刻服务器上的所有PID是不重复的，但是已经消亡的进程PID后面是可以重复被利用的。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>Linux下进程之间是一个树的关系，一个进程通过PPID指向其父进程。这点在处理 <code>lsof</code> 的输出时很重要，因为一个进程本身可以监听端口，也可以让子进程去监听端口提供服务。比如一些守护进程做的事就是其他真正的服务子进程去服务，自己则是一直监控着子进程的健康状态。 但是所有的子进程都应该看作一个服务进程来处理。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="缺点">缺点</h2> 
+ <div class="sectionbody"> 
+  <div class="dlist"> 
+   <dl> 
+    <dt class="hdlist1">
+     短连接场景 
+    </dt> 
+    <dd> 
+     <p>lsof运行的时机很重要，可能采集不到或者不全。</p> 
+    </dd> 
+    <dt class="hdlist1">
+     定时任务 
+    </dt> 
+    <dd> 
+     <p>同样也是lsof的运行时机很重要，可能采集不到或者不全。</p> 
+    </dd> 
+    <dt class="hdlist1">
+     外部服务 
+    </dt> 
+    <dd> 
+     <p>第三方服务识别需要提前标注。此部分针对的是机器不能登陆的情况下，获取不到具体信息的情况，都归类为外部第三方服务。 如果有用到Aliyun的话，可以结合Aliyun的Open API，识别出阿里云上的SLB，数据库等资源，使得整个拓扑更清晰。</p> 
+    </dd> 
+    <dt class="hdlist1">
+     多进程与进程管理 
+    </dt> 
+    <dd> 
+     <p>通过Linux系统进程管理与监控工具启动的服务，真正服务的是子进程，这个影响服务的识别。</p> 
+    </dd> 
+   </dl> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="应用场景">应用场景</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>以下是一些典型的应用场景：</p> 
+  </div> 
+  <div class="dlist"> 
+   <dl> 
+    <dt class="hdlist1">
+     发现空闲机器
+    </dt> 
+    <dd> 
+     <p>机器上没有服务进程的话，可以认为机器是空闲的。或者可以辅以其他信息识别空闲机器。</p> 
+    </dd> 
+    <dt class="hdlist1">
+     理解服务拓扑
+    </dt> 
+    <dd> 
+     <p>理解服务之间的调用依赖关系。在抄抄代码的开发模式下，可能会无意引入不必要的服务。</p> 
+    </dd> 
+    <dt class="hdlist1">
+     识别意外服务
+    </dt> 
+    <dd> 
+     <p>一般应用服务非常好理解，但是这些服务所依赖的辅助服务，经常被忽略。比如读写文件系统，日志监控服务等。</p> 
+    </dd> 
+   </dl> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="结论">结论</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>在微服务体系下，调用链是必备的。通过他也是可以画出服务拓扑关系的。也就不需要这么麻烦了。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="参考">参考</h2> 
+ <div class="sectionbody"> 
+  <div class="ulist"> 
+   <ul> 
+    <li> <p>The SO_REUSEPORT socket option, <a href="https://lwn.net/Articles/542629/" class="bare">https://lwn.net/Articles/542629/</a></p> </li> 
+    <li> <p>reploop-topology, <a href="https://github.com/reploop/reploop-topology" class="bare">https://github.com/reploop/reploop-topology</a></p> </li> 
+   </ul> 
+  </div> 
+ </div> 
+</div></p>
+
+<hr/>
+<div id="disqus_thread"></div>
+<script>
+
+    /**
+     *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+     *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
+    var disqus_config = function () {
+        this.page.url = "https://www.reploop.org/blog/2021/10/service-topology.html";  // Replace PAGE_URL with your page's canonical URL variable
+        this.page.identifier = "https://www.reploop.org/blog/2021/10/service-topology.html"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+    };
+    (function () { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://reploop.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by
+        Disqus.</a></noscript>
+		</div>
+		<div id="push"></div>
+    </div>
+    
+    <div id="footer">
+      <div class="container">
+        <p class="muted credit">&copy; 2020 | Mixed with <a href="http://getbootstrap.com/">Bootstrap v3.1.1</a> | Baked with <a href="http://jbake.org">JBake v2.7.0.3</a></p>
+      </div>
+    </div>
+    
+    <!-- Le javascript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="../../../js/jquery-1.11.1.min.js"></script>
+    <script src="../../../js/bootstrap.min.js"></script>
+    <script src="../../../js/prettify.js"></script>
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  messageStyle: "none",
+  tex2jax: {
+    inlineMath: [["\\(", "\\)"]],
+    displayMath: [["\\[", "\\]"]],
+    ignoreClass: "nostem|nolatexmath"
+  },
+  asciimath2jax: {
+    delimiters: [["\\$", "\\$"]],
+    ignoreClass: "nostem|noasciimath"
+  },
+  TeX: { equationNumbers: { autoNumber: "none" } }
+})
+MathJax.Hub.Register.StartupHook("AsciiMath Jax Ready", function () {
+  MathJax.InputJax.AsciiMath.postfilterHooks.Add(function (data, node) {
+    if ((node = data.script.parentNode) && (node = node.parentNode) && node.classList.contains('stemblock')) {
+      data.math.root.display = "block"
+    }
+    return data
+  })
+})
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_HTMLorMML"></script>
+  </body>
+</html>
