@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="author" content="乔治">
     <meta name="keywords" content="REPL,REPLoop,George,乔治">
-    <meta name="generator" content="JBake v2.7.0.3">
+    <meta name="generator" content="JBake v2.7.0.4">
     <meta property=og:locale content=zh_CN>
     <!-- Le styles -->
     <link href="../css/bootstrap.min.css" rel="stylesheet">
@@ -52,6 +52,94 @@
       </div>
     </div>
     <div class="container">
+  		<a href="blog/2021/08/apple-app-publish.html"><h1>苹果APP开发的安全机制</h1></a>
+  		<p>
+			<a href="/about.html"><strong>乔治</strong></a>于2021年08月19日
+					<span class="badge badge-dark">应用商店</span>
+					<span class="badge badge-dark">私钥</span>
+					<span class="badge badge-dark">公钥</span>
+					<span class="badge badge-dark">非对称加密</span>
+					<span class="badge badge-dark">证书</span>
+					<span class="badge badge-dark">数字签名</span>
+		</p>
+  		<p><div id="preamble"> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>众所周知，苹果的应用商店是苹果自己的独家的，而且也不允许第三方应用商店的存在。所以开发者想要让苹果手机用户能用自己的应用，就必须要遵守苹果的规则。现在我们从苹果的角度看一下，苹果要如何做到这个呢？核心就是 <strong>数字签名</strong>，而数字签名的基础就是 <strong>非对称加密</strong>。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="非对称加密">非对称加密</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>非对称加密(RSA)数学原理以及证明的过程主要是欧拉函数和中国剩余定理，其安全性以及证明暂时略去。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>RSA工作起来就是生成一对公钥和私钥，这一对密钥有个重要的特性是公钥加密的数据只能用配对的私钥解密；反过来，私钥加密的数据也只能用配对的公钥解密。这样就可以放心的把公钥公开，然后私钥自己安全的保存起来。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>大部分的加密过程是使用公钥加密数据，然后使用私钥解密数据。这样就允许了不共享密钥的情况下，让许多人可以安全的发送数据。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="数字签名">数字签名</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>数字签名其实也是RSA，只不过是用私钥加密数据。因为私钥是安全保存，不对外公开的，如果私钥对应的公钥能够解密这个密文，我们就知道这个数据一定是私钥的拥有者发出来的。这也是数字签名的本意，证明数据的归属。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="苹果应用商店的规则">苹果应用商店的规则</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>苹果要求应用开发者必须先注册成功苹果的开发者，然后开发者所开发的APP必须经过苹果的审核才能安装到苹果设备上。也就是：</p> 
+  </div> 
+  <div class="olist arabic"> 
+   <ol class="arabic"> 
+    <li> <p>认证过的开发者才能发App</p> </li> 
+    <li> <p>App必须经过苹果的审核</p> </li> 
+   </ol> 
+  </div> 
+  <div class="paragraph"> 
+   <p>但是APP开发都有一个开发测试的过程，这期间APP会频繁的变化，都要审核吗？不需要。苹果的解决方案是可以不经过苹果审核，但是限制APP只能安装到一定数量的已知设备(Device)上用来测试。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>这样整个流程就涉及开发者、苹果、设备以及APP。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>这两个过程都需要用到数字签名。苹果和开发者各自都有自己的公钥和私钥对，苹果在这个过程中还充当了CA的角色。</p> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="开发者">开发者</h3> 
+   <div class="paragraph"> 
+    <p>首先开发者需要有一对公钥和私钥。然后把公钥交给苹果签发一个证书。这就是苹果认证过的开发者凭证了。 这个证书是可以用到签名APP签名的过程。</p> 
+   </div> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="苹果">苹果</h3> 
+   <div class="paragraph"> 
+    <p>苹果也有自己的公钥和私钥对。苹果审核过的APP可以通过苹果的私钥进行签名，安装过程中使用设备上已经预置的公钥进行验证。通过就能肯定这是苹果签发的APP的。</p> 
+   </div> 
+   <div class="paragraph"> 
+    <p>这样就控制了App的生命周期。</p> 
+   </div> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="参考">参考</h2> 
+ <div class="sectionbody"> 
+  <div class="ulist"> 
+   <ul> 
+    <li> <p><a href="https://www.reploop.org/blog/2020/03/how-https-works.html">HTTPS如何工作的?</a></p> </li> 
+    <li> <p>iOS App 签名的原理, <a href="http://blog.cnbang.net/tech/3386/" class="bare">http://blog.cnbang.net/tech/3386/</a></p> </li> 
+   </ul> 
+  </div> 
+ </div> 
+</div></p>
   		<a href="blog/2021/07/some-clients-implementions.html"><h1>一些客户端的实现方案</h1></a>
   		<p>
 			<a href="/about.html"><strong>乔治</strong></a>于2021年07月03日
@@ -300,116 +388,6 @@
   </div> 
  </div> 
 </div></p>
-  		<a href="blog/2020/08/netty-4-thread-model.html"><h1>Netty 4 线程模型</h1></a>
-  		<p>
-			<a href="/about.html"><strong>乔治</strong></a>于2021年05月12日
-					<span class="badge badge-dark">netty</span>
-					<span class="badge badge-dark">多线程</span>
-					<span class="badge badge-dark">线程模型</span>
-		</p>
-  		<p><div id="preamble"> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>Netty 4 的线程模型核心是一个连接(channel)一个线程(thread)，但是一个线程可以绑定到多个不同的连接。也就是每一个连接上的所有I/O事件都是一个线程(EventLoop)来执行的，这个线程也可以叫I/O线程。这样从连接的角度看就是一个连接一个线程的单线程模型，省去了多线程同步的代价，写起代码简单可靠；从线程的角度看一个线程可以管理多个连接，工作起来也不需要大量的线程。当遇到业务逻辑比较耗时的情况，Netty允许这部分工作交给单独的线程池(EventExecutor)执行，执行完成产生的事件在通过提交到连接绑定的线程工作队列中，回到I/O线程中来继续流转。</p> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="netty线程池">Netty线程池</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>简单朴素的正向思路，线程池就是提前实例化多个线程，有任务的时候呢，先挑一个线程出来，然后把任务给它执行。有过数据库连接池使用经验的话，应该很熟悉这种模式。</p> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlight"><code class="language-java" data-lang="java">int size = 100;
-Thread[size] = new Thread[size]; //线程池</code></pre> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>注：这里面的size如何决定，请参见 <a href="https://www.reploop.org/blog/2020/05/how-to-size-thread-pool.html">如何设置线程池的大小</a>。</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>不过Doug Lea大神在Java 1.5提供的线程池实现则不是这么简单粗暴，而是通过Executor抽象把线程池这部分透明化了，变成了提交一个异步任务，得到一个代表执行结果的Future对象。 这样就不需要处理线程同步、等待等问题了。</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>理解Java的线程池实现对理解Netty的线程模式非常有帮助，因为Netty里面是自己定制实现了一个Executor。</p> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="实现思路">实现思路</h3> 
-   <div class="paragraph"> 
-    <p>Netty中的Executor实现有2中，一个是EventLoop，一个是EventExecutor。EventExecutor更像是Java中的Executor，用来多线程执行业务代码，而EventLoop是EventExecutor的特殊实现，它是绑定到Channel上的。</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>EventLoop和channel之间的关系是一个channel只能注册到一个EventLoop，而一个EventLoop可以绑定到多个Channel。 每个EventExecutor都会绑定唯一的一个线程，并且可以有0或者1个工作队列（EventLoop）。提交任务的时候将任务放去工作队列，而绑定的线程则不停地轮询（Loop）工作队列，如果有任务则执行，没有就等待，直到Executor关闭才退出循环。EventExecutor和JDK中的线程池Executor非常类似的思想。</p> 
-   </div> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="延迟绑定">延迟绑定</h3> 
-   <div class="paragraph"> 
-    <p>EventExecutor 第一次执行任务的时候，使用ThreadPerTaskExecutor创建一个新线程，并且绑定到这个EventExecutor。ThreadPerTaskExecutor非常特殊，没有工作队列，每个任务都是新创建一个线程去执行，顾名思义。而当前任务呢将作为这个线程的第一个任务去执行。一般来讲绑定任务都是个无限循环，不停地从当前的Executor的任务队列中拉取任务执行，直到停止或者关闭的时候才结束。</p> 
-   </div> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="netty事件模型">Netty事件模型</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>Netty 4中的核心事件处理流程是下图这样的：</p> 
-  </div> 
-  <div class="imageblock"> 
-   <div class="content"> 
-    <img src="https://www.reploop.org/blog/2020/08/images/netty-4-thread-model.png" alt="Thread任务执行模型"> 
-   </div> 
-   <div class="title">
-    Figure 1. Thread任务执行模型
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>从一个Channel建立开始，绑定一个EventLoop，通过一个由Handler顺序组成的Pipeline完成一次事件处理并返回结果（如果有必要的话）。</p> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="多线程环境">多线程环境</h3> 
-   <div class="paragraph"> 
-    <p>使用Netty的一个最佳实践就是不要阻塞I/O线程。那么应用自己的一部分比较耗时的逻辑该如何不阻塞I/O线程呢？</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>Netty是通过Pipeline中的每个Handler可以显式绑定一个Executor的方式来实现业务多线程执行，从而不阻塞I/O线程。如果没有绑定的话，就使用Channel默认绑定的EventLoop执行。每个Handler执行任何Read或者Write操作都会检查当前Executor和绑定的是否一致，如果一致的话，单线程直接执行任务；不一致，当前Executor将把操作封装成一个任务提交到下一个Executor的任务队列中。整体流程参考上图。</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>Netty中默认都是使用的I/O线程，也就是Worker线程去执行任务，如果你的Handler里面有耗时任务，比如常见的网络操作，在加上一个EventLoop可以绑定到多个Channel，那么强烈建议给这个Handler显式绑定一个EventExecutorGroup，使得I/O线程能够继续处理I/O操作。如果阻塞当前线程的话，1个或者多个Channel将被阻塞，从而严重影响吞吐量。</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>EventExecutor上创建的Promise或者Future，当前线程是用来阻塞等待的（wait/notify机制），实现的效果就是谁调用阻塞方法，就阻塞谁。但是当Promise和Future完成（notify）之后，是用这个EventExecutor去通知所有的监听者。</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>EventExecutor可以看做一个普通的线程，去执行业务任务。EventLoop作为EventExecutor的特例，只用来执行I/O相关任务，因此也不能被阻塞。</p> 
-   </div> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="一些的注意点">一些的注意点</h3> 
-   <div class="olist arabic"> 
-    <ol class="arabic"> 
-     <li> <p>NIO模式下，Netty中Channel和JVM的Channel是通过附件attachment关联起来的。</p> </li> 
-     <li> <p>ByteBuf要在同一个线程里面创建和回收，从而避免内存泄露。因为ByteBuf Pool用的是ThreadLocal实现的。</p> </li> 
-    </ol> 
-   </div> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="参考">参考</h2> 
- <div class="sectionbody"> 
-  <div class="ulist"> 
-   <ul> 
-    <li> <p>New and noteworthy in 4.0 - <a href="http://netty.io/wiki/new-and-noteworthy-in-4.0.html" class="bare">http://netty.io/wiki/new-and-noteworthy-in-4.0.html</a></p> </li> 
-    <li> <p>Upgrading a Reverse Proxy from Netty 3 to 4 - <a href="https://medium.com/square-corner-blog/upgrading-a-reverse-proxy-from-netty-3-to-4-878ec407665a#.yyrawts8y" class="bare">https://medium.com/square-corner-blog/upgrading-a-reverse-proxy-from-netty-3-to-4-878ec407665a#.yyrawts8y</a></p> </li> 
-    <li> <p>EventLoop → EventExecutor Lazy Bind - <a href="http://www.infoq.com/cn/articles/netty-version-upgrade-history-thread-part" class="bare">http://www.infoq.com/cn/articles/netty-version-upgrade-history-thread-part</a></p> </li> 
-   </ul> 
-  </div> 
- </div> 
-</div></p>
 
 	<hr />
 	
@@ -421,7 +399,7 @@ Thread[size] = new Thread[size]; //线程池</code></pre>
     
     <div id="footer">
       <div class="container">
-        <p class="muted credit">&copy; 2020 | Mixed with <a href="http://getbootstrap.com/">Bootstrap v3.1.1</a> | Baked with <a href="http://jbake.org">JBake v2.7.0.3</a></p>
+        <p class="muted credit">&copy; 2020 | Mixed with <a href="http://getbootstrap.com/">Bootstrap v3.1.1</a> | Baked with <a href="http://jbake.org">JBake v2.7.0.4</a></p>
       </div>
     </div>
     
