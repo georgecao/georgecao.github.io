@@ -115,6 +115,13 @@
   <div class="paragraph"> 
    <p>虽说HTTPS逐渐普遍起来了，但是也不能完成保证支付安全的问题。因为HTTPS只能保证请求接收方的身份问题，不能确认请求发起方的身份问题。</p> 
   </div> 
+  <div class="exampleblock"> 
+   <div class="content"> 
+    <div class="paragraph"> 
+     <p>注：其实HTTPS也支持客户端证书，开启之后就可以完成双向证书验证了。不过大部分情况下只是用服务端证书，而不启用客户端证书。</p> 
+    </div> 
+   </div> 
+  </div> 
   <div class="paragraph"> 
    <p>以支付宝为例，也就是是说我们访问 <a href="https://openapi.alipay.com/gateway.do" class="bare">https://openapi.alipay.com/gateway.do</a> 成功后请求发起方能确认访问的就是支付宝的支付接口，但是支付宝支付平台不能安全的知道是谁在发起支付请求。</p> 
   </div> 

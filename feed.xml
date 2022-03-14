@@ -6,8 +6,8 @@
         <atom:link href="https://www.reploop.org/feed.xml" rel="self" type="application/rss+xml"/>
         <description>REPLoop，在脚本编程语言中经常能看到REPL，也就是Read-Evaluate-Print-Loop，意思是读取源代码，评估执行，打印结果的循环。这个过程能够快速的学习实践然后得到结果。非常像一个学习成长的过程：输入信息，消化吸收，输出知识并用于实践，然后持之以恒的坚持。4个环节缺一不可，而且最难做到的大概是持之以恒了。</description>
         <language>en-gb</language>
-        <pubDate>Mon, 14 Mar 2022 16:33:44 +0800</pubDate>
-        <lastBuildDate>Mon, 14 Mar 2022 16:33:44 +0800</lastBuildDate>
+        <pubDate>Mon, 14 Mar 2022 17:02:46 +0800</pubDate>
+        <lastBuildDate>Mon, 14 Mar 2022 17:02:46 +0800</lastBuildDate>
 
             <item>
                 <title>基本会计概念2-借记与贷记</title>
@@ -1958,6 +1958,13 @@ ClassLoader.getSystemResource(path); &lt;i class=&quot;conum&quot; data-value=&q
  &lt;div class=&quot;sectionbody&quot;&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
    &lt;p&gt;虽说HTTPS逐渐普遍起来了，但是也不能完成保证支付安全的问题。因为HTTPS只能保证请求接收方的身份问题，不能确认请求发起方的身份问题。&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;exampleblock&quot;&gt; 
+   &lt;div class=&quot;content&quot;&gt; 
+    &lt;div class=&quot;paragraph&quot;&gt; 
+     &lt;p&gt;注：其实HTTPS也支持客户端证书，开启之后就可以完成双向证书验证了。不过大部分情况下只是用服务端证书，而不启用客户端证书。&lt;/p&gt; 
+    &lt;/div&gt; 
+   &lt;/div&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
    &lt;p&gt;以支付宝为例，也就是是说我们访问 &lt;a href=&quot;https://openapi.alipay.com/gateway.do&quot; class=&quot;bare&quot;&gt;https://openapi.alipay.com/gateway.do&lt;/a&gt; 成功后请求发起方能确认访问的就是支付宝的支付接口，但是支付宝支付平台不能安全的知道是谁在发起支付请求。&lt;/p&gt; 
