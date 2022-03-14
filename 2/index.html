@@ -52,6 +52,298 @@
       </div>
     </div>
     <div class="container">
+  		<a href="blog/2021/09/maven-deps.html"><h1>Maven依赖管理理解</h1></a>
+  		<p>
+			<a href="/about.html"><strong>乔治</strong></a>于2021年09月24日
+					<span class="badge badge-dark">maven</span>
+					<span class="badge badge-dark">dependency</span>
+					<span class="badge badge-dark">bom</span>
+		</p>
+  		<p><div id="preamble"> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>根据 <a href="https://www.jrebel.com/resources/java-developer-productivity-report-2021">JRebel 2021 Java Developer Productivity Report</a> ，Java项目构建工具中第一名的Maven占了67%，第二名的Gradle是20%。所以理解和掌握Maven是非常必要的。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>现在稍微大一点的Java项目都会涉及到bom和module，然后经过在pom.xml中的parent和dependency节点的组合之后，很方便的管理了。 不过也很容易造成模块或者依赖类库版本的冲突。而且这种问题一般编译期间不容易发现，到了运行期间就会出这种依赖的问题。遇到依赖的类库不符合预期的时候，我们一般就会问2个问题：</p> 
+  </div> 
+  <div class="ulist"> 
+   <ul> 
+    <li> <p>怎么引入的这个类库？</p> </li> 
+    <li> <p>为什么选择了这个版本？</p> </li> 
+   </ul> 
+  </div> 
+  <div class="paragraph"> 
+   <p>为了回答这两个问题，我们先从介绍Maven开始。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="bom">BOM</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>BOM(Bill Of Materials)实质上就是一个特别的POM，在这个POM中集中的定义项目的依赖和管理和更新他们版本。这个就把管理和更新依赖及其版本的职责集中到一处统一管理、测试以及发布，其他项目只要依赖这个POM就省去了每个人都要考虑使用那个依赖的那个版本的问题。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>BOM一般有两种使用方式，</p> 
+  </div> 
+  <div class="ulist"> 
+   <ul> 
+    <li> <p>一种是直接通过pom.xml中的parent节点继承，一个项目只能有一个parent，这种常见的是一个组织内部自定义的BOM。</p> </li> 
+   </ul> 
+  </div> 
+  <div class="listingblock"> 
+   <div class="content"> 
+    <pre class="highlight"><code class="language-xml" data-lang="xml">&lt;parent&gt;
+    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-boot-dependencies&lt;/artifactId&gt;
+    &lt;version&gt;2.5.4&lt;/version&gt;
+    &lt;relativePath/&gt;
+&lt;/parent&gt;</code></pre> 
+   </div> 
+  </div> 
+  <div class="ulist"> 
+   <ul> 
+    <li> <p>另一种方式是在pom.xml中的dependency management中使用import pom的方式引入。 这个没有数量的限制，常见的第三方类库都可以通过这种方式管理。</p> </li> 
+   </ul> 
+  </div> 
+  <div class="listingblock"> 
+   <div class="content"> 
+    <pre class="highlight"><code class="language-xml" data-lang="xml">&lt;dependencyManagement&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+        &lt;artifactId&gt;spring-boot-dependencies&lt;/artifactId&gt;
+        &lt;version&gt;2.5.4&lt;/version&gt;
+        &lt;type&gt;pom&lt;/type&gt; <i class="conum" data-value="1"></i><b>(1)</b>
+        &lt;scope&gt;import&lt;/scope&gt; <i class="conum" data-value="2"></i><b>(2)</b>
+    &lt;/dependency&gt;
+&lt;/dependencyManagement&gt;</code></pre> 
+   </div> 
+  </div> 
+  <div class="colist arabic"> 
+   <table> 
+    <tbody>
+     <tr> 
+      <td><i class="conum" data-value="1"></i><b>1</b></td> 
+      <td>type指定为pom</td> 
+     </tr> 
+     <tr> 
+      <td><i class="conum" data-value="2"></i><b>2</b></td> 
+      <td>scope指定为import</td> 
+     </tr> 
+    </tbody>
+   </table> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="继承parent">继承(Parent)</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>pom.xml中声明parent节点之后，就是当前项目pom会继承指定的parent节点中的项目。 所谓的继承，也没啥特别的，其实就是一个把父项目中内容拷贝合并到子项目中的意思。只不过在拷贝合并的过程中，子项目中的元素会覆盖(overwrite)父项目中的相同元素。 而且一个项目只能有一个parent项目，这是不是和Java语言中的类的单继承机制很像？</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>所以maven编译的时候就是直接递归的把当前项目的所有父项目的pom.xml内容依次拷贝到子项目的pom.xml文件中，同时在这个拷贝合并的过程中应用上面的覆盖原则。 之后就生成了一个effective pom，效果相当于执行如下命令：</p> 
+  </div> 
+  <div class="listingblock"> 
+   <div class="content"> 
+    <pre class="highlight"><code class="language-shell script" data-lang="shell script">mvn help:effective-pom</code></pre> 
+   </div> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="传递依赖transitive_dependencies">传递依赖(Transitive Dependencies)</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>传递依赖是说当前项目能够自动的把它依赖的类库的依赖引入过来。这样就省去了当前项目重复的逐个申明依赖的类库。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>假设有A项目申明了依赖B，而项目B申明了依赖C，D和E：</p> 
+  </div> 
+  <div class="imageblock"> 
+   <div class="content"> 
+    <img src="https://www.reploop.org/blog/2021/09/images/deps.svg" alt="A只申明了依赖B"> 
+   </div> 
+   <div class="title">
+    Figure 1. A只申明了依赖B
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>应用依赖传递之后，项目A实际上是依赖的B，C，D和E。效果等同下图：</p> 
+  </div> 
+  <div class="imageblock"> 
+   <div class="content"> 
+    <img src="https://www.reploop.org/blog/2021/09/images/deps-resolved.svg" alt="A实际上依赖了B，C，D，E"> 
+   </div> 
+   <div class="title">
+    Figure 2. A实际上依赖了B，C，D，E
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>这里面还涉及一个依赖的scope的问题，会影响依赖的传递，先不细说了，也不影响理解依赖的传递。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="依赖管理dependency_management">依赖管理(Dependency Management)</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>BOM中dependencyManagement元素就是集中定义依赖及其版本的地方，这样使用这个BOM的项目就不需要在单独定义版本了。而且dependencyManagement元素中的依赖只有用到了才起作用，也就是出现在dependencies节点中的时候，这时候就不用指定依赖的版本号了。</p> 
+  </div> 
+  <div class="quoteblock"> 
+   <blockquote>
+     Dependency management - this allows project authors to directly specify the versions of artifacts to be used when they are encountered in transitive dependencies or in dependencies where no version has been specified. In the example in the preceding section a dependency was directly added to A even though it is not directly used by A. Instead, A can include D as a dependency in its dependencyManagement section and directly control which version of D is used when, or if, it is ever referenced. 
+   </blockquote> 
+   <div class="attribution">
+     — Maven
+    <br> <cite>https://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html</cite> 
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>dependencyManagement元素中定义的依赖及其版本是能够直接控制传递依赖和没有指定版本的依赖的版本的。但是如果是当前项目的pom.xml的dependencies节点中直接申明的带版本的依赖，则不受dependencyManagement中定义的版本控制。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>假如项目A中直接依赖了B，通过B间接依赖的2.0版本的C，如下图：</p> 
+  </div> 
+  <div class="imageblock"> 
+   <div class="content"> 
+    <img src="https://www.reploop.org/blog/2021/09/images/deps-version.svg" alt="A项目的传递依赖C(2.0)"> 
+   </div> 
+   <div class="title">
+    Figure 3. A项目的传递依赖C(2.0)
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>这时候如果 dependencyManagement元素中直接定义了1.0版本的依赖C，那最终A项目依赖的C是1.0版本的：</p> 
+  </div> 
+  <div class="imageblock"> 
+   <div class="content"> 
+    <img src="https://www.reploop.org/blog/2021/09/images/deps-version-resolved.svg" alt="A项目的实际依赖C(1.0)"> 
+   </div> 
+   <div class="title">
+    Figure 4. A项目的实际依赖C(1.0)
+   </div> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="依赖协调dependency_mediation">依赖协调(Dependency Mediation)</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>我们知道一个依赖可以通一个三元组(groupId:artifactId:version)来确定, 其中的groupId:artifactId组合用来区分不同的依赖，同一个依赖则是用version来确定用哪一个。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>这里面的version没有具体的规范，就是一个字符串, 所以Maven不知道同一个依赖的不同版本哪个是新的，那个是旧的。因此有多个版本的时候不是选用最新的版本，而是选当前项目的依赖中最近的声明版本(nearest definition)。</p> 
+  </div> 
+  <div class="quoteblock"> 
+   <blockquote>
+     Dependency mediation - this determines what version of an artifact will be chosen when multiple versions are encountered as dependencies. Maven picks the "nearest definition". That is, it uses the version of the closest dependency to your project in the tree of dependencies. You can always guarantee a version by declaring it explicitly in your project’s POM. Note that if two dependency versions are at the same depth in the dependency tree, the first declaration wins. 
+   </blockquote> 
+   <div class="attribution">
+     — Maven
+    <br> <cite>https://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html</cite> 
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>把当前项目的依赖组织成一棵树, 姑且称之为依赖树，寻找最近申明的依赖的过程就是广度优先(BFS)遍历这棵树，遇到遍历过的依赖就剪枝，删除包含遍历过的节点以及其子树。这样就是在依赖树中寻找到当前项目的最短路径的依赖，而相同层级的话，也优先使用了最先遇到的。这里面也隐含了依赖申明顺序的问题，稍后说明。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>假设项目A的依赖关系如下图，对于D这个依赖来讲，应用nearest definition原则，Maven最终会选用的版本是D(2.0)。</p> 
+  </div> 
+  <div class="imageblock"> 
+   <div class="content"> 
+    <img src="https://www.reploop.org/blog/2021/09/images/deps-version-tree.svg" alt="项目A的依赖树"> 
+   </div> 
+   <div class="title">
+    Figure 5. 项目A的依赖树
+   </div> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="依赖优先级">依赖优先级</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>整个依赖管理中的优先级从高到低依次如下：</p> 
+  </div> 
+  <div class="olist arabic"> 
+   <ol class="arabic"> 
+    <li> <p>项目的dependencies中直接声明的依赖及其版本，一般同一个项目中不会申明相同依赖的不同版本，如果出现的话，优先使用先申明的依赖；</p> </li> 
+    <li> <p>parent项目的dependencies节点中申明的依赖及其版本(参考上面的继承)；</p> </li> 
+    <li> <p>import pom中申明的依赖及其版本，import pom的顺序很关键，如有依赖有版本冲突，按照声明的顺序依次使用；</p> </li> 
+    <li> <p>当前项目的间接传递依赖及其版本。</p> </li> 
+   </ol> 
+  </div> 
+  <div class="paragraph"> 
+   <p>总结下来就是不同优先级的按照从高到低的优先级，相同优先级的按照他们的申明顺序从上到下(pom.xml文件解析顺序，也就是依赖申明顺序)。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>按照这个优先级，如果你发现有依赖的版本不符合预期，则可以通过这个优先级顺序在合适的地方直接申明想要的依赖就可以了。常见的我们就会直接在当前项目的pom.xml中直接申明一下需要使用的版本就可以了。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>这个优先级以及顺序，也是构建依赖树的优先级和顺序。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="常用排查命令">常用排查命令</h2> 
+ <div class="sectionbody"> 
+  <div class="sect2"> 
+   <h3 id="查看依赖树">查看依赖树</h3> 
+   <div class="paragraph"> 
+    <p>查看依赖树是非常常用的，这里除了默认的文本输出，还可以使用outputType参数来指定格式如graphml,dot等，接着就可以可视化的展示依赖树了。</p> 
+   </div> 
+   <div class="listingblock"> 
+    <div class="content"> 
+     <pre class="highlight"><code class="language-shell script" data-lang="shell script">mvn dependency:tree -DoutputType=graphml -DoutputFile=dependency.graphml</code></pre> 
+    </div> 
+   </div> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="查看依赖使用情况">查看依赖使用情况</h3> 
+   <div class="paragraph"> 
+    <p>分析依赖使用与否的情况，貌似不太准确，参考就可以了。</p> 
+   </div> 
+   <div class="listingblock"> 
+    <div class="content"> 
+     <pre class="highlight"><code class="language-shell script" data-lang="shell script">mvn dependency:analyze</code></pre> 
+    </div> 
+   </div> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="结论">结论</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>整个Maven依赖管理以当前项目为中心分为2部分，当前项目以上部分适用继承合并pom.xml，当前项目以下的依赖部分适用传递依赖与最短申明距离的依赖协调机制。</p> 
+  </div> 
+  <div class="imageblock"> 
+   <div class="content"> 
+    <img src="https://www.reploop.org/blog/2021/09/images/deps-tree.svg" alt="项目树"> 
+   </div> 
+   <div class="title">
+    Figure 6. Maven项目树
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>通过以上分析，就能回答前面提出的2个问题，并且解决版本冲突的问题。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="参考">参考</h2> 
+ <div class="sectionbody"> 
+  <div class="ulist"> 
+   <ul> 
+    <li> <p>JRebel 2021 Java Developer Productivity Report, <a href="https://www.jrebel.com/resources/java-developer-productivity-report-2021" class="bare">https://www.jrebel.com/resources/java-developer-productivity-report-2021</a></p> </li> 
+    <li> <p>Introduction to the Dependency Mechanism, <a href="https://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html" class="bare">https://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html</a></p> </li> 
+    <li> <p>Spring with Maven BOM, <a href="https://www.baeldung.com/spring-maven-bom" class="bare">https://www.baeldung.com/spring-maven-bom</a></p> </li> 
+   </ul> 
+  </div> 
+ </div> 
+</div></p>
   		<a href="blog/2021/08/apple-app-publish.html"><h1>苹果APP开发的安全机制</h1></a>
   		<p>
 			<a href="/about.html"><strong>乔治</strong></a>于2021年08月19日
@@ -215,176 +507,6 @@
  <div class="sectionbody"> 
   <div class="paragraph"> 
    <p>上面的几个客户端可以看出，在越来越多的面对分布式，大数据量的场景下，客户端掌握的数据越来越多了，实现也是越来越重了，越来越多的功能和特性都落在客户端了。而微服务的发展，客户端的职责也更多了。比如说服务发现，服务路由，限流，调用链，统计分析等等都是在客户端的参与下完成的。</p> 
-  </div> 
- </div> 
-</div></p>
-  		<a href="blog/2021/06/a-brief-introduce-to-rbac.html"><h1>基于角色的权限与认证</h1></a>
-  		<p>
-			<a href="/about.html"><strong>乔治</strong></a>于2021年06月28日
-					<span class="badge badge-dark">权限</span>
-					<span class="badge badge-dark">角色</span>
-					<span class="badge badge-dark">授权</span>
-					<span class="badge badge-dark">认证</span>
-					<span class="badge badge-dark">鉴权</span>
-					<span class="badge badge-dark">rbac</span>
-					<span class="badge badge-dark">abac</span>
-		</p>
-  		<p><div id="preamble"> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>权限管理管理涉及用户，操作和资源，主要就是回答"用户-操作-资源"是不是被允许的。这就通过现实中的"主-谓-宾"的形式定义了一个完整行为，权限管理就是决定这个行为是不是被允许的。给出这个理解，实现一个权限管理最简单的做法就是三个实体表再加一个权限的关联表。这个关联表每条记录都包含了用户，操作，资源，是否允许这几个关键属性。这个表的数量是一个笛卡尔乘积 = <strong>用户数*操作数*资源数</strong>。</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>在数量相对较少的情况下这个方案不管是授权还是鉴权都很简单，但是当数量稍微多一点之后授权成本对人来说就太大了。比如一个1000人企业内部的WIKI权限系统，划分了不同的团队空间200个，对团队空间的操作有4个（仅仅考虑最简单的CRUD），那么这个管理复杂度：1000*4*200=80万。这对计算机来说不足为虑了，对那个要进行权限管理的管理员来说负担大的是个不可能完成的任务。</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>从这里演化出2个重要概念，组(Group)和角色(Role)，用他们能大大降低授权的工作量。以下是权限管理中涉及到的实体，先说明一下方便后面讨论。</p> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="名词解释">名词解释</h2> 
- <div class="sectionbody"> 
-  <div class="dlist"> 
-   <dl> 
-    <dt class="hdlist1">
-     用户(User)
-    </dt> 
-    <dd> 
-     <p>最好理解的是用户，这就是上面提到的行为的主体，可以是各种需要权限的人等，比如员工等。</p> 
-    </dd> 
-    <dt class="hdlist1">
-     资源(Object)
-    </dt> 
-    <dd> 
-     <p>受权限保护的资源，常见的比如数据库注册用户表， WIKI，代码仓库等等。资源是操作的对象。</p> 
-    </dd> 
-    <dt class="hdlist1">
-     操作(Operation)
-    </dt> 
-    <dd> 
-     <p>对资源的操作，细粒度的比如创建(Create)，读取(Read)，更新(Update)，删除(Delete)，合起来就是常说的CRUD。</p> 
-    </dd> 
-   </dl> 
-  </div> 
-  <div class="paragraph"> 
-   <p>以上三个实体可以认为是最基础的实体，权限管理过程中其他实体都是他们各自或者相互结合之后演化出来的。</p> 
-  </div> 
-  <div class="dlist"> 
-   <dl> 
-    <dt class="hdlist1">
-     组(Group)
-    </dt> 
-    <dd> 
-     <p>相同的实体合在一起形成组，多用户可以成为用户组，多资源可以成为资源组，多操作可以成为操作组。</p> 
-    </dd> 
-    <dt class="hdlist1">
-     权限(Permission)
-    </dt> 
-    <dd> 
-     <p>权限是操作和资源的组合。</p> 
-    </dd> 
-    <dt class="hdlist1">
-     角色(Role)
-    </dt> 
-    <dd> 
-     <p>角色是通过该角色所具备的权限来定义的，也就是多个操作和资源的组合定义为一个角色，反过来角色代表了一些操作和资源的有效组合。比如我们常说的数据库管理员，就代表了对数据库这个资源组进行所有操作的角色。通过将角色赋予某个用户从而使得某个用户具有了角色所代表的权限。用组(Group)的概念来说，角色就是多个权限形成的权限组，称他为角色。</p> 
-    </dd> 
-    <dt class="hdlist1">
-     授权(Authorization)
-    </dt> 
-    <dd> 
-     <p>授权就是将用户、操作和资源通过角色关联起来，也就是生成权限的过程，进一步可以扩展为权限管理。</p> 
-    </dd> 
-    <dt class="hdlist1">
-     鉴权(Authentication)
-    </dt> 
-    <dd> 
-     <p>鉴权是判定正在进行的行为是否被允许的过程。</p> 
-    </dd> 
-   </dl> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="实体关系">实体关系</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>有了上面的解释说明，我们现在就可以理解他们之间的关系了：</p> 
-  </div> 
-  <div class="imageblock"> 
-   <div class="content"> 
-    <img src="https://www.reploop.org/blog/2021/06/images/auth.svg" alt="实体关系图"> 
-   </div> 
-   <div class="title">
-    Figure 1. 实体关系图
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>有了角色和组的概念之后，就可以实现分阶段的批量授权了：</p> 
-  </div> 
-  <div class="olist arabic"> 
-   <ol class="arabic"> 
-    <li> <p>角色定义：前面我们说角色就是一个权限组，代表了多个权限的组合。这样我们就可以提前先把角色定义出来，通过这种一对多的关系来减少权限的数量，进而减少授权工作量。</p> </li> 
-    <li> <p>用户授权：将用户关联到特定的角色上，赋予用户该角色所具有的权限。</p> </li> 
-   </ol> 
-  </div> 
-  <div class="paragraph"> 
-   <p>除了角色，也可以利用 <strong>组</strong> 把授权工作量进一步的降低，行为就会变为：用户组-操作组-资源组了，其他实体也可以做一样的考量。</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>有些时候我们只是对操作授权，也就是是不能能访问某个API这种力度的ACL，一旦授权哪怕这个API需要依赖多个资源也是可以的。 比如一个网页上不同的模块需要操作不同的数据，这时候该怎么管理权限呢？</p> 
-  </div> 
-  <div class="ulist"> 
-   <ul> 
-    <li> <p>一种做法就是识别出模块中的所有资源，分别细粒度的管理，</p> </li> 
-    <li> <p>一种就是针对URL进行粗粒度的授权,</p> </li> 
-    <li> <p>还有一种中间状态，就是考虑把模块抽象为资源进行授权。</p> </li> 
-   </ul> 
-  </div> 
-  <div class="paragraph"> 
-   <p>权限管理实现的层次不同可以让这种授权也变为可能。假设一个应用的拓扑层次是：</p> 
-  </div> 
-  <div class="imageblock"> 
-   <div class="content"> 
-    <img src="https://www.reploop.org/blog/2021/06/images/top.svg" alt="应用拓扑图"> 
-   </div> 
-   <div class="title">
-    Figure 2. 应用拓扑图
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>鉴权的过程我们可以选择在任意一层或者多层来实现，这样就可以通过定义丰富的资源(比如API，URL作为资源)来实现权限管理了。</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>在这里的关系都是多对多的，从任意一个实体看过去，都是一个一对多的关系。 也就是一个用户可以属于多个用户组，一个用户组可以包含多个用户；同样的一个权限可以属于多个角色；一个角色也可以包含多个权限。</p> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="冲突解决">冲突解决</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>这样就带来一个问题，比如一个用户有多个角色，角色中相同资源的操作是不一样的，也就是权限有重复定义了。 面对这种情况常见的是使用 <strong>最小权限原则</strong> 来决定具有哪个权限。这里需要应用策略来解决问题。</p> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="权限继承">权限继承</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>人的组织，尤其是公司内人的组织一般是一个树形的组织结构，需要针对树形中不同层次的范围进行权限管理。 一个方案是让角色具有这种层级关系，并且有继承关系的；另一个是让用户就是这种层次关系，同时也继承权限。基于角色的权限管理一般是角色具有这种层次关系。</p> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="结论">结论</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>从用户-操作-资源这个行为出发逐步理解基于角色的权限系统设计过程中面临的挑战以及相应的解决方案，有助于理解外面各种开源权限系统，也能帮助设计内部系统的权限认证系统。</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>这里面的资源是作为一个整体来进行管理的，其实资源可以进一步细分为不同的属性，然后对属性进行访问控制。使用过OAuth的大概是都知道一个scope的概念，比如可以针对用户的name和email进行鉴权。这种可以归为Attribute based Access Control aka ABAC，以后在分析一下。</p> 
   </div> 
  </div> 
 </div></p>

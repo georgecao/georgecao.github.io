@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+  <head>
+    <meta charset="utf-8"/>
+    <title>复式记账</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="乔治">
+    <meta name="keywords" content="会计,记账,复式记账,beancount">
+    <meta name="generator" content="JBake v2.7.0.4">
+    <meta property=og:locale content=zh_CN>
+    <!-- Le styles -->
+    <link href="../../../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../../../css/asciidoctor.css" rel="stylesheet">
+    <link href="../../../css/base.css" rel="stylesheet">
+    <link href="../../../css/prettify.css" rel="stylesheet">
+
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+
+    <!-- Fav and touch icons -->
+    <!--<link rel="apple-touch-icon-precomposed" sizes="144x144" href="../assets/ico/apple-touch-icon-144-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="../assets/ico/apple-touch-icon-114-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="../assets/ico/apple-touch-icon-72-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" href="../assets/ico/apple-touch-icon-57-precomposed.png">-->
+    <link rel="shortcut icon" href="../../../img/favicon.svg">
+      <link rel="canonical" href="https://www.reploop.org/blog/2022/03/the-double-entry-counting-method.html" />
+    <script data-ad-client="ca-pub-2350040335860411" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  </head>
+  <body onload="prettyPrint()">
+    <div id="wrap">	<!-- Fixed navbar -->
+    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../../../">REPLoop</a>
+        </div>
+        <div class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li><a href="../../../index.html">博客</a></li>
+            <li><a href="../../../archive.html">归档</a></li>
+            <li><a href="../../../tags/index.html">标签</a></li>
+            <li><a href="../../../about.html">关于</a></li>
+            <li><a href="../../../feed.xml">订阅</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </div>
+    <div class="container">
+    <div class="page-header">
+        <h1>复式记账</h1>
+    </div>
+
+<p>
+    <a href="/about.html"><strong>乔治</strong></a>于2022年03月03日
+            <span class="badge badge-dark">会计</span>
+            <span class="badge badge-dark">记账</span>
+            <span class="badge badge-dark">复式记账</span>
+            <span class="badge badge-dark">beancount</span>
+</p>
+<p><div id="preamble"> 
+ <div class="sectionbody"> 
+  <div class="listingblock"> 
+   <div class="content"> 
+    <pre class="highlight"><code class="language-bash" data-lang="bash">bean-extract config.py 微信支付账单_xxx.csv/alipay_record_xxx.csv &gt; xxxxxxx.bean</code></pre> 
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p><strong>Notice:The raw data filename can only start with "微信支付账单" or "alipay_record."</strong></p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>可以阅读[用于支付宝和微信账单的Beancount Importer](<a href="https://blog.sy-zhou.com/%E7%94%A8%E4%BA%8E%E6%94%AF%E4%BB%98%E5%AE%9D%E5%92%8C%E5%BE%AE%E4%BF%A1%E8%B4%A6%E5%8D%95%E7%9A%84beancount-import/)，了解更多细节。" class="bare">https://blog.sy-zhou.com/%E7%94%A8%E4%BA%8E%E6%94%AF%E4%BB%98%E5%AE%9D%E5%92%8C%E5%BE%AE%E4%BF%A1%E8%B4%A6%E5%8D%95%E7%9A%84beancount-import/)，了解更多细节。</a></p> 
+  </div> 
+  <div class="ulist"> 
+   <ul> 
+    <li> <p>账单： 记录资金从一个账户转移到另一个账户。每一个<strong>交易</strong>记录中，必然有一个账户是属于你的。</p> </li> 
+    <li> <p>退款：支出流程的逆向流程。一般是原路返回，微信支持退回零钱。</p> </li> 
+    <li> <p>部分退款如何记账？</p> </li> 
+    <li> <p>收入：资金从别人的账户转入到你自己的账户。只关乎资金的流行</p> </li> 
+    <li> <p>支出：资金从你自己的账户转出到别人的账户。只关乎资金的流行</p> </li> 
+   </ul> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="特殊场景">特殊场景</h2> 
+ <div class="sectionbody"> 
+  <div class="ulist"> 
+   <ul> 
+    <li> <p>借钱</p> </li> 
+    <li> <p>垫付</p> </li> 
+    <li> <p>报销</p> </li> 
+    <li> <p>折旧</p> </li> 
+    <li> <p>红包</p> </li> 
+   </ul> 
+  </div> 
+  <div class="paragraph"> 
+   <p>复试记账每一笔都和自己有关。所以能区分出具体的用途。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>收入在复试记账里面怎么理解？</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="复式记账">复式记账</h2> 
+ <div class="sectionbody"> 
+  <div class="ulist"> 
+   <ul> 
+    <li> <p>单式记账</p> </li> 
+    <li> <p>复式记账</p> </li> 
+   </ul> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="会计恒等式">会计恒等式</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>资产(Assets) - 负债(Liabilities) = 权益(Equity)</p> 
+  </div> 
+  <div class="stemblock"> 
+   <div class="content">
+     \$Assets - Liabilities = Equity\$ 
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>权益可以经一步细分为：初始资本(Capital)、收入(Income)和支出(Expenses)三部分。关系如下：</p> 
+  </div> 
+  <div class="stemblock"> 
+   <div class="content">
+     \$Equity = Capital + Income − Expenses\$ 
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>整合一下上面两个公式，我们得到了：</p> 
+  </div> 
+  <div class="stemblock"> 
+   <div class="content">
+     \$Assets - Liabilities = Capital + Income - Expenses\$ 
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>在这个公式里面，我们还是用Equity来表示初始资本(Capital)，则公式最终为：</p> 
+  </div> 
+  <div class="stemblock"> 
+   <div class="content">
+     \$Assets - Liabilities = Equity + Income - Expenses\$ 
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>到这一步的时候，上面3个公式都很直观，符合会计知识的，也比较符合现实情况。值得注意的是上面公式中的数值都是<strong>正数</strong>。后面在使用Beancount的时候会出现把人绕晕菜了的<strong>负数</strong>。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>既然都是正数，那么资产、负债、收入、支出或者权益的增减怎么表达呢？会计上使用<strong>借记</strong>和<strong>贷记</strong>。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="借记和贷记">借记和贷记</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>借和贷是站在银行角度来讲的，你的钱存入银行，相当于银行借了你的钱，对应银行的应付账款，银行记入借方科目。 如果你用的是信用卡，则是你借银行的钱，也就是银行贷款给你，对应银行的应收账款，银行记入贷方科目。 这样就形成了借记卡和贷记卡的叫法。 而<strong>借</strong>和<strong>贷</strong>在会计中逐渐的分别引申为账户余额的<strong>增加</strong>和<strong>减少</strong>。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>稍微做一下数学中等价变换，得到了下面这个公式：</p> 
+  </div> 
+  <div class="stemblock"> 
+   <div class="content">
+     \$Assets + (-Liabilities) + (-Equity) + (-Income) + Expenses = 0\$ 
+   </div> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="复式记账_2">复式记账</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>记账之前先了解一下交易。 经济里面说的一个人的支出是另一个人的收入，反之亦然。这是通过两两之间"等价交换"的方式来实现的，这就是交易。一笔交易会涉及2个主体，多方交易最终也是由两两之间交易构成的。记账就是记录交易。</p> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="单式记账">单式记账</h3> 
+   <div class="paragraph"> 
+    <p>单式记账是以账户拥有着的<strong>账户</strong>视角，记录账户余额随着交易的发生而产生的变化。 这里面只涉及一个账户，比如说你行用卡账单，就是信用卡这一个账户的<strong>流水账</strong>。如果你有多个银行卡，每个银行卡的账单之间是没有关系的。如果说有关系，那也是通过备注等描述信息标注出来的。</p> 
+   </div> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="复式记账_3">复式记账</h3> 
+   <div class="paragraph"> 
+    <p>复式记账则是交易的双方都需要记录本次交易。 一笔交易在交易两方分别记了一次，以交易额的转移方向为箭头，流出就从出账户余额减去交易额，流入就从入账户余额增加交易额。</p> 
+   </div> 
+   <div class="paragraph"> 
+    <p>在Beancount中</p> 
+   </div> 
+   <div id="eq1" class="stemblock"> 
+    <div class="content">
+      \$(Income + Liabilities) + (Assets + Expenses) + Equity = 0。\$ 
+    </div> 
+   </div> 
+   <div class="paragraph"> 
+    <p>为什么全是加法，因为数值本身是有符号的。对于一个交易，其实负数的账目就相当于 “贷”，正数的账目就相当于 “借”。</p> 
+   </div> 
+   <div class="paragraph"> 
+    <p>如果把交易中的负数账目归为一类，正数账目归为一类，不难看出：负数账目意味着这笔交易的金额 “从哪儿来”，而正数账目意味着金额要 “到哪儿去”。</p> 
+   </div> 
+   <div class="ulist"> 
+    <ul> 
+     <li> <p>资产(Assets): 记录你当前所持有的钱，或者通过交易可以变为钱东西。常见的比如各种银行的存款账户、兜里的现金、车子、房产等等。别人欠你的钱（应收账款）和你欠别人的钱（负债）都是你的资产。</p> </li> 
+     <li> <p>负债(Liabilities): 你欠别人的钱。别人的钱现在是在你的兜里，在没有还回去之前，你可以自己决定怎么花，所以也是你的资产。</p> </li> 
+     <li> <p>支出(Expenses): 你花出去的钱，而且是花出去之后不会在回来了。常见的如花钱买商品，买服务等。不退款或者退款的前提下，这部分钱就是别人的了。</p> </li> 
+     <li> <p>收入(Income): 你得到的钱，得到之后还不用还回去的。比如常见的你劳动所得的工资，你投资的收益，股票的分红等。</p> </li> 
+     <li> <p>权益(Equity): 根据会计恒等式，权益本来是资产净值，细分之后理解为资产净值的初始值，也就是记账周期开始时的资产净值。</p> </li> 
+    </ul> 
+   </div> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="账户主体">账户主体</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>每个账户的所有者是谁？重要不，不重要，因为最终看的是</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="账户分类">账户分类</h2> 
+ <div class="sectionbody"> 
+  <div class="sect2"> 
+   <h3 id="余额与差额">余额与差额</h3> 
+   <div class="paragraph"> 
+    <p>账户之间最明显的一个区别是：我们到底想知道一个账户的余额，还是它的差额。比方说对于支付宝余额、信用卡欠款，我们更在意现在钱包还有多少钱，因此余额比起差额来说应该更加重要。而对于餐厅账户来说，比起了解这辈子到底花了多少钱吃饭，这个月到底花了多少才更具指导意义，因此对它来说差额又更加重要。</p> 
+   </div> 
+   <table class="tableblock frame-all grid-all stretch"> 
+    <colgroup> 
+     <col style="width: 33.3333%;"> 
+     <col style="width: 33.3333%;"> 
+     <col style="width: 33.3334%;"> 
+    </colgroup> 
+    <tbody> 
+     <tr> 
+      <td class="tableblock halign-left valign-top"></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock">正数</p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock">负数</p></td> 
+     </tr> 
+     <tr> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock">更关注 <strong>余额</strong>（资产表）</p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock">资产(Assets)</p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock">负债(Liabilities)</p></td> 
+     </tr> 
+     <tr> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock">更关注 <strong>差额</strong>（损益表）</p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock">支出(Expenses)</p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock">收入(Income)</p></td> 
+     </tr> 
+    </tbody> 
+   </table> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="位置与目的">位置与目的</h3> 
+   <div class="paragraph"> 
+    <p>账户还可以区分钱在哪(Location)和钱用来干什么了(Purpose)。</p> 
+   </div> 
+   <table class="tableblock frame-all grid-all stretch"> 
+    <colgroup> 
+     <col style="width: 25%;"> 
+     <col style="width: 25%;"> 
+     <col style="width: 25%;"> 
+     <col style="width: 25%;"> 
+    </colgroup> 
+    <tbody> 
+     <tr> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock">L/P</p></td> 
+      <td class="tableblock halign-center valign-top" colspan="2"><p class="tableblock">账号类型</p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock">报表</p></td> 
+     </tr> 
+     <tr> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock">位置(Location)</p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock">资产</p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock">负债</p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock">资产负债表</p></td> 
+     </tr> 
+     <tr> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock">目的(Purpose)</p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock">收入</p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock">支出</p></td> 
+      <td class="tableblock halign-left valign-top"><p class="tableblock">损益表</p></td> 
+     </tr> 
+    </tbody> 
+   </table> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="参考">参考</h2> 
+ <div class="sectionbody"> 
+  <div class="ulist"> 
+   <ul> 
+    <li> <p>Peter Selinger, Tutorial on multiple currency accounting, <a href="https://www.mathstat.dal.ca/~selinger/accounting/tutorial.html" class="bare">https://www.mathstat.dal.ca/~selinger/accounting/tutorial.html</a></p> </li> 
+    <li> <p>Martin Blais, The Double-Entry Counting Method, <a href="https://beancount.github.io/docs/the_double_entry_counting_method.html" class="bare">https://beancount.github.io/docs/the_double_entry_counting_method.html</a></p> </li> 
+    <li> <p>复式记账指北（一）：What and Why？ , <a href="https://blog.kaaass.net/archives/1659" class="bare">https://blog.kaaass.net/archives/1659</a></p> </li> 
+    <li> <p>Martin Kleppmann, Accounting for Computer Scientists, <a href="https://martin.kleppmann.com/2011/03/07/accounting-for-computer-scientists.html" class="bare">https://martin.kleppmann.com/2011/03/07/accounting-for-computer-scientists.html</a></p> </li> 
+   </ul> 
+  </div> 
+ </div> 
+</div></p>
+
+<hr/>
+<div id="disqus_thread"></div>
+<script>
+
+    /**
+     *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+     *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
+    var disqus_config = function () {
+        this.page.url = "https://www.reploop.org/blog/2022/03/the-double-entry-counting-method.html";  // Replace PAGE_URL with your page's canonical URL variable
+        this.page.identifier = "https://www.reploop.org/blog/2022/03/the-double-entry-counting-method.html"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+    };
+    (function () { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://reploop.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by
+        Disqus.</a></noscript>
+		</div>
+		<div id="push"></div>
+    </div>
+    
+    <div id="footer">
+      <div class="container">
+        <p class="muted credit">&copy; 2020 | Mixed with <a href="http://getbootstrap.com/">Bootstrap v3.1.1</a> | Baked with <a href="http://jbake.org">JBake v2.7.0.4</a></p>
+      </div>
+    </div>
+    
+    <!-- Le javascript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="../../../js/jquery-1.11.1.min.js"></script>
+    <script src="../../../js/bootstrap.min.js"></script>
+    <script src="../../../js/prettify.js"></script>
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  messageStyle: "none",
+  tex2jax: {
+    inlineMath: [["\\(", "\\)"]],
+    displayMath: [["\\[", "\\]"]],
+    ignoreClass: "nostem|nolatexmath"
+  },
+  asciimath2jax: {
+    delimiters: [["\\$", "\\$"]],
+    ignoreClass: "nostem|noasciimath"
+  },
+  TeX: { equationNumbers: { autoNumber: "none" } }
+})
+MathJax.Hub.Register.StartupHook("AsciiMath Jax Ready", function () {
+  MathJax.InputJax.AsciiMath.postfilterHooks.Add(function (data, node) {
+    if ((node = data.script.parentNode) && (node = node.parentNode) && node.classList.contains('stemblock')) {
+      data.math.root.display = "block"
+    }
+    return data
+  })
+})
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_HTMLorMML"></script>
+  </body>
+</html>
