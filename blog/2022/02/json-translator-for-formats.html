@@ -5,7 +5,7 @@
     <title>JSON解析与对象生成</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="author" content="乔治">
-    <meta name="keywords" content="JSON,antlr,ast,抽象语法树,代码生成,Thrift,Protobuf,编程语言">
+    <meta name="keywords" content="JSON,antlr,AST,抽象语法树,代码生成,Thrift,Protobuf,编程语言">
     <meta name="generator" content="JBake v2.7.0.4">
     <meta property=og:locale content=zh_CN>
     <!-- Le styles -->
@@ -60,7 +60,7 @@
     <a href="/about.html"><strong>乔治</strong></a>于2022年02月10日
             <span class="badge badge-dark">JSON</span>
             <span class="badge badge-dark">antlr</span>
-            <span class="badge badge-dark">ast</span>
+            <span class="badge badge-dark">AST</span>
             <span class="badge badge-dark">抽象语法树</span>
             <span class="badge badge-dark">代码生成</span>
             <span class="badge badge-dark">Thrift</span>
@@ -119,7 +119,7 @@
     <li> <p>JSON是一个树形层次结构</p> 
      <div class="ulist"> 
       <ul> 
-       <li> <p>根结点名字定义为$。树中的每个节点都是一个属性及其类型，也就是的（name，type）。对于数组，可以用元素的下标作为属性名称，参见图1<a href="https://www.reploop.org/blog/2022/02/#attributes-tree">[attributes-tree]</a>。其实这样就把整个JSON统一为对象(key-value)结构的树了。</p> </li> 
+       <li> <p>根结点名字定义为$。树中的每个节点都是一个属性及其类型，也就是的（name，type）。对于数组，可以用元素的下标作为属性名称，参见图1<a href="https://www.reploop.org/blog/2022/02/#attributes-tree">属性树</a>。其实这样就把整个JSON统一为对象(key-value)结构的树了。</p> </li> 
        <li> <p>叶子节点是最基本的数据，也就是简单基本类型数据：数字，字符串和常量</p> </li> 
        <li> <p>除叶子节点之外，树的中间某个节点的所有子节点都是相同的类型</p> </li> 
       </ul> 
@@ -188,7 +188,7 @@
   <div class="paragraph"> 
    <p>对应的树是这样的：</p> 
   </div> 
-  <div class="imageblock"> 
+  <div id="attributes-tree" class="imageblock"> 
    <div class="content"> 
     <img src="https://www.reploop.org/blog/2022/02/images/attributes-tree.svg" alt="属性树"> 
    </div> 
