@@ -6,8 +6,8 @@
         <atom:link href="https://www.reploop.org/feed.xml" rel="self" type="application/rss+xml"/>
         <description>REPLoop，在脚本编程语言中经常能看到REPL，也就是Read-Evaluate-Print-Loop，意思是读取源代码，评估执行，打印结果的循环。这个过程能够快速的学习实践然后得到结果。非常像一个学习成长的过程：输入信息，消化吸收，输出知识并用于实践，然后持之以恒的坚持。4个环节缺一不可，而且最难做到的大概是持之以恒了。</description>
         <language>en-gb</language>
-        <pubDate>Fri, 18 Mar 2022 13:47:58 +0800</pubDate>
-        <lastBuildDate>Fri, 18 Mar 2022 13:47:58 +0800</lastBuildDate>
+        <pubDate>Fri, 18 Mar 2022 19:09:35 +0800</pubDate>
+        <lastBuildDate>Fri, 18 Mar 2022 19:09:35 +0800</lastBuildDate>
 
             <item>
                 <title>基本会计概念2-借记与贷记</title>
@@ -676,7 +676,7 @@
     &lt;li&gt; &lt;p&gt;JSON是一个树形层次结构&lt;/p&gt; 
      &lt;div class=&quot;ulist&quot;&gt; 
       &lt;ul&gt; 
-       &lt;li&gt; &lt;p&gt;根结点名字定义为$。树中的每个节点都是一个属性及其类型，也就是的（name，type）。对于数组，可以用元素的下标作为属性名称，参见图1&lt;a href=&quot;https://www.reploop.org/blog/2022/02/#attributes-tree&quot;&gt;属性树&lt;/a&gt;。其实这样就把整个JSON统一为对象(key-value)结构的树了。&lt;/p&gt; &lt;/li&gt; 
+       &lt;li&gt; &lt;p&gt;根结点名字定义为$。树中的每个节点都是一个属性及其类型，也就是的（name，type）。对于数组，可以用元素的下标作为属性名称，参见图1&lt;a href=&quot;#attributes-tree&quot;&gt;属性树&lt;/a&gt;。其实这样就把整个JSON统一为对象(key-value)结构的树了。&lt;/p&gt; &lt;/li&gt; 
        &lt;li&gt; &lt;p&gt;叶子节点是最基本的数据，也就是简单基本类型数据：数字，字符串和常量&lt;/p&gt; &lt;/li&gt; 
        &lt;li&gt; &lt;p&gt;除叶子节点之外，树的中间某个节点的所有子节点都是相同的类型&lt;/p&gt; &lt;/li&gt; 
       &lt;/ul&gt; 
