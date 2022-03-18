@@ -6,8 +6,8 @@
         <atom:link href="https://www.reploop.org/feed.xml" rel="self" type="application/rss+xml"/>
         <description>REPLoop，在脚本编程语言中经常能看到REPL，也就是Read-Evaluate-Print-Loop，意思是读取源代码，评估执行，打印结果的循环。这个过程能够快速的学习实践然后得到结果。非常像一个学习成长的过程：输入信息，消化吸收，输出知识并用于实践，然后持之以恒的坚持。4个环节缺一不可，而且最难做到的大概是持之以恒了。</description>
         <language>en-gb</language>
-        <pubDate>Mon, 14 Mar 2022 17:02:46 +0800</pubDate>
-        <lastBuildDate>Mon, 14 Mar 2022 17:02:46 +0800</lastBuildDate>
+        <pubDate>Fri, 18 Mar 2022 13:39:40 +0800</pubDate>
+        <lastBuildDate>Fri, 18 Mar 2022 13:39:40 +0800</lastBuildDate>
 
             <item>
                 <title>基本会计概念2-借记与贷记</title>
@@ -613,6 +613,323 @@
   &lt;/div&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
    &lt;p&gt;本文译自https://www.basicaccountingconcepts.education/basic-accounting-concepts-2-debits-and-credits, 拷贝地址到浏览器或者&lt;strong&gt;&lt;a href=&quot;https://www.basicaccountingconcepts.education/basic-accounting-concepts-2-debits-and-credits/&quot;&gt;点此&lt;/a&gt;&lt;/strong&gt;阅读原文。&lt;/p&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt;
+                </description>
+            </item>
+            <item>
+                <title>JSON解析与对象生成</title>
+                <link>https://www.reploop.org/blog/2022/02/json-translator-for-formats.html</link>
+                <pubDate>Thu, 10 Feb 2022 00:00:00 +0800</pubDate>
+                <guid isPermaLink="false">blog/2022/02/json-translator-for-formats.html</guid>
+                <description>
+                        &lt;div id=&quot;preamble&quot;&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;现如今，基于HTTP/HTTPS的RESTful API的广泛应用，而JSON则是其传输数据的默认格式。 一些公司针对内部团队的API也都用HTTP/HTTPS协议，作为API的调用方，就需要大量的处理JSON解析的工作。除了Javascript之外的语言，都或多或少的要做这个工作。&lt;span class=&quot;underline&quot;&gt;&lt;a href=&quot;https://github.com/reploop/reploop-parser&quot;&gt;reploop-parser&lt;/a&gt;&lt;/span&gt;项目一来想实践一下编译原理中从词法，语法，解析器到中间代码生成等等的东西，另外也能自动化处理JSON到对象的映射，减少手动敲机械键盘写代码带来的噪音。&lt;/p&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;sect1&quot;&gt; 
+ &lt;h2 id=&quot;json解析&quot;&gt;JSON解析&lt;/h2&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;JSON解析是基于antlr 4.8做的。关于词法，语法，解析器等方面另外写一篇介绍吧。这篇主要介绍JSON转为Bean的部分。&lt;/p&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;sect1&quot;&gt; 
+ &lt;h2 id=&quot;json的特点&quot;&gt;JSON的特点&lt;/h2&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;JSON本身表达的就是一个树形结构，和Java的对象层次结构一样的。&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;JSON是一个数据，也就是值(Value)，弱类型的。它的基本数据类型是数据本身描述的，并不是通过语言提供的类型系统来申明的。而强类型语言如Java在声明变量的时候必须知道他的数据类型，所以从JSON数据解析为POJO的过程就涉及一个类型推导。&lt;/p&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;sect1&quot;&gt; 
+ &lt;h2 id=&quot;类型推导&quot;&gt;类型推导&lt;/h2&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;JSON是一个数据，从 &lt;a href=&quot;https://www.json.org/json-en.html&quot;&gt;JSON.org&lt;/a&gt; 能知道它只有以下数据：&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;ulist&quot;&gt; 
+   &lt;ul&gt; 
+    &lt;li&gt; &lt;p&gt;数组&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;对象(Key-Value)&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;数字&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;字符串&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;常量(&quot;true&quot;,&quot;false&quot;,&quot;null&quot;)&lt;/p&gt; &lt;/li&gt; 
+   &lt;/ul&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;用Java的术语来描述一下，其中的&lt;strong&gt;数组&lt;/strong&gt;和&lt;strong&gt;对象&lt;/strong&gt;可以称之为复杂数据类型(Wrapper Type)，是由真正的基本数据类型(Primitive Type)包括&lt;strong&gt;数字&lt;/strong&gt;、&lt;strong&gt;字符串&lt;/strong&gt;和&lt;strong&gt;常量&lt;/strong&gt;组成的。除了基本数据类型，数组和对象都可以深层次的嵌套所有的数据的，包括其自己，展开来就形成了一个树形结构。&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;基于这个数据构成，以及JSON的特点，可以按照如下规则做类型推导：&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;olist arabic&quot;&gt; 
+   &lt;ol class=&quot;arabic&quot;&gt; 
+    &lt;li&gt; &lt;p&gt;JSON是一个树形层次结构&lt;/p&gt; 
+     &lt;div class=&quot;ulist&quot;&gt; 
+      &lt;ul&gt; 
+       &lt;li&gt; &lt;p&gt;根结点名字定义为$。树中的每个节点都是一个属性及其类型，也就是的（name，type）。对于数组，可以用元素的下标作为属性名称，参见图1&lt;a href=&quot;https://www.reploop.org/blog/2022/02/#attributes-tree&quot;&gt;[attributes-tree]&lt;/a&gt;。其实这样就把整个JSON统一为对象(key-value)结构的树了。&lt;/p&gt; &lt;/li&gt; 
+       &lt;li&gt; &lt;p&gt;叶子节点是最基本的数据，也就是简单基本类型数据：数字，字符串和常量&lt;/p&gt; &lt;/li&gt; 
+       &lt;li&gt; &lt;p&gt;除叶子节点之外，树的中间某个节点的所有子节点都是相同的类型&lt;/p&gt; &lt;/li&gt; 
+      &lt;/ul&gt; 
+     &lt;/div&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;同构容器&lt;/p&gt; 
+     &lt;div class=&quot;ulist&quot;&gt; 
+      &lt;ul&gt; 
+       &lt;li&gt; &lt;p&gt;静态类型语言的特性，这点和动态类型或者弱类型语言很大不同&lt;/p&gt; &lt;/li&gt; 
+       &lt;li&gt; &lt;p&gt;数组(或者列表)的元素是相同类型的（按照规范是可以不相同的）&lt;/p&gt; &lt;/li&gt; 
+       &lt;li&gt; &lt;p&gt;对象类型的所有的key是相同类型的（规范中只允许字符串），所有的value也是相同类型的（按照规范是可以不相同的）&lt;/p&gt; &lt;/li&gt; 
+      &lt;/ul&gt; 
+     &lt;/div&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;递归深度, 依赖于antlr 4.8&lt;/p&gt; 
+     &lt;div class=&quot;ulist&quot;&gt; 
+      &lt;ul&gt; 
+       &lt;li&gt; &lt;p&gt;解析JSON树是一个递归的过程。&lt;/p&gt; &lt;/li&gt; 
+       &lt;li&gt; &lt;p&gt;受Stack空间的限制，递归不能够层次太深。&lt;/p&gt; &lt;/li&gt; 
+       &lt;li&gt; &lt;p&gt;尾递归优化可以不受这个限制。antlr 4.8没有这个优化。&lt;/p&gt; &lt;/li&gt; 
+      &lt;/ul&gt; 
+     &lt;/div&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;JSON中的对象(Key-Value)可以映射为Java中的Map或者Object，他们是等价的，从易用性角度酌情使用不同的类型&lt;/p&gt; 
+     &lt;div class=&quot;ulist&quot;&gt; 
+      &lt;ul&gt; 
+       &lt;li&gt; &lt;p&gt;key是数字或者以数字打头的都对应到Map类型&lt;/p&gt; &lt;/li&gt; 
+       &lt;li&gt; &lt;p&gt;key符合Java语言命名规范的都对应到Object类型&lt;/p&gt; &lt;/li&gt; 
+      &lt;/ul&gt; 
+     &lt;/div&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;空值&lt;/p&gt; 
+     &lt;div class=&quot;ulist&quot;&gt; 
+      &lt;ul&gt; 
+       &lt;li&gt; &lt;p&gt;一些不规范的JSON有些时候&lt;strong&gt;空字符串&lt;/strong&gt;其实意味着空值&lt;code&gt;null&lt;/code&gt;&lt;/p&gt; &lt;/li&gt; 
+       &lt;li&gt; &lt;p&gt;对象为空&lt;code&gt;{}&lt;/code&gt;，元素类型不确定，都推断为Object&lt;/p&gt; &lt;/li&gt; 
+       &lt;li&gt; &lt;p&gt;数组为空&lt;code&gt;[]&lt;/code&gt;，元素类型不确定，推断为Object&lt;/p&gt; &lt;/li&gt; 
+      &lt;/ul&gt; 
+     &lt;/div&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;常量&lt;code&gt;null&lt;/code&gt;值，&lt;/p&gt; 
+     &lt;div class=&quot;ulist&quot;&gt; 
+      &lt;ul&gt; 
+       &lt;li&gt; &lt;p&gt;单独看常量&lt;code&gt;null&lt;/code&gt;没有任何类型线索&lt;/p&gt; &lt;/li&gt; 
+       &lt;li&gt; &lt;p&gt;如果以上步骤不能确定类型，则对应到Object类型&lt;/p&gt; &lt;/li&gt; 
+      &lt;/ul&gt; 
+     &lt;/div&gt; &lt;/li&gt; 
+   &lt;/ol&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;下面这段JSON：&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;listingblock&quot;&gt; 
+   &lt;div class=&quot;content&quot;&gt; 
+    &lt;pre class=&quot;highlight&quot;&gt;&lt;code class=&quot;language-json&quot; data-lang=&quot;json&quot;&gt;{
+  &quot;name&quot;: &quot;reploop.org&quot;,
+  &quot;views&quot;: 1000,
+  &quot;friends&quot;: [
+    {&quot;id&quot;:23,&quot;gender&quot;:&quot;male&quot;},
+    {&quot;id&quot;:24,&quot;gender&quot;:&quot;unknown&quot;}
+  ],
+  &quot;links&quot;: {
+    &quot;name&quot;: &quot;reploop.net&quot;,
+    &quot;views&quot;: 2000,
+    &quot;friends&quot;: [],
+    &quot;links&quot;: {}
+  }
+}&lt;/code&gt;&lt;/pre&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;对应的树是这样的：&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;imageblock&quot;&gt; 
+   &lt;div class=&quot;content&quot;&gt; 
+    &lt;img src=&quot;https://www.reploop.org/blog/2022/02/images/attributes-tree.svg&quot; alt=&quot;属性树&quot;&gt; 
+   &lt;/div&gt; 
+   &lt;div class=&quot;title&quot;&gt;
+    Figure 1. 属性树
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;sect2&quot;&gt; 
+   &lt;h3 id=&quot;继承结构&quot;&gt;继承结构&lt;/h3&gt; 
+   &lt;div class=&quot;paragraph&quot;&gt; 
+    &lt;p&gt;由于&lt;/p&gt; 
+   &lt;/div&gt; 
+   &lt;div class=&quot;olist arabic&quot;&gt; 
+    &lt;ol class=&quot;arabic&quot;&gt; 
+     &lt;li&gt; &lt;p&gt;相同的Object可以在不同的子树中使用（相同的深度）&lt;/p&gt; &lt;/li&gt; 
+     &lt;li&gt; &lt;p&gt;相同的Object可以在不同的层次中使用（不同的深度）&lt;/p&gt; &lt;/li&gt; 
+    &lt;/ol&gt; 
+   &lt;/div&gt; 
+   &lt;div class=&quot;paragraph&quot;&gt; 
+    &lt;p&gt;我们应该尽量避免重复定义对象，尽可能的少定义对象。这就涉及2方面的事情：&lt;/p&gt; 
+   &lt;/div&gt; 
+   &lt;div class=&quot;olist arabic&quot;&gt; 
+    &lt;ol class=&quot;arabic&quot;&gt; 
+     &lt;li&gt; &lt;p&gt;相同对象的识别&lt;/p&gt; 
+      &lt;div class=&quot;ulist&quot;&gt; 
+       &lt;ul&gt; 
+        &lt;li&gt; &lt;p&gt;2个对象的属性(对应JSON中的key)的名称，数目以及每个属性的类型都相同的话，我们认为这两个对象相同。&lt;/p&gt; &lt;/li&gt; 
+       &lt;/ul&gt; 
+      &lt;/div&gt; &lt;/li&gt; 
+     &lt;li&gt; &lt;p&gt;继承关系的识别&lt;/p&gt; 
+      &lt;div class=&quot;ulist&quot;&gt; 
+       &lt;ul&gt; 
+        &lt;li&gt; &lt;p&gt;继承关系，可以理解为包含关系，也就是子类包含了父类的属性。这个过程可以看作是寻找公共属性的过程，用树的语言来讲，自顶向下的看就是寻找&lt;strong&gt;最大公共子树&lt;/strong&gt;。&lt;/p&gt; &lt;/li&gt; 
+       &lt;/ul&gt; 
+      &lt;/div&gt; &lt;/li&gt; 
+    &lt;/ol&gt; 
+   &lt;/div&gt; 
+   &lt;div class=&quot;paragraph&quot;&gt; 
+    &lt;p&gt;寻找&lt;strong&gt;最大公共子树&lt;/strong&gt;看着非常匹配，也有高效的算法实现，但是他处理不了&lt;strong&gt;对象属性缺失&lt;/strong&gt;，&lt;strong&gt;数组元素数不等&lt;/strong&gt;以及&lt;strong&gt;空值&lt;/strong&gt;等不规范的情况。最后还是用&lt;strong&gt;包含关系&lt;/strong&gt;的理解，把属性和属性所属的对象组织为&lt;strong&gt;属性x对象&lt;/strong&gt;的二维表，属性包含在对象里面记为1，否则记为0。最后问题转化为求二维表中连续为1的元素组成的面积。&lt;/p&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;sect2&quot;&gt; 
+   &lt;h3 id=&quot;自包含&quot;&gt;自包含&lt;/h3&gt; 
+   &lt;div class=&quot;paragraph&quot;&gt; 
+    &lt;p&gt;一个类的属性的类型是类本身，体现在JSON数据就是数据可以递归嵌套。&lt;/p&gt; 
+   &lt;/div&gt; 
+   &lt;div class=&quot;listingblock&quot;&gt; 
+    &lt;div class=&quot;content&quot;&gt; 
+     &lt;pre&gt;class Code {
+    private Code child;
+    private Integer id;
+}&lt;/pre&gt; 
+    &lt;/div&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;sect2&quot;&gt; 
+   &lt;h3 id=&quot;命名规范&quot;&gt;命名规范&lt;/h3&gt; 
+   &lt;div class=&quot;paragraph&quot;&gt; 
+    &lt;p&gt;API返回的JSON基本上都是API开发者定义好的，给啥就是啥。 所以如果用JSON里面的key的名字原封不动的生成对象的属性，即使能编译通过，IDE也会报各种警告，这可能会让代码强迫症患者抓狂。&lt;/p&gt; 
+   &lt;/div&gt; 
+   &lt;div class=&quot;paragraph&quot;&gt; 
+    &lt;p&gt;常见的命名规范有驼峰，下划线或者中划线分割名字，除此之外还涉及大小写不规范，不分大小写和单词连接在一起（如&lt;em&gt;helloworld&lt;/em&gt;）等问题。这些都可能在一个JSON文档里面混合着出现。。。&lt;/p&gt; 
+   &lt;/div&gt; 
+   &lt;div class=&quot;paragraph&quot;&gt; 
+    &lt;p&gt;所以我们也针对key的名称做了一些统一处理。 方法就是先按照分隔符或者驼峰的大小写变化分词，然后把分词之后的每个词对照着字典在分为有意义的多个英文单词，这时就会有多种分法，比如&lt;em&gt;another&lt;/em&gt;可以是1个单词，也可以拆分成两个单词&lt;em&gt;an&lt;/em&gt;和&lt;em&gt;other&lt;/em&gt;。把所有的得到的单词都组成一个状态机，问题转化为寻找给定字符串的最长前缀同时也是最多单词匹配的。&lt;/p&gt; 
+   &lt;/div&gt; 
+   &lt;div class=&quot;paragraph&quot;&gt; 
+    &lt;p&gt;之后按照想要的命名规范比如驼峰的形式生成属性名，然后用&lt;code&gt;annotation&lt;/code&gt;的方式记录原始名字，保证对象的序列化和反序列化能正常工作。&lt;/p&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;sect1&quot;&gt; 
+ &lt;h2 id=&quot;jsonpath的支持&quot;&gt;JsonPath的支持&lt;/h2&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;使用JsonPath是想用JsonPath的方式指定一些属性，然后针对这些属性做特殊的配置，来影响生成的对象。目前的实现里面还不是很规范。完善后补充。&lt;/p&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;sect1&quot;&gt; 
+ &lt;h2 id=&quot;可配置点&quot;&gt;可配置点&lt;/h2&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;ulist checklist&quot;&gt; 
+   &lt;ul class=&quot;checklist&quot;&gt; 
+    &lt;li&gt; &lt;p&gt;&lt;i class=&quot;fa fa-square-o&quot;&gt;&lt;/i&gt; 数值类型是否使用 &lt;code&gt;byte&lt;/code&gt; 或者 &lt;code&gt;short&lt;/code&gt;， 可以仅仅使用 &lt;code&gt;Integer&lt;/code&gt;，&lt;code&gt;Long&lt;/code&gt; 或者 &lt;code&gt;Float&lt;/code&gt;，&lt;code&gt;Double&lt;/code&gt;。&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;&lt;i class=&quot;fa fa-check-square-o&quot;&gt;&lt;/i&gt; Raw JSON解析。也就是String的值其实是一个JSON字符串，可以进一步的解析对象&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;&lt;i class=&quot;fa fa-check-square-o&quot;&gt;&lt;/i&gt; 支持Jackson注解&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;&lt;i class=&quot;fa fa-square-o&quot;&gt;&lt;/i&gt; 生成Jackson反序列化代码&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;&lt;i class=&quot;fa fa-square-o&quot;&gt;&lt;/i&gt; Lombok支持，builder模式&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;&lt;i class=&quot;fa fa-check-square-o&quot;&gt;&lt;/i&gt; 驼峰变量名重写&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;&lt;i class=&quot;fa fa-square-o&quot;&gt;&lt;/i&gt; 代码路径版本化，不会覆盖上次生成的代码&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;&lt;i class=&quot;fa fa-square-o&quot;&gt;&lt;/i&gt; 字符串与boolean值的转换，比如&lt;code&gt;&quot;true|yes|1&quot;⇒true&lt;/code&gt;或者&lt;code&gt;&quot;false|no|0&quot; ⇒ false&lt;/code&gt;&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;&lt;i class=&quot;fa fa-square-o&quot;&gt;&lt;/i&gt; 整数与boolean值的转换，比如&lt;code&gt;1⇒true&lt;/code&gt;或者&lt;code&gt;0⇒false&lt;/code&gt;&lt;/p&gt; &lt;/li&gt; 
+   &lt;/ul&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;sect1&quot;&gt; 
+ &lt;h2 id=&quot;实现方案&quot;&gt;实现方案&lt;/h2&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;具体到实现的时候，采用先将JSON解析为Protobuf的方式，然后再将Protobuf转为Java。这样就是选择Protobuf为一种中间表达(IR)，就像Java的bytecode一样，这样方便利用Protobuf的多语言支持，将JSON转化为更多目标语言。&lt;/p&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;sect1&quot;&gt; 
+ &lt;h2 id=&quot;使用方式&quot;&gt;使用方式&lt;/h2&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;打算通过3种方式来使用，分别是：&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;sect2&quot;&gt; 
+   &lt;h3 id=&quot;命令行&quot;&gt;命令行&lt;/h3&gt; 
+   &lt;div class=&quot;paragraph&quot;&gt; 
+    &lt;p&gt;参见项目&lt;code&gt;json2bean-standalone&lt;/code&gt;，用Maven打包生成一个可执行的jar包，然后通过命令行传输参数执行。&lt;/p&gt; 
+   &lt;/div&gt; 
+   &lt;div class=&quot;paragraph&quot;&gt; 
+    &lt;p&gt;直接运行：&lt;/p&gt; 
+   &lt;/div&gt; 
+   &lt;div class=&quot;listingblock&quot;&gt; 
+    &lt;div class=&quot;content&quot;&gt; 
+     &lt;pre class=&quot;highlight&quot;&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;java -jar json2bean-standalone-0.17-SNAPSHOT.jar&lt;/code&gt;&lt;/pre&gt; 
+    &lt;/div&gt; 
+   &lt;/div&gt; 
+   &lt;div class=&quot;paragraph&quot;&gt; 
+    &lt;p&gt;输出帮助信息：&lt;/p&gt; 
+   &lt;/div&gt; 
+   &lt;div class=&quot;listingblock&quot;&gt; 
+    &lt;div class=&quot;content&quot;&gt; 
+     &lt;pre class=&quot;highlight&quot;&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;usage: json2 &amp;lt;command&amp;gt; [ &amp;lt;args&amp;gt; ]                   &lt;i class=&quot;conum&quot; data-value=&quot;1&quot;&gt;&lt;/i&gt;&lt;b&gt;(1)&lt;/b&gt;
+
+Commands are:
+    bean    Convert JSON to POJO.                   &lt;i class=&quot;conum&quot; data-value=&quot;2&quot;&gt;&lt;/i&gt;&lt;b&gt;(2)&lt;/b&gt;
+    help    Display help information                &lt;i class=&quot;conum&quot; data-value=&quot;3&quot;&gt;&lt;/i&gt;&lt;b&gt;(3)&lt;/b&gt;
+    proto   Translate JSON to Protobuf Schema. TBD. &lt;i class=&quot;conum&quot; data-value=&quot;4&quot;&gt;&lt;/i&gt;&lt;b&gt;(4)&lt;/b&gt;
+
+See &apos;json2 help &amp;lt;command&amp;gt;&apos; for more information on a specific command.&lt;/code&gt;&lt;/pre&gt; 
+    &lt;/div&gt; 
+   &lt;/div&gt; 
+   &lt;div class=&quot;colist arabic&quot;&gt; 
+    &lt;table&gt; 
+     &lt;tbody&gt;
+      &lt;tr&gt; 
+       &lt;td&gt;&lt;i class=&quot;conum&quot; data-value=&quot;1&quot;&gt;&lt;/i&gt;&lt;b&gt;1&lt;/b&gt;&lt;/td&gt; 
+       &lt;td&gt;json2 可以在命令行设置一个&lt;code&gt;alias json2=&quot;java -jar json2bean-standalone-0.17-SNAPSHOT.jar&quot;&lt;/code&gt;。 这里面的Java环境和Jar包的路径需要根据自身情况修改一下。&lt;/td&gt; 
+      &lt;/tr&gt; 
+      &lt;tr&gt; 
+       &lt;td&gt;&lt;i class=&quot;conum&quot; data-value=&quot;2&quot;&gt;&lt;/i&gt;&lt;b&gt;2&lt;/b&gt;&lt;/td&gt; 
+       &lt;td&gt;bean命令，生成POJO。&lt;/td&gt; 
+      &lt;/tr&gt; 
+      &lt;tr&gt; 
+       &lt;td&gt;&lt;i class=&quot;conum&quot; data-value=&quot;3&quot;&gt;&lt;/i&gt;&lt;b&gt;3&lt;/b&gt;&lt;/td&gt; 
+       &lt;td&gt;help命令，默认打印帮助信息。&lt;/td&gt; 
+      &lt;/tr&gt; 
+      &lt;tr&gt; 
+       &lt;td&gt;&lt;i class=&quot;conum&quot; data-value=&quot;4&quot;&gt;&lt;/i&gt;&lt;b&gt;4&lt;/b&gt;&lt;/td&gt; 
+       &lt;td&gt;proto命令，生成Protobuf Schema。筹划中。。。&lt;/td&gt; 
+      &lt;/tr&gt; 
+     &lt;/tbody&gt;
+    &lt;/table&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;sect2&quot;&gt; 
+   &lt;h3 id=&quot;maven插件&quot;&gt;Maven插件&lt;/h3&gt; 
+   &lt;div class=&quot;paragraph&quot;&gt; 
+    &lt;p&gt;筹划中。。。&lt;/p&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;sect2&quot;&gt; 
+   &lt;h3 id=&quot;intellij_idea插件&quot;&gt;Intellij IDEA插件&lt;/h3&gt; 
+   &lt;div class=&quot;paragraph&quot;&gt; 
+    &lt;p&gt;筹划中。。。&lt;/p&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;sect1&quot;&gt; 
+ &lt;h2 id=&quot;参考&quot;&gt;参考&lt;/h2&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;ulist&quot;&gt; 
+   &lt;ul&gt; 
+    &lt;li&gt; &lt;p&gt;&lt;a href=&quot;https://github.com/m-zajac/json2go.git&quot; class=&quot;bare&quot;&gt;https://github.com/m-zajac/json2go.git&lt;/a&gt;&lt;/p&gt; &lt;/li&gt; 
+   &lt;/ul&gt; 
   &lt;/div&gt; 
  &lt;/div&gt; 
 &lt;/div&gt;
