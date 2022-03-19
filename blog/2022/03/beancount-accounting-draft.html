@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+  <head>
+    <meta charset="utf-8"/>
+    <title>Beancount记账</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="乔治">
+    <meta name="keywords" content="会计,记账,复式记账,beancount,有向图">
+    <meta name="generator" content="JBake v${jbakeVersion}">
+    <meta property=og:locale content=zh_CN>
+    <!-- Le styles -->
+    <link href="../../../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../../../css/asciidoctor.css" rel="stylesheet">
+    <link href="../../../css/base.css" rel="stylesheet">
+    <link href="../../../css/prettify.css" rel="stylesheet">
+
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+
+    <!-- Fav and touch icons -->
+    <!--<link rel="apple-touch-icon-precomposed" sizes="144x144" href="../assets/ico/apple-touch-icon-144-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="../assets/ico/apple-touch-icon-114-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="../assets/ico/apple-touch-icon-72-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" href="../assets/ico/apple-touch-icon-57-precomposed.png">-->
+    <link rel="shortcut icon" href="../../../img/favicon.svg">
+      <link rel="canonical" href="https://www.reploop.org/blog/2022/03/beancount-accounting.html" />
+    <script data-ad-client="ca-pub-2350040335860411" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  </head>
+  <body onload="prettyPrint()">
+    <div id="wrap">	<!-- Fixed navbar -->
+    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../../../">REPLoop</a>
+        </div>
+        <div class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li><a href="../../../index.html">博客</a></li>
+            <li><a href="../../../archive.html">归档</a></li>
+            <li><a href="../../../tags/index.html">标签</a></li>
+            <li><a href="../../../about.html">关于</a></li>
+            <li><a href="../../../feed.xml">订阅</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </div>
+    <div class="container">
+    <div class="page-header">
+        <h1>Beancount记账</h1>
+    </div>
+
+<p>
+    <a href="/about.html"><strong>乔治</strong></a>于2022年03月19日
+            <span class="badge badge-dark">会计</span>
+            <span class="badge badge-dark">记账</span>
+            <span class="badge badge-dark">复式记账</span>
+            <span class="badge badge-dark">beancount</span>
+            <span class="badge badge-dark">有向图</span>
+</p>
+<p><div id="preamble"> 
+ <div class="sectionbody"> 
+  <div class="listingblock"> 
+   <div class="content"> 
+    <pre class="highlight"><code class="language-bash" data-lang="bash">bean-extract config.py 微信支付账单_xxx.csv/alipay_record_xxx.csv &gt; xxxxxxx.bean</code></pre> 
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p><strong>Notice:The raw data filename can only start with "微信支付账单" or "alipay_record."</strong></p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>可以阅读[用于支付宝和微信账单的Beancount Importer](<a href="https://blog.sy-zhou.com/%E7%94%A8%E4%BA%8E%E6%94%AF%E4%BB%98%E5%AE%9D%E5%92%8C%E5%BE%AE%E4%BF%A1%E8%B4%A6%E5%8D%95%E7%9A%84beancount-import/)，了解更多细节。" class="bare">https://blog.sy-zhou.com/%E7%94%A8%E4%BA%8E%E6%94%AF%E4%BB%98%E5%AE%9D%E5%92%8C%E5%BE%AE%E4%BF%A1%E8%B4%A6%E5%8D%95%E7%9A%84beancount-import/)，了解更多细节。</a></p> 
+  </div> 
+  <div class="ulist"> 
+   <ul> 
+    <li> <p>账单： 记录资金从一个账户转移到另一个账户。每一个<strong>交易</strong>记录中，必然有一个账户是属于你的。</p> </li> 
+    <li> <p>退款：支出流程的逆向流程。一般是原路返回，微信支持退回零钱。</p> </li> 
+    <li> <p>部分退款如何记账？</p> </li> 
+    <li> <p>收入：资金从别人的账户转入到你自己的账户。只关乎资金的流行</p> </li> 
+    <li> <p>支出：资金从你自己的账户转出到别人的账户。只关乎资金的流行</p> </li> 
+   </ul> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="特殊场景">特殊场景</h2> 
+ <div class="sectionbody"> 
+  <div class="ulist"> 
+   <ul> 
+    <li> <p>借钱</p> </li> 
+    <li> <p>垫付</p> </li> 
+    <li> <p>报销</p> </li> 
+    <li> <p>折旧</p> </li> 
+    <li> <p>红包</p> </li> 
+   </ul> 
+  </div> 
+  <div class="paragraph"> 
+   <p>复试记账每一笔都和自己有关。所以能区分出具体的用途。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>收入在复试记账里面怎么理解？</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="复式记账">复式记账</h2> 
+ <div class="sectionbody"> 
+  <div class="ulist"> 
+   <ul> 
+    <li> <p>单式记账</p> </li> 
+    <li> <p>复式记账</p> </li> 
+   </ul> 
+  </div> 
+  <div class="paragraph"> 
+   <p>在Beancount中</p> 
+  </div> 
+  <div id="eq1" class="stemblock"> 
+   <div class="content">
+     \$(Income + Liabilities) + (Assets + Expenses) + Equity = 0。\$ 
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>为什么全是加法，因为数值本身是有符号的。对于一个交易，其实负数的账目就相当于 “贷”，正数的账目就相当于 “借”。</p> 
+  </div> 
+ </div> 
+</div></p>
+
+<hr/>
+<div id="disqus_thread"></div>
+<script>
+
+    /**
+     *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+     *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
+    var disqus_config = function () {
+        this.page.url = "https://www.reploop.org/blog/2022/03/beancount-accounting.html";  // Replace PAGE_URL with your page's canonical URL variable
+        this.page.identifier = "https://www.reploop.org/blog/2022/03/beancount-accounting.html"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+    };
+    (function () { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://reploop.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by
+        Disqus.</a></noscript>
+		</div>
+		<div id="push"></div>
+    </div>
+    
+    <div id="footer">
+      <div class="container">
+        <p class="muted credit">&copy; 2020 | Mixed with <a href="http://getbootstrap.com/">Bootstrap v3.1.1</a> | Baked with <a href="http://jbake.org">JBake v${jbakeVersion}</a></p>
+      </div>
+    </div>
+    
+    <!-- Le javascript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="../../../js/jquery-1.11.1.min.js"></script>
+    <script src="../../../js/bootstrap.min.js"></script>
+    <script src="../../../js/prettify.js"></script>
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  messageStyle: "none",
+  tex2jax: {
+    inlineMath: [["\\(", "\\)"]],
+    displayMath: [["\\[", "\\]"]],
+    ignoreClass: "nostem|nolatexmath"
+  },
+  asciimath2jax: {
+    delimiters: [["\\$", "\\$"]],
+    ignoreClass: "nostem|noasciimath"
+  },
+  TeX: { equationNumbers: { autoNumber: "none" } }
+})
+MathJax.Hub.Register.StartupHook("AsciiMath Jax Ready", function () {
+  MathJax.InputJax.AsciiMath.postfilterHooks.Add(function (data, node) {
+    if ((node = data.script.parentNode) && (node = node.parentNode) && node.classList.contains('stemblock')) {
+      data.math.root.display = "block"
+    }
+    return data
+  })
+})
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_HTMLorMML"></script>
+  </body>
+</html>

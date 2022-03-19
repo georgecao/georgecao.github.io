@@ -52,6 +52,251 @@
       </div>
     </div>
     <div class="container">
+  		<a href="blog/2020/02/introduction-to-thread-synchronization.html"><h1>线程同步: 多线程应用中最常见的并发控制方法之一</h1></a>
+  		<p>
+			<a href="/about.html"><strong>George Cao</strong></a>于2020年02月23日
+					<span class="badge badge-dark">互斥锁</span>
+					<span class="badge badge-dark">信号量</span>
+					<span class="badge badge-dark">同步</span>
+					<span class="badge badge-dark">多线程</span>
+					<span class="badge badge-dark">条件变量</span>
+					<span class="badge badge-dark">线程</span>
+					<span class="badge badge-dark">并发</span>
+		</p>
+  		<p><div id="preamble"> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>本文讨论的是多线程应用中最常见的并发控制方法之一。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>就像我<a href="https://www.reploop.org/blog/2020/02/a-gentle-introduction-to-multithreading.html">前一篇文章</a>所阐述的，开发并发代码需要技巧的。 会遇到两个大问题：数据竞争，当一个写线程在修改内存数据的同时一个读线程正在从中读取数据和竞争条件，当2个或以上的线程以不可预知的顺序执行任务的时候会发生。幸运的是我们有一些办法来避免这类错误：这篇文章我们就来看一个最常用的办法：<strong>同步(synchronization)</strong>。</p> 
+  </div> 
+  <div class="ulist"> 
+   <div class="title">
+    本系列中的其他文章
+   </div> 
+   <ul> 
+    <li> <p><a href="https://www.reploop.org/blog/2020/02/a-gentle-introduction-to-multithreading.html">多线程简介</a> - 一步一步走进并发的世界</p> </li> 
+    <li> <p><a href="https://www.reploop.org/blog/2020/02/lock-free-multithreading-with-atomic-operations.html">用原子操作实现无锁多线程</a> - 底层线程同步</p> </li> 
+    <li> <p><a href="https://www.reploop.org/blog/2020/02/understanding-memory-reordering.html">理解内存重排序</a> - 为什写无锁多线程代码时它很重要</p> </li> 
+   </ul> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="什么是同步">什么是同步</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>同步是让2个或以上线程和平共处的技巧合集。更确切的说，同步能够帮你实现多线程程序中至少2个重要的特性：</p> 
+  </div> 
+  <div class="olist arabic"> 
+   <ol class="arabic"> 
+    <li> <p><strong>原子性</strong> - 如果你的代码包含多个线程操作共享数据的指令，不受控制的并发访问共享数据可触发数据竞争。包含此类指令的代码块称为关键区块。你要确保关键区块要原子执行：如前文所定义的，一个<a href="https://www.reploop.org/blog/2020/02/a-gentle-introduction-to-multithreading.html">原子操作</a>不能在细分为更小的操作了，因此当一个线程在执行原子代码块的时候，就不会受到其他线程的干扰；</p> </li> 
+    <li> <p><strong>有序性</strong> - 有时候你需要2个或以上的线程按照可预测的顺序执行任务，或者限制访问某个资源的线程数。正常情况下你是不能控制这个的，这也可能是竞争条件发生的根本原因。有了同步之后，你就可以根据计划来编排多个线程的执行了。</p> </li> 
+   </ol> 
+  </div> 
+  <div class="paragraph"> 
+   <p>同步是通过支持多线程的操作系统或者编程语言提供的 <strong>同步原语(synchronization primitives)</strong> 来实现的。然后你就可以在代码中使用同步原语来保证多线程不会触发数据竞争、竞争条件或者全部。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>同步可以发生在硬件和软件，以及线程与操作系统进程之间。 这篇文章是关于软件线程同步：对应的硬件同步部分非常有趣，将会在后续的文章中介绍。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="常见同步原语">常见同步原语</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>最重要的同步原语是互斥锁，信号量和条件变量。这些关键字还没有官方的定义，所以在不同的书本或者实现中会有轻微的不同特征。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>这3个同步原语是操作系统是原生支持的。例如Linux和macOS支持 <strong>POSIX线程</strong>，也就是 <strong>pthreads</strong>，能够让你可以用这一组函数开发安全的多线程应用。Windows则用C运行时代码库（CRT）提供自己的同步工具：概念上和POSIX多线程功能相似但是不同的命名。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>除非你正在写非常底层的代码，通常你只要使用编程语言提供的同步原语就可以了。每个支持多线程的编程语言都提供了自己的同步原语工具箱，以及一些额外的线程处理功能。例如Java提供了 <code>java.util.concurrent</code> 包，现代C++有自己的线程库，C#提供 <code>System.Threading</code> 命名空间等等。当然所有这些功能和对象都是基于底层操作系统同步原语的。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>除此之外还有其他同步工具，但是本文只关注上面提到的3个，因为他们是构建复杂系统的基础。让我们进一步分析。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="互斥锁">互斥锁</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p><strong>互斥锁</strong>(<strong>mut</strong>ual <strong>ex</strong>clusion)是一个同步原语，是为了避免数据竞争而给关键区增加限制的保护机制。 互斥锁通过同时只允许一个线程访问关键区来保证 <em>原子性</em>。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>严格来讲，互斥锁是应用中的一个全局对象，在多个线程之间共享，并且提供通常叫做 <code>加锁</code> 和 <code>解锁</code> 的2个功能函数。一个即将要进入关键区域的线程通过 <code>加锁</code> 操作锁定这个互斥锁，结束后，也就是关键区域结束之后，同样的线程调用 <code>解锁</code> 操作来释放这个互斥锁。互斥锁非常重要的特性是：只有锁定这个互斥锁的线程才能解锁。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>如果一个线程正在关键区，而另一个线程尝试锁定这个互斥锁，操作系统就让后面这个线程休眠，直到第一个线程任务结束并且释放了这个互斥锁。这样就只有1个线程可以访问关键区，任何其他线程都不能访问而且必须等待互斥锁的释放。基于这个原因，互斥锁也叫做锁机制。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>你可以用互斥锁保护比如一个共享变量的并发读和写操作，也可以保护更大、更复杂的操作，同时只允许一个线程执行的，比如写日志文件或者修改数据库。无论如何，互斥锁的加锁/解锁操作总是和关键区的边界是匹配的。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>互斥锁保护的是关键区域，也就是操作，而不是数据本身。如果在关键区域之外的代码也能读写数据，互斥锁就有失效的风险。所以所有对数据有读写的代码都需要作为关键区用互斥锁保护起来才能避免数据竞争。</p> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="递归互斥锁">递归互斥锁</h3> 
+   <div class="paragraph"> 
+    <p>许多常规的互斥锁实现中，一个线程两次加锁同一个互斥锁会引起错误。但是 <strong>递归互斥锁(recursive mutex)</strong> 允许此类操作：一个线程可以锁定一个递归互斥锁许多次而不需要先释放。尽管如此，其他线程只有等到第一个线程释放所有的递归互斥锁之后才能锁定这个锁。这个同步原语也叫做 <strong>可重入互斥锁(reentrant mutex)</strong>，这里的 <strong>可重入性(reentrancy)</strong> 是指在前一次调用结束之前可以多次调用同一个函数的能力。</p> 
+   </div> 
+   <div class="paragraph"> 
+    <p>递归互斥锁很难用而且容易出错。你必须记录哪个线程锁定了哪个互斥锁多少次，而且要保证一个线程完全释放这个互斥锁。不然的话就会导致互斥锁没能释放而引起讨厌的后果。大多数时候正常的互斥锁就够用了。</p> 
+   </div> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="读写锁">读写锁</h3> 
+   <div class="paragraph"> 
+    <p>正如我们从前一篇文章中知道的，多个线程可以安全的并发读一个共享资源，只要没有线程修改该共享资源。所以如果一些线程是“只读”模式的，还有必要锁定一个互斥锁？例如一个并发数据库被多个线程频繁读取，同时另一个线程偶尔写入更新。你当然需要一个互斥锁来保护读/写访问，但是大多数情况下仅仅为了读操作而锁定一个互斥锁，也同时阻碍了其他读线程正常执行。</p> 
+   </div> 
+   <div class="paragraph"> 
+    <p><strong>读/写互斥锁</strong> 允许多线程 <em>并发</em> 读和单线程 <em>排他</em> 写共享资源。这个互斥锁可以被锁定为 <em>读模式</em> 或者 <em>写模式</em>。为了修改资源，一个线程必须先获得排他写入锁。排他写入锁直到所有的读取锁全部释放之后才能获取。</p> 
+   </div> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="信号量">信号量</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p><strong>信号量</strong> 是用来编排线程的同步原语：那个线程先启动，多少个线程可以访问一个资源等等。就像“红绿灯”调节交通一样，程序信号量规范多线程交互流程：基于这个原因，信号量也称为 <strong>信号机制</strong>。他可以被看做互斥锁的进化，因为他能同时保证 <em>有序性</em> 和 <em>原子性</em>。尽管如此，接下来的几段中我讲告诉你为什么仅仅为了原子性而使用信号量不是一个好选择。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>严格来讲，信号量是应用中的全局变量，多个线程间共享，还包含了一个 <em>计数器</em>，通过2个函数管理：一个增加计数器，另一个减少计数器。历史上，这两个操作分别叫做 <code>P</code> 操作和 <code>V</code> 操作，现代信号量的实现使用更友好的名字比如 <code>获取</code> 和 <code>释放</code>。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>信号量控制共享资源的访问：计数器决定了并行访问共享资源的最大线程数。程序启动的时候，也就是信号量被初始化的时候，你根据自己的需要选择这个最大线程数。然后一个想访问共享资源的线程调用 <code>获取</code> 函数：</p> 
+  </div> 
+  <div class="ulist"> 
+   <ul> 
+    <li> <p>如果计数器 <em>大于0</em> 就继续进行。计数器被立即减少1，然后当前线程可以开始操作了。结束后，当前线程调用 <code>释放</code> 函数，同时计数器加1.</p> </li> 
+    <li> <p>如果计数器 <em>等于0</em> 则此线程不能继续进行：其他线程已经占用了可以空间。当前线程被操作系统休眠，只有等到信号量的计数器再次大于0（也就是有线程完成任务后调用了 <code>释放</code> 函数）的时候才会被唤醒。</p> </li> 
+   </ul> 
+  </div> 
+  <div class="paragraph"> 
+   <p>不像互斥锁，<em>任何线程可以释放信号量</em>，不仅仅是最先获取信号量的线程。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>单个信号量可以用来限制同时访问共享资源的线程数：例如为了控制多线程数据库的连接数，这其中的每个线程是连接到你的服务器的用户触发的。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>结合多个信号量一起，你就可以解决线程的有序性问题了：比如在浏览器中渲染网页的线程必须在通过互联网下载HTML文件的线程之后启动。线程A结束的时候会通知线程B，因此线程B可以被唤醒继续执行任务：这个也常被称为著名的 <a href="https://en.wikipedia.org/wiki/Producer%E2%80%93consumer_problem">生产者-消费者问题</a>。</p> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="二元信号量">二元信号量</h3> 
+   <div class="paragraph"> 
+    <p>如果信号量的计数器只允许取值0和1，则称之为 <strong>二元信号量</strong>：也就是同时只允许一个线程访问共享资源。 等一下，这基本上就是互斥锁保护关键区的作用。你确实可以用二元信号量来实现互斥锁的行为。但是要时刻牢记以下2点：</p> 
+   </div> 
+   <div class="olist arabic"> 
+    <ol class="arabic"> 
+     <li> <p>互斥锁只能被加锁的线程解锁，但是信号量可以被任意线程释放。如果你仅仅需要一个锁机制的话，这会导致困惑和微妙的问题；</p> </li> 
+     <li> <p>信号量是用来编排线程的信号机制，但是互斥锁是保护共享资源的锁机制。你不应改使用信号量来保护共享资源，也不应该将互斥锁用于信号机制：这样你的意图对你和你的代码读者会更明确。</p> </li> 
+    </ol> 
+   </div> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="条件变量">条件变量</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>条件变量是另一个用来保证 <em>有序性</em> 的同步原语。他们是用来在不同线程之间发送唤醒信号的。条件变量往往配合互斥锁一起使用，单独使用条件变量没有意义。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>严格来讲，条件变量是应用中的全局对象，多个线程之间共享，提供3个函数，分别叫做：<code>wait</code>，<code>notify_one</code> 和 <code>notify_all</code>, 外加一个传递已知互斥锁给他配合工作的机制（具体方法依实现而定）。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>线程调用一个条件变量的 <code>wait</code> 操作会被操作系统休眠。然后其他的线程想要唤醒休眠线程的话就调用 <code>notify_one</code> 或者 <code>notify_all</code>。<code>notify_one</code> 和 <code>notify_all</code> 的不同之处是 <code>notify_one</code> 仅仅唤醒一个休眠线程，但是 <code>notify_all</code> 会唤醒所有因为调用了条件变量的等待操作而休眠的线程。条件变量内部使用互斥锁提供休眠/唤醒机制。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>条件变量是仅靠互斥锁实现不了的在线程之间发送信号的强大机制。例如你也可以使用它解决生产者-消费者问题，线程A完成任务后产生一个信号，接着线程B就可以开始执行任务了。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="常见的同步问题">常见的同步问题</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>本文所述的所有同步原语有共同之处：都会让线程休眠。基于这个原因，他们也被叫做 <strong>阻塞机制</strong>。如果你想避免数据竞争或者竞争条件，阻塞机制是防止并发访问共享资源的好办法：休眠线程不会有任何害处。但是他能够触发不幸的副作用，我们来看看都有哪些。</p> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="死锁">死锁</h3> 
+   <div class="paragraph"> 
+    <p><strong>死锁</strong> 发生在一个线程等待另一个线程持有的共享变量，而第二个线程在等待第一个线程持有的共享变量。这种情况通常在使用多个互斥锁的时候发生：2个线程在死循环中永久等待：线程A在等待线程B，线程B在等待线程A，而线程A又在等待线程B，如此往复。。。</p> 
+   </div> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="饥饿线程">饥饿线程</h3> 
+   <div class="paragraph"> 
+    <p>当线程没有得到足够的爱就进入 <strong>饥饿</strong> 模式：它永远卡在休眠模式等待访问共享资源，但是这个共享资源持续的给了其他线程。例如一个基于信号量的糟糕实现可能会忘记唤醒等待队列中的一些线程，这个可以通过给部分线程高优先级的方式实现。饥饿线程会永久等待而不能做任何有效的工作。</p> 
+   </div> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="无效唤醒">无效唤醒</h3> 
+   <div class="paragraph"> 
+    <p>这是一些操作系统中条件变量的具体实现方式带来的微妙问题。一个 <strong>无效唤醒</strong> 可能是线程没有收到条件变量的信号而被唤醒了。这也是多数同步原语中包含了检查唤醒信号是否真的来自线程正在等待的条件变量的方法的原因。</p> 
+   </div> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="优先级反转">优先级反转</h3> 
+   <div class="paragraph"> 
+    <p><strong>优先级反转</strong> 是一个执行高优先级任务的线程阻塞等待一个低优先级的线程释放资源，如互斥锁。例如输出音频到声卡的线程（高优先级）被显示界面的线程（低优先级）阻塞了，会导致扬声器严重的卡顿。</p> 
+   </div> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="下一步">下一步</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>这些同步问题被研究很多年了，也有很多技术和架构方面的解决方法。严谨的设计和一些实际经验能很大程度上预防问题的发生。鉴于多线程程序的<a href="https://www.reploop.org/blog/2020/02/a-gentle-introduction-to-multithreading.html">不确定性</a>(非常难的)性质，也有人开发出来在并发代码中检测错误和潜在缺陷的有趣工具。就像 <a href="https://github.com/google/sanitizers/wiki/ThreadSanitizerCppManual">Google的TSan</a>或者 <a href="http://valgrind.org/docs/manual/hg-manual.html">Helgrind</a>一样。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>尽管如此，有时候你可能在多线程应用中采用不同的方法，完全去掉阻塞机制。这意味着进入 <strong>非阻塞</strong> 领域：这是一个非常底层的领域，线程不会被操作系统休眠，并发是通过 <strong>原子操作</strong> 和 <strong>无锁数据结构</strong> 规范的。这是一个充满挑战的领域，并不总是有必要，但是它能够加速你的软件或者对他造成严重的破坏。不过这是下一篇文章的内容。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="参考">参考</h2> 
+ <div class="sectionbody"> 
+  <div class="ulist"> 
+   <ul> 
+    <li> <p>Wikipedia - <a href="https://en.wikipedia.org/wiki/Synchronization_%28computer_science%29#Thread_or_process_synchronization">Synchronization (computer science)</a></p> </li> 
+    <li> <p>Wikipedia - <a href="https://en.wikipedia.org/wiki/Reentrant_mutex">Reentrant mutex</a></p> </li> 
+    <li> <p>Wikipedia - <a href="https://en.wikipedia.org/wiki/Reentrancy_%28computing%29">Reentrancy (computing)</a></p> </li> 
+    <li> <p>Wikipedia - <a href="https://en.wikipedia.org/wiki/Semaphore_%28programming%29">Semaphore (programming)</a></p> </li> 
+    <li> <p>Wikipedia - <a href="https://en.wikipedia.org/wiki/Spurious_wakeup">Spurious Wakeup</a></p> </li> 
+    <li> <p>Wikipedia - <a href="https://en.wikipedia.org/wiki/Priority_inversion">Priority inversion</a></p> </li> 
+    <li> <p>Wikipedia - <a href="https://en.wikipedia.org/wiki/Deadlock">Deadlock</a></p> </li> 
+    <li> <p>Wikipedia - <a href="https://en.wikipedia.org/wiki/Starvation_%28computer_science%29">Starvation (computer science)</a></p> </li> 
+    <li> <p>Columbia Engineering - <a href="http://www.cs.columbia.edu/~hgs/os/sync.html">Synchronization primitives</a></p> </li> 
+    <li> <p>StackOverflow - <a href="https://stackoverflow.com/questions/8017507/definition-of-synchronization-primitive">Definition of “synchronization primitive”</a></p> </li> 
+    <li> <p>StackOverflow - <a href="https://stackoverflow.com/questions/2332765/lock-mutex-semaphore-whats-the-difference">Lock, mutex, semaphore… what’s the difference?</a></p> </li> 
+    <li> <p>StackOverflow - <a href="https://stackoverflow.com/questions/11173532/why-is-locking-a-stdmutex-twice-undefined-behaviour">Why is locking a std::mutex twice 'Undefined Behaviour'?</a></p> </li> 
+    <li> <p>Operating Systems: Three Easy Pieces - <a href="http://pages.cs.wisc.edu/~remzi/OSTEP/">Concurrency</a></p> </li> 
+    <li> <p>Jaka’s Corner - <a href="http://jakascorner.com/blog/2016/01/data-races.html">Data race and mutex</a></p> </li> 
+    <li> <p>Java 10 API specs - <a href="https://docs.oracle.com/javase/10/docs/api/java/util/concurrent/Semaphore.html">Class Semaphore</a></p> </li> 
+    <li> <p>Oracle’s Multithreaded Programming Guide - <a href="https://docs.oracle.com/cd/E19455-01/806-5257/6je9h032t/index.html">Read-Write Lock Attributes</a></p> </li> 
+    <li> <p>Oracle’s Multithreaded Programming Guide - <a href="https://docs.oracle.com/cd/E19455-01/806-5257/6je9h0347/index.html">Avoiding Deadlock</a></p> </li> 
+    <li> <p>Just Software Solutions - <a href="https://www.justsoftwaresolutions.co.uk/threading/locks-mutexes-semaphores.html">Locks, Mutexes, and Semaphores: Types of Synchronization Objects</a></p> </li> 
+    <li> <p>Just Software Solutions - <a href="https://www.justsoftwaresolutions.co.uk/threading/non_blocking_lock_free_and_wait_free.html">Definitions of Non-blocking, Lock-free and Wait-free</a></p> </li> 
+    <li> <p>Cppreference - <a href="https://en.cppreference.com/w/cpp/thread/shared_mutex">std::shared_mutex</a></p> </li> 
+    <li> <p>Cppreference - <a href="https://en.cppreference.com/w/cpp/thread/condition_variable">std::condition_variable</a></p> </li> 
+    <li> <p>Quora - <a href="https://www.quora.com/What-is-the-difference-between-a-mutex-and-a-semaphore">What is the difference between a mutex and a semaphore?</a></p> </li> 
+    <li> <p>gerald-fahrnholz.eu - <a href="http://www.gerald-fahrnholz.eu/sw/online_doc_multithreading/html/group___grp_condition_variable_safe_way.html">Using condition variables - the safe way</a></p> </li> 
+    <li> <p>Politecnico di Milano - <a href="http://home.deib.polimi.it/loiacono/uploads/Teaching/CP/CP_04_Pthread_CondVar.pdf">Thread Posix: Condition Variables</a></p> </li> 
+    <li> <p>SoftwareEngineering - <a href="https://softwareengineering.stackexchange.com/questions/186842/spurious-wakeups-explanation-sounds-like-a-bug-that-just-isnt-worth-fixing-is">Spurious wakeups explanation sounds like a bug that just isn’t worth fixing, is that right?</a></p> </li> 
+    <li> <p>Android Open Source Project - <a href="https://source.android.com/devices/audio/avoiding_pi">Avoiding Priority Inversion</a></p> </li> 
+   </ul> 
+  </div> 
+  <div class="paragraph"> 
+   <p>本文译自https://www.internalpointers.com/post/introduction-thread-synchronization，英文读者可直接阅读原文。</p> 
+  </div> 
+ </div> 
+</div></p>
   		<a href="blog/2020/02/a-gentle-introduction-to-multithreading.html"><h1>多线程简介: 一步一步走进并发的世界</h1></a>
   		<p>
 			<a href="/about.html"><strong>George Cao</strong></a>于2020年02月20日
@@ -389,34 +634,6 @@ reader_thread.start()</code></pre>
    </ol> 
   </div> 
  </div> 
-</div></p>
-  		<a href="blog/2020/01/gc-in-video.html"><h1>视频的GC</h1></a>
-  		<p>
-			<a href="/about.html"><strong>乔治</strong></a>于2020年01月20日
-					<span class="badge badge-dark">视频</span>
-					<span class="badge badge-dark">快餐</span>
-					<span class="badge badge-dark">信息获取</span>
-		</p>
-  		<p><div class="paragraph"> 
- <p>很久以前，看闾丘露薇的文章说她每次出差回香港，都要到报刊亭“扫货”，收各种娱乐八卦小报回来看。以闾丘露薇报道的内容来臆测一下，她未必会对娱乐八卦感兴趣，为啥要看？为了跟同事信息同步，重回办公室后和大家有的聊。现在更是一个信息爆炸的时代，没有人能掌握周遭的全部信息，因此得有所取舍，才能真正掌握有价值的信息。不巧的是你“舍”的那部分可能就是别人“取”的那部分，那就得像闾丘露薇那样补回来，你才不脱节。</p> 
-</div> 
-<div class="paragraph"> 
- <p>进一步说我们需要一个在很短的时间内，了解故事梗概的服务。就像吃顿快餐一样，很快，但足以果腹。</p> 
-</div> 
-<div class="paragraph"> 
- <p>互联网上的“撕逼”大战，官员落马之后的“履历”等一样，大部分人是不会盯着电脑跟进展的，只需要第二天看一个“长微博”来梳理来龙去脉就可以了。</p> 
-</div> 
-<div class="paragraph"> 
- <p>对于视频行业来说，时下最流行的剧未必是你的菜，但是大家都在聊，必须得补回来！这顿快餐的吃法可能是回家之后开始看，一路“拖拖拖”，快进着浏览一遍。看视频还真是不如翻书方便。或者你去搜索故事梗概，快速浏览一遍，那样你就失去了画面。</p> 
-</div> 
-<div class="paragraph"> 
- <p>视频需要一个更快的快餐吃法，不需要“拖”，也不需要完全丢失她的味道。一个剧一般来讲都有几个主要演员，几条线同时铺开来讲故事。当然，主演的这条线就应该是主线了。只要抓住这条线看，你大概是不会错过绝大部分精彩的。</p> 
-</div> 
-<div class="paragraph"> 
- <p>此时就应该把人们吐槽的“神剪辑”可以拿来用一下。就是应用图像识别技术，在视频中找到所有该演员出现的镜头剪辑成一个小片，供你观看，再进一步，还可以利用语音识别技术，把所有提到某演员的地方也都找出来。</p> 
-</div> 
-<div class="paragraph"> 
- <p>这正是Java垃圾回收的思想Mark and Sweep，当然了，你如果特别讨厌一个角色，也可以定点清除；你只关心某个角色，也可以只看此角色的镜头，有点论坛时代的“只看楼主”的意思了。</p> 
 </div></p>
 
 	<hr />
