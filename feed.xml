@@ -6,8 +6,8 @@
         <atom:link href="https://www.reploop.org/feed.xml" rel="self" type="application/rss+xml"/>
         <description>REPLoop，在脚本编程语言中经常能看到REPL，也就是Read-Evaluate-Print-Loop，意思是读取源代码，评估执行，打印结果的循环。这个过程能够快速的学习实践然后得到结果。非常像一个学习成长的过程：输入信息，消化吸收，输出知识并用于实践，然后持之以恒的坚持。4个环节缺一不可，而且最难做到的大概是持之以恒了。</description>
         <language>en-gb</language>
-        <pubDate>Sat, 19 Mar 2022 17:44:21 +0800</pubDate>
-        <lastBuildDate>Sat, 19 Mar 2022 17:44:21 +0800</lastBuildDate>
+        <pubDate>Sat, 19 Mar 2022 17:51:56 +0800</pubDate>
+        <lastBuildDate>Sat, 19 Mar 2022 17:51:56 +0800</lastBuildDate>
 
             <item>
                 <title>复式记账</title>
@@ -63,7 +63,7 @@
    &lt;p&gt;我们先从财务会计书本上的会计恒等式开始：&lt;/p&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
-   &lt;p&gt;资产(Assets) - 负债(Liabilities) = 权益(Equity)&lt;/p&gt; 
+   &lt;p&gt;资产（Assets） - 负债（Liabilities） = 权益（Equity）&lt;/p&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;listingblock&quot;&gt; 
    &lt;div class=&quot;content&quot;&gt; 
@@ -71,7 +71,7 @@
    &lt;/div&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
-   &lt;p&gt;权益可以经一步细分为：初始资本(Capital)、收入(Income)和支出(Expenses)三部分。关系如下：&lt;/p&gt; 
+   &lt;p&gt;权益可以经一步细分为：初始资本（Capital）、收入（Income）和支出（Expenses）三部分。关系如下：&lt;/p&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;listingblock&quot;&gt; 
    &lt;div class=&quot;content&quot;&gt; 
@@ -87,7 +87,7 @@
    &lt;/div&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
-   &lt;p&gt;在这个公式里面，我们还是用Equity来表示初始资本(Capital)，则公式最终为：&lt;/p&gt; 
+   &lt;p&gt;在这个公式里面，我们还是用Equity来表示初始资本（Capital），则公式最终为：&lt;/p&gt; 
   &lt;/div&gt; 
   &lt;div id=&quot;eq4&quot; class=&quot;listingblock&quot;&gt; 
    &lt;div class=&quot;content&quot;&gt; 
@@ -104,11 +104,11 @@
    &lt;/div&gt; 
    &lt;div class=&quot;ulist&quot;&gt; 
     &lt;ul&gt; 
-     &lt;li&gt; &lt;p&gt;资产(Assets): 记录你当前所能支配的钱，或者通过交易可以变为钱东西。常见的比如各种银行的存款账户、兜里的现金、车子、房产等等。别人欠你的钱（应收账款）和你欠别人的钱（负债，因为钱在你这，你可以支配）都是你的资产。&lt;/p&gt; &lt;/li&gt; 
-     &lt;li&gt; &lt;p&gt;负债(Liabilities): 你欠别人的钱。别人的钱现在是在你的兜里，在没有还回去之前，你可以自己决定怎么花，所以也是你的资产。&lt;/p&gt; &lt;/li&gt; 
-     &lt;li&gt; &lt;p&gt;支出(Expenses): 你花出去的钱，而且是花出去之后不会在回来了。常见的如花钱买商品，买服务等。你不退款的前提下，这部分钱就是别人的了。&lt;/p&gt; &lt;/li&gt; 
-     &lt;li&gt; &lt;p&gt;收入(Income): 你得到的钱，得到之后不用还回去的。比如常见的你劳动所得的工资，你投资的收益，股票的分红，公司出售商品/服务后客户支付的钱等。&lt;/p&gt; &lt;/li&gt; 
-     &lt;li&gt; &lt;p&gt;权益(Equity): 根据会计恒等式，权益本来是资产净值，细分之后理解为资产净值的初始值，也就是记账周期开始时的资产净值，对企业来说就是企业所有者的资金。&lt;/p&gt; &lt;/li&gt; 
+     &lt;li&gt; &lt;p&gt;资产（Assets）: 记录你当前所能支配的钱，或者通过交易可以变为钱东西。常见的比如各种银行的存款账户、兜里的现金、车子、房产等等。别人欠你的钱（应收账款）和你欠别人的钱（负债，因为钱在你这，你可以支配）都是你的资产。&lt;/p&gt; &lt;/li&gt; 
+     &lt;li&gt; &lt;p&gt;负债（Liabilities）: 你欠别人的钱。别人的钱现在是在你的兜里，在没有还回去之前，你可以自己决定怎么花，所以也是你的资产。&lt;/p&gt; &lt;/li&gt; 
+     &lt;li&gt; &lt;p&gt;支出（Expenses）: 你花出去的钱，而且是花出去之后不会在回来了。常见的如花钱买商品，买服务等。你不退款的前提下，这部分钱就是别人的了。&lt;/p&gt; &lt;/li&gt; 
+     &lt;li&gt; &lt;p&gt;收入（Income）: 你得到的钱，得到之后不用还回去的。比如常见的你劳动所得的工资，你投资的收益，股票的分红，公司出售商品/服务后客户支付的钱等。&lt;/p&gt; &lt;/li&gt; 
+     &lt;li&gt; &lt;p&gt;权益（Equity）: 根据会计恒等式，权益本来是资产净值，细分之后理解为资产净值的初始值，也就是记账周期开始时的资产净值，对企业来说就是企业所有者的资金。&lt;/p&gt; &lt;/li&gt; 
     &lt;/ul&gt; 
    &lt;/div&gt; 
    &lt;div class=&quot;paragraph&quot;&gt; 
@@ -129,7 +129,7 @@
    &lt;div class=&quot;olist arabic&quot;&gt; 
     &lt;ol class=&quot;arabic&quot;&gt; 
      &lt;li&gt; &lt;p&gt;会计中记账都是从企业自身的角度记的。比如信用卡账单从持卡人的角度和从银行的角度来讲，交易记录中经济资源的流向是完全不同的。&lt;/p&gt; &lt;/li&gt; 
-     &lt;li&gt; &lt;p&gt;企业和企业所有者是两个独立的实体，他们之间也可以产生『交易』，比如所有者权益(Equity)&lt;/p&gt; &lt;/li&gt; 
+     &lt;li&gt; &lt;p&gt;企业和企业所有者是两个独立的实体，他们之间也可以产生『交易』，比如所有者权益（Equity）&lt;/p&gt; &lt;/li&gt; 
      &lt;li&gt; &lt;p&gt;记账人应该是一个企业运营者从企业的角度思考交易的&lt;/p&gt; &lt;/li&gt; 
      &lt;li&gt; &lt;p&gt;会计系统是一个封闭的系统，也就是所有的交易都必须纳入其中，并只在此系统中流动（内循环 xD）&lt;/p&gt; &lt;/li&gt; 
     &lt;/ol&gt; 
@@ -150,8 +150,8 @@
    &lt;div class=&quot;ulist&quot;&gt; 
     &lt;ul&gt; 
      &lt;li&gt; &lt;p&gt;工资涉及的钱的&lt;strong&gt;来源&lt;/strong&gt;是雇主公司，钱的&lt;strong&gt;目的（去向）&lt;/strong&gt;是我的钱；&lt;/p&gt; &lt;/li&gt; 
-     &lt;li&gt; &lt;p&gt;『雇主公司』在复式记账系统中的代表是收入(Income)：记为贷，『我的钱』在记账系统中的代表是资产(Assets)：记为借；&lt;/p&gt; &lt;/li&gt; 
-     &lt;li&gt; &lt;p&gt;来源是收入(Income)-贷记，余额增加；去向是资产(Assets)-借记，余额增加&lt;/p&gt; &lt;/li&gt; 
+     &lt;li&gt; &lt;p&gt;『雇主公司』在复式记账系统中的代表是收入（Income）：记为贷，『我的钱』在记账系统中的代表是资产（Assets）：记为借；&lt;/p&gt; &lt;/li&gt; 
+     &lt;li&gt; &lt;p&gt;来源是收入（Income）-贷记，余额增加；去向是资产（Assets）-借记，余额增加&lt;/p&gt; &lt;/li&gt; 
     &lt;/ul&gt; 
    &lt;/div&gt; 
    &lt;div class=&quot;paragraph&quot;&gt; 
@@ -162,7 +162,7 @@
    &lt;/div&gt; 
    &lt;div id=&quot;eq5&quot; class=&quot;listingblock&quot;&gt; 
     &lt;div class=&quot;content&quot;&gt; 
-     &lt;pre class=&quot;highlight&quot;&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;Assets + (-Liabilities) + (-Equity) + (-Income) + Expenses = 0  &lt;i class=&quot;conum&quot; data-value=&quot;5&quot;&gt;&lt;/i&gt;&lt;b&gt;(5)&lt;/b&gt;&lt;/code&gt;&lt;/pre&gt; 
+     &lt;pre class=&quot;highlight&quot;&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;Assets + （-Liabilities） + （-Equity） + （-Income） + Expenses = 0  &lt;i class=&quot;conum&quot; data-value=&quot;5&quot;&gt;&lt;/i&gt;&lt;b&gt;(5)&lt;/b&gt;&lt;/code&gt;&lt;/pre&gt; 
     &lt;/div&gt; 
    &lt;/div&gt; 
    &lt;div class=&quot;paragraph&quot;&gt; 
@@ -180,11 +180,11 @@ Income = -Income&lt;/code&gt;&lt;/pre&gt;
    &lt;/div&gt; 
    &lt;div id=&quot;eq6&quot; class=&quot;listingblock&quot;&gt; 
     &lt;div class=&quot;content&quot;&gt; 
-     &lt;pre class=&quot;highlight&quot;&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;Assets + Liabilities) + Equity + Income + Expenses = 0          &lt;i class=&quot;conum&quot; data-value=&quot;6&quot;&gt;&lt;/i&gt;&lt;b&gt;(6)&lt;/b&gt;&lt;/code&gt;&lt;/pre&gt; 
+     &lt;pre class=&quot;highlight&quot;&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;Assets + Liabilities + Equity + Income + Expenses = 0          &lt;i class=&quot;conum&quot; data-value=&quot;6&quot;&gt;&lt;/i&gt;&lt;b&gt;(6)&lt;/b&gt;&lt;/code&gt;&lt;/pre&gt; 
     &lt;/div&gt; 
    &lt;/div&gt; 
    &lt;div class=&quot;paragraph&quot;&gt; 
-    &lt;p&gt;这个和前面&lt;a href=&quot;#复式记账&quot;&gt;复式记账&lt;/a&gt;中用有向图的方式得出的结论是一样的：所有账户余额之和为0。对应到有向图中，就是负债(Liabilities)，权益（Equity），收入（Income）这3种类型的账户余额是&lt;strong&gt;负数&lt;/strong&gt;，而资产（Asserts）和支出（Expenses）这2种类型的账户余额是&lt;strong&gt;正数&lt;/strong&gt;。这样就能统一为流出(来源)就从出账户的余额减去交易额，流入（目的）就将入账户的余额增加交易额。不用使用『借记』和『贷记』，非常好记账。这也是beancount再用的记账方式。后面再介绍beancount的使用。&lt;/p&gt; 
+    &lt;p&gt;这个和前面&lt;a href=&quot;#复式记账&quot;&gt;复式记账&lt;/a&gt;中用有向图的方式得出的结论是一样的：所有账户余额之和为0。对应到有向图中，就是负债（Liabilities），权益（Equity），收入（Income）这3种类型的账户余额是&lt;strong&gt;负数&lt;/strong&gt;，而资产（Asserts）和支出（Expenses）这2种类型的账户余额是&lt;strong&gt;正数&lt;/strong&gt;。这样就能统一为流出（来源）就从出账户的余额减去交易额，流入（目的）就将入账户的余额增加交易额。不用使用『借记』和『贷记』，非常好记账。这也是beancount再用的记账方式。后面再介绍beancount的使用。&lt;/p&gt; 
    &lt;/div&gt; 
    &lt;div class=&quot;paragraph&quot;&gt; 
     &lt;p&gt;我们能也能看出，余额为负只是一种数据计算上的便利，真正有意义的数字是他的绝对值。只要习惯就好。&lt;/p&gt; 
@@ -221,14 +221,14 @@ Income = -Income&lt;/code&gt;&lt;/pre&gt;
       &lt;/tr&gt; 
       &lt;tr&gt; 
        &lt;td class=&quot;tableblock halign-left valign-top&quot;&gt;&lt;p class=&quot;tableblock&quot;&gt;更关注 &lt;strong&gt;余额&lt;/strong&gt;&lt;/p&gt;&lt;/td&gt; 
-       &lt;td class=&quot;tableblock halign-left valign-top&quot;&gt;&lt;p class=&quot;tableblock&quot;&gt;资产(Assets)&lt;/p&gt;&lt;/td&gt; 
-       &lt;td class=&quot;tableblock halign-left valign-top&quot;&gt;&lt;p class=&quot;tableblock&quot;&gt;负债(Liabilities)&lt;/p&gt;&lt;/td&gt; 
+       &lt;td class=&quot;tableblock halign-left valign-top&quot;&gt;&lt;p class=&quot;tableblock&quot;&gt;资产（Assets）&lt;/p&gt;&lt;/td&gt; 
+       &lt;td class=&quot;tableblock halign-left valign-top&quot;&gt;&lt;p class=&quot;tableblock&quot;&gt;负债（Liabilities）&lt;/p&gt;&lt;/td&gt; 
        &lt;td class=&quot;tableblock halign-left valign-top&quot;&gt;&lt;p class=&quot;tableblock&quot;&gt;资产负债表&lt;/p&gt;&lt;/td&gt; 
       &lt;/tr&gt; 
       &lt;tr&gt; 
        &lt;td class=&quot;tableblock halign-left valign-top&quot;&gt;&lt;p class=&quot;tableblock&quot;&gt;更关注 &lt;strong&gt;差额&lt;/strong&gt;&lt;/p&gt;&lt;/td&gt; 
-       &lt;td class=&quot;tableblock halign-left valign-top&quot;&gt;&lt;p class=&quot;tableblock&quot;&gt;支出(Expenses)&lt;/p&gt;&lt;/td&gt; 
-       &lt;td class=&quot;tableblock halign-left valign-top&quot;&gt;&lt;p class=&quot;tableblock&quot;&gt;收入(Income)&lt;/p&gt;&lt;/td&gt; 
+       &lt;td class=&quot;tableblock halign-left valign-top&quot;&gt;&lt;p class=&quot;tableblock&quot;&gt;支出（Expenses）&lt;/p&gt;&lt;/td&gt; 
+       &lt;td class=&quot;tableblock halign-left valign-top&quot;&gt;&lt;p class=&quot;tableblock&quot;&gt;收入（Income）&lt;/p&gt;&lt;/td&gt; 
        &lt;td class=&quot;tableblock halign-left valign-top&quot;&gt;&lt;p class=&quot;tableblock&quot;&gt;损益表&lt;/p&gt;&lt;/td&gt; 
       &lt;/tr&gt; 
      &lt;/tbody&gt; 
@@ -238,7 +238,7 @@ Income = -Income&lt;/code&gt;&lt;/pre&gt;
   &lt;div class=&quot;sect2&quot;&gt; 
    &lt;h3 id=&quot;位置与目的&quot;&gt;位置与目的&lt;/h3&gt; 
    &lt;div class=&quot;paragraph&quot;&gt; 
-    &lt;p&gt;账户还可以区分钱在哪(Location)和钱用来干什么了(Purpose)。&lt;/p&gt; 
+    &lt;p&gt;账户还可以区分钱在哪（Location）和钱用来干什么了（Purpose）。&lt;/p&gt; 
    &lt;/div&gt; 
    &lt;table class=&quot;tableblock frame-all grid-all stretch&quot;&gt; 
     &lt;colgroup&gt; 
@@ -254,13 +254,13 @@ Income = -Income&lt;/code&gt;&lt;/pre&gt;
       &lt;td class=&quot;tableblock halign-left valign-top&quot;&gt;&lt;p class=&quot;tableblock&quot;&gt;报表&lt;/p&gt;&lt;/td&gt; 
      &lt;/tr&gt; 
      &lt;tr&gt; 
-      &lt;td class=&quot;tableblock halign-left valign-top&quot;&gt;&lt;p class=&quot;tableblock&quot;&gt;位置(Location)&lt;/p&gt;&lt;/td&gt; 
+      &lt;td class=&quot;tableblock halign-left valign-top&quot;&gt;&lt;p class=&quot;tableblock&quot;&gt;位置（Location）&lt;/p&gt;&lt;/td&gt; 
       &lt;td class=&quot;tableblock halign-left valign-top&quot;&gt;&lt;p class=&quot;tableblock&quot;&gt;资产&lt;/p&gt;&lt;/td&gt; 
       &lt;td class=&quot;tableblock halign-left valign-top&quot;&gt;&lt;p class=&quot;tableblock&quot;&gt;负债&lt;/p&gt;&lt;/td&gt; 
       &lt;td class=&quot;tableblock halign-left valign-top&quot;&gt;&lt;p class=&quot;tableblock&quot;&gt;资产负债表&lt;/p&gt;&lt;/td&gt; 
      &lt;/tr&gt; 
      &lt;tr&gt; 
-      &lt;td class=&quot;tableblock halign-left valign-top&quot;&gt;&lt;p class=&quot;tableblock&quot;&gt;目的(Purpose)&lt;/p&gt;&lt;/td&gt; 
+      &lt;td class=&quot;tableblock halign-left valign-top&quot;&gt;&lt;p class=&quot;tableblock&quot;&gt;目的（Purpose）&lt;/p&gt;&lt;/td&gt; 
       &lt;td class=&quot;tableblock halign-left valign-top&quot;&gt;&lt;p class=&quot;tableblock&quot;&gt;收入&lt;/p&gt;&lt;/td&gt; 
       &lt;td class=&quot;tableblock halign-left valign-top&quot;&gt;&lt;p class=&quot;tableblock&quot;&gt;支出&lt;/p&gt;&lt;/td&gt; 
       &lt;td class=&quot;tableblock halign-left valign-top&quot;&gt;&lt;p class=&quot;tableblock&quot;&gt;损益表&lt;/p&gt;&lt;/td&gt; 
