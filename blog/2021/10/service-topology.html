@@ -64,7 +64,7 @@
 <p><div id="preamble"> 
  <div class="sectionbody"> 
   <div class="paragraph"> 
-   <p>使用服务器部署服务的时候，各个服务之间的依赖关系通常是需要额外的工作来维护的。比如有一个MySQL数据库，在典型的运维场景，你想知道哪些应用依赖他就比较费劲，尤其是在一个变换频繁的团队中是需要一个统筹来管理的。 开源项目 <a href="https://github.com/reploop/reploop-topology">reploop-topology</a>的目的就是快速发现服务拓扑，其基本假设是一台机器提供服务必须要监听服务端口，并且建立网络连接。这是典型的分布式场景下通过网络连接起来的多机器之间的交互方式。</p> 
+   <p>使用服务器部署服务的时候，各个服务之间的依赖关系通常是需要额外的工作来维护的。比如有一个MySQL数据库，在典型的运维场景，你想知道哪些应用依赖他就比较费劲，尤其是在一个变换频繁的团队中是需要一个统筹来管理的。 开源项目<span class="underline"><a href="https://github.com/reploop/reploop-topology">reploop-topology</a></span>的目的就是快速发现服务拓扑，其基本假设是一台机器提供服务必须要监听服务端口，并且建立网络连接。这是典型的分布式场景下通过网络连接起来的多机器之间的交互方式。</p> 
   </div> 
  </div> 
 </div> 
@@ -72,7 +72,7 @@
  <h2 id="拓扑">拓扑</h2> 
  <div class="sectionbody"> 
   <div class="paragraph"> 
-   <p>主要利用 <code>lsof</code> 与 <code>ps</code> 命令获取主机上的监听的端口与服务进程。 需要在目标机器上执行如下命令：</p> 
+   <p>主要利用<code>lsof</code>与<code>ps</code>命令获取主机上的监听的端口与服务进程。 需要在目标机器上执行如下命令：</p> 
   </div> 
   <div class="listingblock"> 
    <div class="content"> 
@@ -81,7 +81,7 @@ sudo ps -ef;</code></pre>
    </div> 
   </div> 
   <div class="paragraph"> 
-   <p><code>lsof</code> 命令获取机器上的所有网络连接，其中也包括了本地监听的端口信息，同时利用 <code>ps</code> 取得机器上的所有的服务进程。接着通过 <code>lsof</code> 和 <code>ps</code> 的输出结果中的相同的 <strong>pid</strong> 可以将网络连接归属到同一个服务进程，并且发现了进程之间的依赖关系。 接着将服务进程通过启动命令归属到同一个应用服务，这样就通过网络连接建立起此连接两端对应的服务之间的连接关系。</p> 
+   <p><code>lsof</code> 命令获取机器上的所有网络连接，其中也包括了本地监听的端口信息，同时利用<code>ps</code>取得机器上的所有的服务进程。接着通过<code>lsof</code>和<code>ps</code>的输出结果中的相同的<strong>pid</strong>可以将网络连接归属到同一个服务进程，并且发现了进程之间的依赖关系。 接着将服务进程通过启动命令归属到同一个应用服务，这样就通过网络连接建立起此连接两端对应的服务之间的连接关系。</p> 
   </div> 
   <div class="paragraph"> 
    <p>一个网络连接，我们经常用5元组来唯一表示: (Source IP, Source Port, Destination IP, Destination Port, Protocol)。这就是源地址IP:Port，目的地址IP:Port ，以及相应的网络协议。下面就开始从基础的名词开始构建服务拓扑。</p> 
@@ -164,7 +164,7 @@ sudo ps -ef;</code></pre>
    </ul> 
   </div> 
   <div class="paragraph"> 
-   <p>以及本地回环地址127.0.0.1。 这些地址都将会处理为具体的IP地址。 具体是首先会通过 <code>lsof</code> 的输出结果中汇总出有连接建立的所有本地IP地址，然后用这些IP地址来替换上面出现的特殊形式的IP地址。</p> 
+   <p>以及本地回环地址127.0.0.1。 这些地址都将会处理为具体的IP地址。 具体是首先会通过<code>lsof</code>的输出结果中汇总出有连接建立的所有本地IP地址，然后用这些IP地址来替换上面出现的特殊形式的IP地址。</p> 
   </div> 
  </div> 
 </div> 
@@ -175,7 +175,7 @@ sudo ps -ef;</code></pre>
    <p>Linux服务器上的每个Process都有两个id，分别是PID与PPID。同一时刻服务器上的所有PID是不重复的，但是已经消亡的进程PID后面是可以重复被利用的。</p> 
   </div> 
   <div class="paragraph"> 
-   <p>Linux下进程之间是一个树的关系，一个进程通过PPID指向其父进程。这点在处理 <code>lsof</code> 的输出时很重要，因为一个进程本身可以监听端口，也可以让子进程去监听端口提供服务。比如一些守护进程做的事就是其他真正的服务子进程去服务，自己则是一直监控着子进程的健康状态。 但是所有的子进程都应该看作一个服务进程来处理。</p> 
+   <p>Linux下进程之间是一个树的关系，一个进程通过PPID指向其父进程。这点在处理<code>lsof</code>的输出时很重要，因为一个进程本身可以监听端口，也可以让子进程去监听端口提供服务。比如一些守护进程做的事就是其他真正的服务子进程去服务，自己则是一直监控着子进程的健康状态。 但是所有的子进程都应该看作一个服务进程来处理。</p> 
   </div> 
  </div> 
 </div> 
