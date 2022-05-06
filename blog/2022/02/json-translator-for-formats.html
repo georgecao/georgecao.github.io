@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="author" content="乔治">
     <meta name="keywords" content="JSON,antlr,AST,抽象语法树,代码生成,Thrift,Protobuf,编程语言">
-    <meta name="generator" content="JBake v${jbakeVersion}">
+    <meta name="generator" content="JBake v2.7.0.8">
     <meta property=og:locale content=zh_CN>
     <!-- Le styles -->
     <link href="../../../css/bootstrap.min.css" rel="stylesheet">
@@ -322,9 +322,13 @@
      <pre class="highlight"><code class="language-bash" data-lang="bash">usage: json2 &lt;command&gt; [ &lt;args&gt; ] <i class="conum" data-value="1"></i><b>(1)</b>
 
 Commands are:
-    bean    Convert JSON to POJO. <i class="conum" data-value="2"></i><b>(2)</b>
-    help    Display help information <i class="conum" data-value="3"></i><b>(3)</b>
-    proto   Translate JSON to Protobuf Schema. TBD. <i class="conum" data-value="4"></i><b>(4)</b>
+    all      Convert JSON to all supported targets in one run. <i class="conum" data-value="2"></i><b>(2)</b>
+    avro     Translate JSON to Apache Avro schema. <i class="conum" data-value="3"></i><b>(3)</b>
+    bean     Convert JSON to Java POJO. <i class="conum" data-value="4"></i><b>(4)</b>
+    go       Translate JSON to golang struct. <i class="conum" data-value="5"></i><b>(5)</b>
+    help     Display help information <i class="conum" data-value="6"></i><b>(6)</b>
+    proto    Translate JSON to Protobuf Schema. <i class="conum" data-value="7"></i><b>(7)</b>
+    thrift   Translate JSON to Thrift IDL. <i class="conum" data-value="8"></i><b>(8)</b>
 
 See 'json2 help &lt;command&gt;' for more information on a specific command.</code></pre> 
     </div> 
@@ -338,15 +342,31 @@ See 'json2 help &lt;command&gt;' for more information on a specific command.</co
       </tr> 
       <tr> 
        <td><i class="conum" data-value="2"></i><b>2</b></td> 
-       <td>bean命令，生成POJO。</td> 
+       <td>all命令，一次性生成所有支持的格式，效果相当于分别执行不同的命令。</td> 
       </tr> 
       <tr> 
        <td><i class="conum" data-value="3"></i><b>3</b></td> 
-       <td>help命令，默认打印帮助信息。</td> 
+       <td>avro命令，生成Apache Avro Schema。</td> 
       </tr> 
       <tr> 
        <td><i class="conum" data-value="4"></i><b>4</b></td> 
-       <td>proto命令，生成Protobuf Schema。筹划中。。。</td> 
+       <td>bean命令，生成POJO。</td> 
+      </tr> 
+      <tr> 
+       <td><i class="conum" data-value="5"></i><b>5</b></td> 
+       <td>go命令，生成Golang struct。</td> 
+      </tr> 
+      <tr> 
+       <td><i class="conum" data-value="6"></i><b>6</b></td> 
+       <td>help命令，默认打印帮助信息。</td> 
+      </tr> 
+      <tr> 
+       <td><i class="conum" data-value="7"></i><b>7</b></td> 
+       <td>proto命令，生成Protobuf Schema。</td> 
+      </tr> 
+      <tr> 
+       <td><i class="conum" data-value="8"></i><b>8</b></td> 
+       <td>thrift命令，生成Thrift IDL。</td> 
       </tr> 
      </tbody>
     </table> 
@@ -403,7 +423,7 @@ See 'json2 help &lt;command&gt;' for more information on a specific command.</co
     
     <div id="footer">
       <div class="container">
-        <p class="muted credit">&copy; 2020 | Mixed with <a href="http://getbootstrap.com/">Bootstrap v3.1.1</a> | Baked with <a href="http://jbake.org">JBake v${jbakeVersion}</a></p>
+        <p class="muted credit">&copy; 2020 | Mixed with <a href="http://getbootstrap.com/">Bootstrap v3.1.1</a> | Baked with <a href="http://jbake.org">JBake v2.7.0.8</a></p>
       </div>
     </div>
     

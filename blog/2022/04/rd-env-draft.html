@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+  <head>
+    <meta charset="utf-8"/>
+    <title>研发环境的设计思路</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="乔治">
+    <meta name="keywords" content="研发环境,协作,云原生,虚拟化,容器化,资源隔离">
+    <meta name="generator" content="JBake v2.7.0.8">
+    <meta property=og:locale content=zh_CN>
+    <!-- Le styles -->
+    <link href="../../../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../../../css/asciidoctor.css" rel="stylesheet">
+    <link href="../../../css/base.css" rel="stylesheet">
+    <link href="../../../css/prettify.css" rel="stylesheet">
+
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+
+    <!-- Fav and touch icons -->
+    <!--<link rel="apple-touch-icon-precomposed" sizes="144x144" href="../assets/ico/apple-touch-icon-144-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="../assets/ico/apple-touch-icon-114-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="../assets/ico/apple-touch-icon-72-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" href="../assets/ico/apple-touch-icon-57-precomposed.png">-->
+    <link rel="shortcut icon" href="../../../img/favicon.svg">
+      <link rel="canonical" href="https://www.reploop.org/blog/2022/04/rd-env.html" />
+    <script data-ad-client="ca-pub-2350040335860411" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  </head>
+  <body onload="prettyPrint()">
+    <div id="wrap">	<!-- Fixed navbar -->
+    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../../../">REPLoop</a>
+        </div>
+        <div class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li><a href="../../../index.html">博客</a></li>
+            <li><a href="../../../archive.html">归档</a></li>
+            <li><a href="../../../tags/index.html">标签</a></li>
+            <li><a href="../../../about.html">关于</a></li>
+            <li><a href="../../../feed.xml">订阅</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </div>
+    <div class="container">
+    <div class="page-header">
+        <h1>研发环境的设计思路</h1>
+    </div>
+
+<p>
+    <a href="/about.html"><strong>乔治</strong></a>于2022年04月24日
+            <span class="badge badge-dark">研发环境</span>
+            <span class="badge badge-dark">协作</span>
+            <span class="badge badge-dark">云原生</span>
+            <span class="badge badge-dark">虚拟化</span>
+            <span class="badge badge-dark">容器化</span>
+            <span class="badge badge-dark">资源隔离</span>
+</p>
+<p><div id="preamble"> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>为了团队协作和系统稳定，一般公司的研发环境至少会分为：<strong>开发</strong>，<strong>测试</strong>和<strong>线上</strong>。这个大概是开发下意识就会有的基本思路。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>从系统稳定性的角度，开发人员可以随时谁地变更开发环境，稳定性最差；测试环境供测试团队使用，或者研发之外的产品，运营团队来测试，验收，要有一定的稳定性；线上或者生产环境是面向真实用户的，稳定性要求最高。对线上环境的变更需要有一定的流程和规范。有些在上线之前还可以有一个预发布环境，此环境是一个准生产环境，使用的资源都是线上的资源，只是服务入口对用户是隐藏的，一般是上线前内部评审使用的环境。这个功能也可以用测试环境代替，但是一般测试环境数据没有线上规范，可能会有部分效果看不到。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>从用户的角度，环境可归类为线上和线下两部分。线上环境包含生产和预发布环境，线下环境包含开发和测试环境。开发者一般都需要本机开发调试，所以开发环境又可以多一个本地(local)环境。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>最后可以组成一个<strong>本地</strong>，<strong>开发</strong>，<strong>测试</strong>，<strong>预发布</strong>和<strong>生产</strong>5个环境。视团队规模酌情全部使用，或者简化省略一部分环境。最简单的就是维护一个生产环境，开发直接变更生产环境，只是从团队协作和业务稳定的角度看风险非常高而已。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>从团队协作的角度，通常会有涉及<strong>开发</strong>，<strong>测试</strong>，<strong>运维</strong>，<strong>产品/运营</strong>到最终的<strong>用户/客户</strong>。 不同开发之间的工作最好不要互相影响，不同测试之间的工作也不要影响。同时开发最好也不要影响测试工作，反之亦然。因此我们可以在<strong>一个环境内细分为多个分组（shard/group）</strong>，分组之间可以共用一部分环境，但是在不同分组之内各自变更的部分是相互独立而不干扰。比如线上环境如果要支持A/B测试的话，那么也可以分为2个组，一个测试组和一个对照组。不同的开发按照不同的功能(feature)为组各自独立开发和测试。比如一个支付团队在迭代支付服务，电商团队在做购物车的迭代，购物车流程是要用到支付服务的。这时候电商团队和支付团队就可以在开发环境中分别为两个功能分组，各自开发，而不会因为支付团队也在开发状态而影响电商团队的迭代开发。</p> 
+  </div> 
+  <div class="listingblock"> 
+   <div class="content"> 
+    <pre>graph ENV {
+    online[label="线上"];
+    offline[label="线下"];
+    dev[label="开发"];
+    test[label="测试"];
+    prod[label="生产"];
+    local[label="本地"];
+    pre[label="预发布"];
+    A[label="A/B" shape="box"];
+    B[label="A/B" shape="box"];
+    S1[label="分组1" shape="box"];
+    S2[label="分组2" shape="box"];
+    S3[label="分组3" shape="box"];
+
+    online -- { prod; pre};
+    offline -- { dev; test };
+    dev -- { local };
+    prod -- {A;B};
+    test --{S1;S2;S3}
+}</pre> 
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>每个环境尽可能的保持一致或者相似，然后通过性能指标来调整资源分布，从而保持一致或者相似的前提下避免资源浪费。这样研发人员对各个环节会越来越熟悉，对于故障处理等紧急情况下的效率有很大的帮助。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="隔离">隔离</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>区分环境主要是为了隔离，包括代码，数据库，消息队列，应用，负载均衡，基础设施比如机器以及网络环境等。还需要考虑依赖的第三方应用对环境的兼容性，比如第三方支付通道如微信支付不存在测试，应用要测试就是用微信支付线上的环境，线上的商户，线上的签名配置等。</p> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="物理隔离">物理隔离</h3> 
+   <div class="paragraph"> 
+    <p>这种隔离使用的是不同的物理机器，不同的部署服务，不同的代码仓库，不同数据库等等。这是物理级别的隔离，颗粒度比较粗的方式。</p> 
+   </div> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="虚拟隔离">虚拟隔离</h3> 
+   <div class="paragraph"> 
+    <p>不过随着虚拟化和容器化，以及云原生的趋势，很多物理资源都可以共享里。</p> 
+   </div> 
+   <div class="paragraph"> 
+    <p>基础设施： 容器，云服务</p> 
+   </div> 
+   <div class="paragraph"> 
+    <p>构建一套服务，环境 数据的路由功能也是可以用来做隔离，虚拟隔离。</p> 
+   </div> 
+   <div class="paragraph"> 
+    <p>一切都可以基于tag来设计： tag protocol设计方法 典型如TCP 协议栈</p> 
+   </div> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="tag的方式">tag的方式：</h3> 
+   <div class="ulist"> 
+    <ul> 
+     <li> <p>域名方式：tag.domain.com</p> </li> 
+     <li> <p>HTTP Header: x-shard or group</p> </li> 
+     <li> <p>HTTP cookie/query parameters: 传参数的方式</p> </li> 
+     <li> <p>tag metadata:数据以及附带的元数据。</p> </li> 
+    </ul> 
+   </div> 
+   <div class="paragraph"> 
+    <p>整个过程拆分为三步：代码-构建-部署。而且过程中代码和构建分离，代码和环境的分离，最后统一部署。</p> 
+   </div> 
+   <div class="ulist"> 
+    <ul> 
+     <li> <p>代码只关注业务逻辑，不用操心部署环境；</p> </li> 
+     <li> <p>构建服务将根据目标环境构建可部署的包；</p> </li> 
+     <li> <p>部署服务交给专门的CD部署系统来统一规划；</p> </li> 
+     <li> <p>运行时通过分布式配置服务加载环境配置；</p> </li> 
+    </ul> 
+   </div> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="环境与分组sharding">环境与分组（sharding）</h2> 
+ <div class="sectionbody"> 
+  <div class="ulist"> 
+   <ul> 
+    <li> <p>每个feature都可以作为一个环境，</p> </li> 
+    <li> <p>重要基础设置的共享：测试环境数据库是不是要每个feature一个呢？如果不需要，那该如何在不同的feature之间共享</p> </li> 
+   </ul> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="fallback机制">fallback机制</h3> 
+   <div class="paragraph"> 
+    <p>每个环境都需要有一个默认的分组，如果没有指定分组的话，可以使用默认分组。但是环境与环境之间是严格隔离的。就是开发环境严格的不能使用测试的数据库，更不能链接线上的数据库。</p> 
+   </div> 
+   <div class="paragraph"> 
+    <p>测试数据的规范和覆盖率 数据不完备或者不规范，导致很多逻辑验证不规范，覆盖率不到。会导致很多的时候测试环境没问题，一到线上就有问题的现象。线上数据脱敏之后定期同步到测试环境。</p> 
+   </div> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="命名服务">命名服务</h3> 
+   <div class="paragraph"> 
+    <p>把资源先按照环境划分，每个环境在按照分组划分，然后形成对于的名字。</p> 
+   </div> 
+   <div class="paragraph"> 
+    <p>分组-环境-资源</p> 
+   </div> 
+   <div class="paragraph"> 
+    <p>shard.env.resource</p> 
+   </div> 
+  </div> 
+ </div> 
+</div></p>
+
+<hr/>
+<div id="disqus_thread"></div>
+<script>
+
+    /**
+     *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+     *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
+    var disqus_config = function () {
+        this.page.url = "https://www.reploop.org/blog/2022/04/rd-env.html";  // Replace PAGE_URL with your page's canonical URL variable
+        this.page.identifier = "https://www.reploop.org/blog/2022/04/rd-env.html"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+    };
+    (function () { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://reploop.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by
+        Disqus.</a></noscript>
+		</div>
+		<div id="push"></div>
+    </div>
+    
+    <div id="footer">
+      <div class="container">
+        <p class="muted credit">&copy; 2020 | Mixed with <a href="http://getbootstrap.com/">Bootstrap v3.1.1</a> | Baked with <a href="http://jbake.org">JBake v2.7.0.8</a></p>
+      </div>
+    </div>
+    
+    <!-- Le javascript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="../../../js/jquery-1.11.1.min.js"></script>
+    <script src="../../../js/bootstrap.min.js"></script>
+    <script src="../../../js/prettify.js"></script>
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  messageStyle: "none",
+  tex2jax: {
+    inlineMath: [["\\(", "\\)"]],
+    displayMath: [["\\[", "\\]"]],
+    ignoreClass: "nostem|nolatexmath"
+  },
+  asciimath2jax: {
+    delimiters: [["\\$", "\\$"]],
+    ignoreClass: "nostem|noasciimath"
+  },
+  TeX: { equationNumbers: { autoNumber: "none" } }
+})
+MathJax.Hub.Register.StartupHook("AsciiMath Jax Ready", function () {
+  MathJax.InputJax.AsciiMath.postfilterHooks.Add(function (data, node) {
+    if ((node = data.script.parentNode) && (node = node.parentNode) && node.classList.contains('stemblock')) {
+      data.math.root.display = "block"
+    }
+    return data
+  })
+})
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_HTMLorMML"></script>
+  </body>
+</html>

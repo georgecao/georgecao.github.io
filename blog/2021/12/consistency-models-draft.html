@@ -2,11 +2,11 @@
 <html lang="zh_CN">
   <head>
     <meta charset="utf-8"/>
-    <title>一致性模型</title>
+    <title>分布式系统中的一致性模型</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="author" content="乔治">
-    <meta name="keywords" content="分布式系统,一致性模型">
-    <meta name="generator" content="JBake v${jbakeVersion}">
+    <meta name="keywords" content="分布式系统,一致性模型,可见性,原子性,MVCC,事务,隔离级别,数据库">
+    <meta name="generator" content="JBake v2.7.0.8">
     <meta property=og:locale content=zh_CN>
     <!-- Le styles -->
     <link href="../../../css/bootstrap.min.css" rel="stylesheet">
@@ -53,65 +53,141 @@
     </div>
     <div class="container">
     <div class="page-header">
-        <h1>一致性模型</h1>
+        <h1>分布式系统中的一致性模型</h1>
     </div>
 
 <p>
     <a href="/about.html"><strong>乔治</strong></a>于2021年12月25日
             <span class="badge badge-dark">分布式系统</span>
             <span class="badge badge-dark">一致性模型</span>
+            <span class="badge badge-dark">可见性</span>
+            <span class="badge badge-dark">原子性</span>
+            <span class="badge badge-dark">MVCC</span>
+            <span class="badge badge-dark">事务</span>
+            <span class="badge badge-dark">隔离级别</span>
+            <span class="badge badge-dark">数据库</span>
 </p>
-<p><div class="sect1"> 
+<p><div id="preamble"> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>一致性模型经常挂在嘴边，但是直接给出一个一致性模型图，又不知所云，说不出一个所以然来。<span class="image"><img src="http://jepsen.io/consistency/models/map.svg" alt="c" width="340"></span></p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
  <h2 id="数据操作">数据操作</h2> 
  <div class="sectionbody"> 
   <div class="paragraph"> 
-   <p>以CPU为计算核心，基于寄存器的计算机，对数据的全部操作就是读，写寄存器了。 想象一下指令不断的被CPU执行，CPU所做的操作就是读取寄存器数据， 计算并修改数据， 把结果重新存储到寄存器中。</p> 
+   <p>对于数据的操作，最基础的就2个：读和写，没有其他的了。其他操作都是为了性能或者使用的便利性而组合创造出来的，这是一个粒度从细到粗的方向从底层的读/写一直上升到应用开发者使用的SQL，RESTfull API以及RPC等等。</p> 
   </div> 
-  <div class="paragraph"> 
-   <p>数据以及存储本身不会修改数据，反而是要做到数据的正确持久存储。所有的变化都是通过CPU计算作出的。这就是read-modify-write基本动作了。 针对数据、寄存器、CPU缓存或者内存，最基本的操作就是读(read)与写(write)了, 计算(modify)是CPU的工作。</p> 
+  <div class="sect2"> 
+   <h3 id="单机操作">单机操作</h3> 
+   <div class="paragraph"> 
+    <p>以CPU为计算核心，基于寄存器的计算机，对数据的全部操作就是读，写寄存器了。 想象一下指令不断的被CPU执行，CPU所做的操作就是读取寄存器数据， 计算并修改数据， 把结果重新存储到寄存器中。</p> 
+   </div> 
+   <div class="paragraph"> 
+    <p>数据以及存储本身不会修改数据，反而是要做到数据的正确持久存储。所有的变化都是通过CPU计算作出的。这就是read-modify-write基本动作了。 针对数据、寄存器、CPU缓存或者内存，最基本的操作就是读(read)与写(write)，而计算(modify)是CPU的工作。</p> 
+   </div> 
+   <div class="paragraph"> 
+    <p>这时候的数据，有两个特别重要的特征：</p> 
+   </div> 
+   <div class="dlist"> 
+    <dl> 
+     <dt class="hdlist1">
+      可见性
+     </dt> 
+     <dd> 
+      <p>数据变化其他进程能不能，什么时候看见这个数据。</p> 
+     </dd> 
+     <dt class="hdlist1">
+      原子性
+     </dt> 
+     <dd> 
+      <p>看不到数据修改的中间状态，也就是要不是修改前的数据，要不是修改完成后的数据，一定不会是中间状态的数据。这种中间状态的数据也叫做<strong>脏数据</strong>。</p> 
+     </dd> 
+    </dl> 
+   </div> 
   </div> 
-  <div class="paragraph"> 
-   <p>关于数据，有两个特别重要的特性：</p> 
+  <div class="sect2"> 
+   <h3 id="分布式系统操作">分布式系统操作</h3> 
+   <div class="paragraph"> 
+    <p>单机的进程是按照<strong>地址</strong>来访问数据，而分布式系统中则是按照<strong>属性</strong>来访问数据的。这个属性可能是一个唯一ID，也可能是姓名或者多个属性组合起来的。我们可以属性或者属性的组合统称为key。 更进一步你可能听说过数据库的存储引擎可以是一个KV系统。所以分布式系统中的读操作就是<code>v=read(k)</code>，写操作就是<code>write(k,v)</code>。针对关系型数据库，k由where子句定义，v有可能是唯一的，也可能不唯一；同样的写操作也是类似的可以影响一行或者多行记录。</p> 
+   </div> 
   </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="基本概念">基本概念</h2> 
+ <div class="sectionbody"> 
   <div class="dlist"> 
    <dl> 
     <dt class="hdlist1">
-     可见性
+     分布式系统
     </dt> 
     <dd> 
-     <p>数据变化其他进程怎么看见这个数据。</p> 
+     <p>一个部署在多个机器上并通过网络连接到一起的，彼此之间共享数据的一个系统。</p> 
     </dd> 
     <dt class="hdlist1">
-     原子性
+     一致性模型
     </dt> 
     <dd> 
-     <p>避免脏数据产生。</p> 
+     <p>一致性模型描述的就是多个进程读/写多个数据，一段时间之后这些数据的可见性和原子性等特征是什么样子。一致性模型常用来描述分布式系统的。</p> 
+    </dd> 
+    <dt class="hdlist1">
+     事务
+    </dt> 
+    <dd> 
+     <p>事务通俗理解就是让多个操作组合起来的复合操作像一个单独操作一样，要不全部生效，要不都不生效。复合操作对数据的影响：对于单个事务，对数据的操作要不全部生效，要不都不生效。对于多个事务的并发与事务之间相互的影响，不同的场景有不同的要求，演化出不同的隔离级别。事务常用来描述部署在单个机器上的单个系统的。生效与否都是按照事务提交为分界线。</p> 
+    </dd> 
+    <dt class="hdlist1">
+     分布式事务
+    </dt> 
+    <dd> 
+     <p>事务由单机系统扩展到在分布式系统中，事务的理解本身没什么变化，只是事务作用于一个分布式系统，而非单机系统了。</p> 
+    </dd> 
+    <dt class="hdlist1">
+     事务的隔离级别
+    </dt> 
+    <dd> 
+     <p>SQL-92标准中定义了4个隔离级别，按照隔离级别由低到高依次为：</p> 
+     <div class="ulist"> 
+      <ul> 
+       <li> <p>未提交读(READ UNCOMMITTED)</p> </li> 
+       <li> <p>提交读(READ COMMITTED)</p> </li> 
+       <li> <p>可重复读(REPEATABLE READS)</p> </li> 
+       <li> <p>序列化(SERIALIZABLE)</p> </li> 
+      </ul> 
+     </div> 
     </dd> 
    </dl> 
   </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="分布式系统">分布式系统</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>一个部署在多个机器上并通过网络连接到一起的，共享数据的一个系统。</p> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="一致性模型">一致性模型</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>一致性模型描述的就是多个进程读/写多个数据，这些数据会变成什么样子。 一致性模型常用来描述分布式系统的。</p> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="事务">事务</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>复合操作对数据的影响：对于单个事务，对数据的操作要不全部生效，要不都不生效。对于多个事务的并发与事务之间相互的影响，对于不同的场景不同的要求，演化出不同的隔离模型。 事务常用来描述部署在单个机器上的单个系统的。</p> 
+  <div class="sect2"> 
+   <h3 id="异常">异常</h3> 
+   <div class="dlist"> 
+    <dl> 
+     <dt class="hdlist1">
+      脏数据
+     </dt> 
+     <dd> 
+      <p>事务中读到其他事务未提交的数据修改。</p> 
+     </dd> 
+     <dt class="hdlist1">
+      不可重复读
+     </dt> 
+     <dd> 
+      <p>事务中一个数据多次读取得到的结果不一致。</p> 
+     </dd> 
+     <dt class="hdlist1">
+      幻读
+     </dt> 
+     <dd> 
+      <p>事务中按照同样的条件多次查询得到的数据条数不一致。</p> 
+     </dd> 
+    </dl> 
+   </div> 
+   <div class="paragraph"> 
+    <p>在一个事务中的数据修改对事务是立即可见的，不受到隔离级别的影响。</p> 
+   </div> 
   </div> 
  </div> 
 </div> 
@@ -120,6 +196,7 @@
  <div class="sectionbody"> 
   <div class="ulist"> 
    <ul> 
+    <li> <p>Microsoft, <a href="https://docs.microsoft.com/en-us/sql/odbc/reference/develop-app/transaction-isolation-levels?view=sql-server-ver15">Transaction Isolation Levels (ODBC)</a></p> </li> 
     <li> <p>JEPSEN, <a href="http://jepsen.io/consistency">Consistency Models</a></p> </li> 
    </ul> 
   </div> 
@@ -152,7 +229,7 @@
     
     <div id="footer">
       <div class="container">
-        <p class="muted credit">&copy; 2020 | Mixed with <a href="http://getbootstrap.com/">Bootstrap v3.1.1</a> | Baked with <a href="http://jbake.org">JBake v${jbakeVersion}</a></p>
+        <p class="muted credit">&copy; 2020 | Mixed with <a href="http://getbootstrap.com/">Bootstrap v3.1.1</a> | Baked with <a href="http://jbake.org">JBake v2.7.0.8</a></p>
       </div>
     </div>
     

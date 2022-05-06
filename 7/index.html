@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="author" content="乔治">
     <meta name="keywords" content="REPL,REPLoop,George,乔治">
-    <meta name="generator" content="JBake v${jbakeVersion}">
+    <meta name="generator" content="JBake v2.7.0.8">
     <meta property=og:locale content=zh_CN>
     <!-- Le styles -->
     <link href="../css/bootstrap.min.css" rel="stylesheet">
@@ -52,6 +52,104 @@
       </div>
     </div>
     <div class="container">
+  		<a href="blog/2020/04/nginx-location-matching-rules.html"><h1>nginx配置文件中的location匹配规则</h1></a>
+  		<p>
+			<a href="/about.html"><strong>乔治</strong></a>于2020年04月04日
+					<span class="badge badge-dark">nginx</span>
+					<span class="badge badge-dark">配置文件</span>
+					<span class="badge badge-dark">优先级</span>
+					<span class="badge badge-dark">优化</span>
+					<span class="badge badge-dark">location</span>
+		</p>
+  		<p><div id="preamble"> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>在反向代理的场景下，nginx用的人很多。在使用nginx的过程中，除了常规的反向代理配置，还经常临时性的要封个请求，加个限速，跳转一下等是常有的事情。这些都和location的配置规则相关。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="location语法">location语法</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>location支持5种语法，分别为：</p> 
+  </div> 
+  <div class="listingblock"> 
+   <div class="content"> 
+    <pre>1. location =   /uri {}   #完整字符串匹配，优先级最高，发现匹配就停止
+2. location ^~  /uri {}   #字符串前缀匹配，发现匹配就停止。这个不是正则匹配
+3. location     /uri {}   #字符串前缀匹配，取最具体的那个匹配（the most specific match），可理解为最长匹配。这里即使是找到了匹配，也会继续执行后面的正则匹配。
+4. location ~   /uri {}   #正则匹配,大小写敏感。按在配置文件中定义的顺序执行，发现匹配就停止（The first regular expression to match the query will stop the search））
+5. location ~*  /uri {}   #同规则4(~)，区别就是正则匹配时大小写不敏感</pre> 
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>“发现匹配就停止”的意思是匹配过程终止了，已经得到了匹配结果并提前返回了，不会在执行后面的匹配了。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="执行顺序">执行顺序</h2> 
+ <div class="sectionbody"> 
+  <div class="ulist"> 
+   <ul> 
+    <li> <p>执行完整字符串匹配。从1)开始搜索，如果1）找到匹配，则停止搜索；</p> </li> 
+    <li> <p>执行字符串前缀匹配。执行2），3），目的是找到最具体的那个匹配。此过程不会停止整个匹配过程，完成后会继续执行正则匹配。唯一的例外是，如果location的操作是^~，只要发现匹配就停止搜索；</p> </li> 
+    <li> <p>执行正则匹配。4），5），按照配置文件中出现的顺序挨个匹配，如果发现匹配则停止搜索；</p> </li> 
+    <li> <p>相同规则内执行顺序是按照规则在配置文件中出现的顺序从上到下顺序执行的。</p> </li> 
+   </ul> 
+  </div> 
+  <div class="paragraph"> 
+   <p>一句话概括一下就是先执行完整字符串匹配，找到匹配就结束，没有找到匹配，就继续执行前缀和正则匹配，最后就是如果找到正则匹配，就用正则匹配结果，如果没有找到，就用前缀匹配的结果。当然，有一个例外。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="匹配结果">匹配结果</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>根据<strong>执行顺序</strong>节的解释，我们可以确定匹配结果的优先级是：<strong>完整字符串匹配</strong> &gt; <strong>^~前缀匹配</strong> &gt; <strong>正则匹配</strong> &gt; <strong>字符串前缀匹配</strong>。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="location优化建议">location优化建议</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>根据不同匹配的不同规则，</p> 
+  </div> 
+  <div class="ulist"> 
+   <ul> 
+    <li> <p>在确定的情况下优先使用完整字符串匹配（=），</p> </li> 
+    <li> <p>接下来优先使用（^~）。</p> </li> 
+    <li> <p>接下来就是正则匹配的location要合理排序，最常用，访问最多的要排到前面。</p> </li> 
+    <li> <p>最后是少写不带操作符的字符串前缀匹配。也就是location语法中的3.原因是a)这个过程是在正则匹配之前执行的，为了找到最具体的匹配，应该是需要全部执行;b)它的结果优先级没有正则匹配的高，如果后来发现了正则匹配，此过程就没有意义了。</p> </li> 
+   </ul> 
+  </div> 
+  <div class="paragraph"> 
+   <p>同时应该注意的是正则匹配（4，5）是按照配置文件中出现的顺序挨个匹配，取第一个匹配的结果。如果顺序安排不当，会有覆盖的结果。比如：</p> 
+  </div> 
+  <div class="listingblock"> 
+   <div class="content"> 
+    <pre class="highlight"><code class="language-bash" data-lang="bash">location ~ /uri {}           <i class="conum" data-value="1"></i><b>(1)</b>
+location ~ /uri/\d{1,}/ {}   <i class="conum" data-value="2"></i><b>(2)</b></code></pre> 
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>这个配置文件，如果遇到<strong>/uri/12345/</strong>这个请求的时候，最后的匹配结果是uri &lt;1&gt;，而不是后者 &lt;2&gt;。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="参考">参考</h2> 
+ <div class="sectionbody"> 
+  <div class="ulist"> 
+   <ul> 
+    <li> <p>nginx.org - <a href="http://wiki.nginx.org/HttpCoreModule#location" class="bare">http://wiki.nginx.org/HttpCoreModule#location</a></p> </li> 
+   </ul> 
+  </div> 
+ </div> 
+</div></p>
   		<a href="blog/2020/03/how-https-works.html"><h1>HTTPS如何工作的？</h1></a>
   		<p>
 			<a href="/about.html"><strong>George Cao</strong></a>于2020年03月28日
@@ -454,346 +552,6 @@ thread_D:
   </div> 
  </div> 
 </div></p>
-  		<a href="blog/2020/02/lock-free-multithreading-with-atomic-operations.html"><h1>用原子操作实现无锁多线程：底层线程同步</h1></a>
-  		<p>
-			<a href="/about.html"><strong>George Cao</strong></a>于2020年02月27日
-					<span class="badge badge-dark">原子指令</span>
-					<span class="badge badge-dark">多线程</span>
-					<span class="badge badge-dark">无锁</span>
-					<span class="badge badge-dark">无等待</span>
-					<span class="badge badge-dark">并发</span>
-					<span class="badge badge-dark">算法</span>
-		</p>
-  		<p><div id="preamble"> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>本文英文版经<span class="underline"><a href="https://it.linkedin.com/in/federicarinaldi">Federica Rinaldi</a></span>仔细审阅过，谢谢。</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>"atom"在希腊语中拾不可再分割的意思。在计算机中一个任务被称为原子的是指他不能再细分了：它不能再拆分为更小的执行步骤了。</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p><em>原子性</em> 是多线程操作的一个重要特征：因为原子操作是不可在细分的，所以一个线程是不可能干扰另一个正在并发执行原子操作的线程的。例如，当一个线程原子写入共享数据，其他线程是没有办法读取到未完成的数据。相反的，当一个线程原子读取共享数据，这个数据就像是单个时间点上的数据。换句话说，就是没有<a href="https://www.reploop.org/blog/2020/02/a-gentle-introduction-to-multithreading.html">数据竞争</a>的风险。</p> 
-  </div> 
-  <div class="ulist"> 
-   <div class="title">
-    本系列中的其他文章
-   </div> 
-   <ul> 
-    <li> <p><a href="https://www.reploop.org/blog/2020/02/a-gentle-introduction-to-multithreading.html">多线程简介</a> - 一步一步走进并发的世界</p> </li> 
-    <li> <p><a href="https://www.reploop.org/blog/2020/02/introduction-to-thread-synchronization.html">线程同步简介</a> - 多线程应用中最常见的并发控制方法之一</p> </li> 
-    <li> <p><a href="https://www.reploop.org/blog/2020/02/understanding-memory-reordering.html">理解内存重排序</a> - 为什写无锁多线程代码时它很重要</p> </li> 
-   </ul> 
-  </div> 
-  <div class="paragraph"> 
-   <p>在<a href="https://www.reploop.org/blog/2020/02/introduction-to-thread-synchronization.html">上一篇文章</a>中，我介绍了所谓的<strong>同步原语</strong>，也就是最常用的线程同步工具。他们是用来为多线程间处理共享数据的操作提供原子性的。怎么做到的呢？其实就是直接让单个线程执行并发任务，同时操作系统阻塞了其他线程直到第一个线程完成它的工作。这么做的原因是一个被阻塞的线程对其他线程是无害的。考虑到阻塞线程的能力，同步原语也称为<strong>阻塞机制</strong>。</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>上一篇文章中的任意一种阻塞机制对大多数应用来说能够很好的工作。如果能够正确的使用，他们也是快速的和可靠的。尽管如此，他们还是有一些你可能需要考虑的缺点：</p> 
-  </div> 
-  <div class="olist arabic"> 
-   <ol class="arabic"> 
-    <li> <p>他们会阻塞其他线程 - 休眠的线程什么也不做，单纯的等待唤醒信号：这可能会浪费宝贵的时间；</p> </li> 
-    <li> <p>他们会卡死你的应用 - 如果一个持有同步原语锁的线程不管什么原因崩溃了，这个锁就永远不会释放了，等待这个锁的线程就永远卡住了；</p> </li> 
-    <li> <p>你对休眠哪个线程没什么控制 - 通常是操作系统选择阻塞哪个线程。这会引发一个被称之为<strong>优先级反转</strong>的不幸结果： 一个执行非常重要任务的高优先级线程被一个低优先级线程阻塞了。</p> </li> 
-   </ol> 
-  </div> 
-  <div class="paragraph"> 
-   <p>大多数时候你不会关注这些问题，因为他们不影响你应用程序的正确性。另一方面，有时候使线程一直运行是有必要的，特别是你想发挥多处理器/多核硬件的能力，或者你就是不能容忍系统被一个崩溃的线程拖死，或者优先级反转的问题是不容忽视的。</p> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="无锁编程来救场">无锁编程来救场</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>好消息：还有另一种控制多线程应用中并发任务的方法，为了避免上面提到的1）,2）和3）点问题，称之为<strong>无锁编程</strong>，这是一种不用加锁和解锁就可以安全的在多线程之间共享变化数据的技术。</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>坏消息：这是非常底层的东西。比传统的同步原语比如互斥锁和信号量还底层多了：这次我们会更接近本质。尽管如此，我发现无锁编程是一个很好的思想挑战，也是一个非常好的更好理解计算机如何工作的机会。</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>无锁编程依赖<strong>原子指令</strong>，这是CPU直接执行的原子操作。原子指令作为无锁编程的基础，我将在本文剩下的部分首先介绍，然后展示如何利用它做并发控制。</p> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="什么是原子指令">什么是原子指令？</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>思考计算中执行的任何操作，比如在屏幕上展示一张图片。这个操作是由许多更小的操作构成的：将文件读入内存，解压缩图片，点亮屏幕上的像素等等。如果你不停的细分这些更小的操作，也就是分为更小更小的操作，你最终会不能在分了。此时得到的处理器执行的肉眼可见的最小操作称之为<strong>机器指令</strong>，也就是硬件可直接执行的命令。</p> 
-  </div> 
-  <div class="imageblock"> 
-   <div class="content"> 
-    <img src="https://www.reploop.org/blog/2020/02/images/software-hardware-layers.png" alt="Software - hardware layers"> 
-   </div> 
-   <div class="title">
-    Figure 1. 计算机程序的不同层次。虚线代表软件层次，实线代表硬件层次。
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>取决于不同的CPU架构，一些机器指令是原子的，也就是单个的，不能切分的，不会被中断的。一些其他的指令则不是原子的：处理器私底下以更小的操作的方式做了更多的工作，这些操作称之为<strong><a href="https://en.wikipedia.org/wiki/Micro-operation">微指令</a></strong>。让我们给出更正式的分类：原子指令是不能在细分的CPU指令。更确切的说，原子指令可以被归为2个主要类型：<strong>存储与加载</strong> 和<strong>读取-修改-写入（RMW）</strong>。</p> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="存储与加载原子指令">存储与加载原子指令</h3> 
-   <div class="paragraph"> 
-    <p>存储和加载是处理器都需要的：用来写入（<strong>存储</strong>）和读取（<strong>加载</strong>）内存数据。在某些情况下，许多CPU架构保证这些操作是天然原子的。例如，实现了<span class="underline"><a href="https://en.wikipedia.org/wiki/X86">x86架构</a></span>的处理器使用<strong>MOV</strong>指令从内存中读取数据并交给CPU。这个操作如果处理的是<span class="underline"><a href="https://www.ibm.com/support/knowledgecenter/en/SSUFAU_1.0.0/com.ibm.ent.pl1.zos.doc/lr/alnmnt.html">对齐</a></span>的数据就能保证是原子的，对齐的数据是指能让CPU一次性读取出来的方式存储的数据。</p> 
-   </div> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="读取_修改_写入rmw原子指令">读取-修改-写入(RMW)原子指令</h3> 
-   <div class="paragraph"> 
-    <p>一些更复杂的操作不能够单独用一些简单存储和加载指令来完成。例如，增加存储中的数值需要至少3个原子的加载和存储指令，这就使的增加内存中数值这个操作不是原子的。<strong>读取-修改-写入（RMW）</strong> 指令可以做到这个，也就有了通过一个原子操作完成多个操作的能力。除了RMW，还有非常多此类的指令。一些CPU架构全部提供，一些则提供一部分，下面列举一些：</p> 
-   </div> 
-   <div class="ulist"> 
-    <ul> 
-     <li> <p><a href="https://en.wikipedia.org/wiki/Test-and-set">测试并设置</a> - 一个原子操作完成往内存中写入1并且返回赋值之前的值；</p> </li> 
-     <li> <p><a href="https://en.wikipedia.org/wiki/Fetch-and-add">获取并增加</a> - 一个原子操作完成增加内存中的数值并且返回增加之前的值；</p> </li> 
-     <li> <p><a href="https://en.wikipedia.org/wiki/Compare-and-swap">比较并交换（CAS）</a> - 比较内存中的数据和提供的数据，如果他们是相同的，将提供的另一个数据写入该内存中。</p> </li> 
-    </ul> 
-   </div> 
-   <div class="paragraph"> 
-    <p>以上这些操作都是一个原子操作完成多个操作。这是一个非常重要的特性，使得读取-修改-写入指令适合无锁多线程操作。我们很快就会看到为什么适合了。</p> 
-   </div> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="原子指令的三个层次">原子指令的三个层次</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>以上所有这些指令都属于硬件层面的：他们直接和CPU交互。这种工作方式是非常困难并且不可移植，因为一些指令可能在不同得架构下叫不同得名字，一些指令在不同的处理器模型上则根本不存在！因此，你也不太可能用到这些，除非你在针对特定得机器写非常底层得代码。</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>上到软件层面，许多操作系统提供了各自的原子指令。姑且称之为<strong>原子操作(atomic operations)</strong>，因为我们正在抽象出物理机器指令对应得原子操作。 例如， Windows系统上可能会用到<span class="underline"><a href="https://docs.microsoft.com/en-us/windows/desktop/sync/interlocked-variable-access">Interlocked API</a></span>，这是一组原子方式处理变量得函数。 MacOS则用<span class="underline"><a href="https://developer.apple.com/documentation/kernel/osatomic_h?language=objc">OSAtomc.h</a></span>头文件提供的函数做同样的事情。他们肯定是隐藏了硬件的具体实现，但是你还是受限于他们特定的环境。</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>实现可移植原子操作的最好办法是使用你所选择的编程语言提供的原子操作。比如Java语言中有<strong>java.util.concurrent.atomic</strong>包；C++提供了<strong>std::atomic</strong>头文件； Haskell有<strong>Data.Atomics</strong>包等等。一般来讲，如果一个编程语言能处理多线程，那就很有可能会提供原子操作的支持。这样的话就是编译器（如果是编译语言）或者虚拟机（如果是解析语言）负责从底层操作系统API或者硬件中找到最合适的指令来实现原子操作。</p> 
-  </div> 
-  <div class="imageblock"> 
-   <div class="content"> 
-    <img src="https://www.reploop.org/blog/2020/02/images/atomics-levels.png" alt="Three levels of atomic instructions"> 
-   </div> 
-   <div class="title">
-    Figure 2. 原子指令和操作的层级。虚线代表软件层次，实线代表硬件层次。
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>例如，C++ 的编译器GCC通常是直接将 C++语言的原子操作和对象对应到机器指令。如果不能直接映射到硬件上，它也会利用其他可用的原子操作来实现特定操作。最坏情况下，在一个不提供原子操作的平台上，它可能利用其他阻塞策略来实现了，当然了这肯定不是无锁的实现。</p> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="在多线程中使用原子操作">在多线程中使用原子操作</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>我们现在看看原子操作是如何使用的。 考虑增加一个简单的变量，这本来就不是原子操作，因为此操作由3个不同的步骤构成：读取数值，给数值加1，将结果写回。 一般来说，你可能会使用互斥锁来正确实现这个操作（伪代码）：</p> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlight"><code class="language-c" data-lang="c">mutex = initialize_mutex()
-x     = 0
-
-reader_thread()
-    mutex.lock()
-    print(x)
-    mutex.unlock()
-
-writer_thread()
-    mutex.lock()
-    x++
-    mutex.unlock()</code></pre> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>首先获得互斥锁的线程会继续执行，而其他线程则等待第一个线程执行完毕。</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>相反的，无锁方案使用了不同的模式：通过原子操作，线程可以随意执行而不用阻塞，例如：</p> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlight"><code class="language-c" data-lang="c">x = 0
-
-reader_thread()
-    print(load(x))
-
-writer_thread()
-    fetch_and_add(x, 1)</code></pre> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>我假设了<code>fetch_and_add()</code>和<code>load()</code>是基于相应的硬件指令的原子操作。 你可能已经发现了，这里并没有使用锁。 并发调用这些函数的多个线程都可以继续执行。<code>load()</code> 函数的原子性将保证不会有读线程读取到未完成修改的数据，同时因为<code>fetch_and_add()</code>的原子性，也不会有写线程能够部分修改数据。</p> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="现实世界中的原子操作">现实世界中的原子操作</h3> 
-   <div class="paragraph"> 
-    <p>现在，上面这个例子显示了原子操作的一个重要特性：他们仅针对原子类型，如boolean型，字符串，整数等。但是真的程序是需要使用同步技术来实现更复杂的数据结构，比如数组，向量，对象，数据向量，对象里包含数据等等。如何用基于原子类型的简单操作来保证复杂数据的原子性？</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>无锁编程迫使你跳出常规的同步原语来思考问题。你不直接用原子操作保护共享资源，而是用互斥锁或者信号量。同样的，你会基于原子操作构建<strong>无锁算法</strong>或者<strong>无锁数据结构</strong>来确定多个线程如何访问你的数据。</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>例如，上面看到的<em>fetch-and-add</em>操作可以用来实现一个基本的信号量，而这个信号量就可以用来协调多个线程。毫无意外，所有传统的阻塞同步工具都是基于原子操作的实现的。</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>人们写了很多个无锁数据结构，比如Folly的<span class="underline"><a href="https://github.com/facebook/folly/blob/master/folly/AtomicHashMap.h">AtomicHashMap</a></span>， <a href="https://www.boost.org/doc/libs/1_70_0/doc/html/lockfree.html">Boost.Lockfree类库</a>，多生产者/多消费者， <a href="https://github.com/cameron314/concurrentqueue">先进先出队列</a>(FIFO)，或者诸如<span class="underline"><a href="https://www.youtube.com/watch?v=rxQ5K9lo034">读取-复制-更新（RCU）</a></span>和<span class="underline"><a href="https://en.wikipedia.org/wiki/Shadow_paging">影子分页</a></span>(Shadow Paging)等一些算法。从头开始写这些原子工具很困难，更不用说让他们正确工作。这也是大多数时候你可能会使用已经存在的，实战检验过得算法与数据结构，而不是使用自己实现的。</p> 
-   </div> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="比较并交换cas循环">比较并交换(CAS)循环</h3> 
-   <div class="paragraph"> 
-    <p>具体到实际应用，<strong>比较并交换循环</strong>(<strong>CAS loop</strong>)可能是无锁编程中最常用的技巧，无论你是使用现成的数据结构或者从头开始实现算法。这是基于对应的<em>比较并交换</em>原子操作（CAS）而且有一个很好的特点：他能支持多个写线程。这是用到复杂系统中的并发算法的一个重要特征。</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>CAS循环非常有趣是因为他在无锁代码中引入了重复模式，同时引入了用于推理的理论概念。我们进一步看一下。</p> 
-   </div> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="cas循环实现">CAS循环实现</h3> 
-   <div class="paragraph"> 
-    <p>操作系统或者编程语言提供的CAS函数可能是这样的：</p> 
-   </div> 
-   <div class="listingblock"> 
-    <div class="content"> 
-     <pre class="highlight"><code class="language-c" data-lang="c">boolean compare_and_swap(shared_data, expected_value, new_value);</code></pre> 
-    </div> 
-   </div> 
-   <div class="paragraph"> 
-    <p>他的入参有共享数据的引用/指针，预期共享数据当前的值以及将要赋值的新值。这个函数只有在<code>shared_date.value == expected_value</code>的情况下才会使用新数据替换原始数据，并且只有数据改变的情况下才返回<code>true</code>。</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>CAS循环的思路是不停的尝试比较和交换，直到操作成功。每一次尝试都需要给CAS函数传递共享数据的引用/指针，预期的数据和将要赋值的数据。这是和其他并发写线程配合的必要条件：如果其他线程在同步修改数据，也就是共享数据和预期数据不再匹配了，CAS函数就会失败。这样就支持了多个写线程。</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>假设我们用CAS来实现前面代码片段实现的<code>fetch-and-add</code>算法，实现起来可能是这样的（伪代码）：</p> 
-   </div> 
-   <div class="listingblock"> 
-    <div class="content"> 
-     <pre class="highlight"><code class="language-c" data-lang="c">x = 0
-
-reader_thread()
-    print(load(x))
-
-writer_thread()
-    temp = load(x)                              <i class="conum" data-value="1"></i><b>(1)</b>
-    while(!compare_and_swap(x, temp, temp + 1)) <i class="conum" data-value="2"></i><b>(2)</b></code></pre> 
-    </div> 
-   </div> 
-   <div class="paragraph"> 
-    <p>第（1）行代码加载共享数据，然后尝试和新的数据进行交换，直到交换成功返回<code>true</code>（2）。</p> 
-   </div> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="交换范式">交换范式</h3> 
-   <div class="paragraph"> 
-    <p>正如前面说的，CAS循环在许多无锁算法中引入了重复模式:</p> 
-   </div> 
-   <div class="olist arabic"> 
-    <ol class="arabic"> 
-     <li> <p>创建共享数据的<em>本地副本</em>；</p> </li> 
-     <li> <p>按需修改本地副本；</p> </li> 
-     <li> <p>合适的时候，通过<em>交换</em>更新后的数据与之前创建的副本数据来更新共享数据。</p> </li> 
-    </ol> 
-   </div> 
-   <div class="paragraph"> 
-    <p>第3）点是关键：交换是通过原子操作来保证原子性的。本地写线程针对副本数据做了大部分的脏活累活，等到合适的时候才发布更新到共享数据。这样的话，其他线程只能看到这个共享数据的2种状态：未修改的数据和修改后的数据。由于原子交换，看不到修改过程中的中间状态，或者出错的更新。</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>这也是哲学上不同于加锁方案的：无锁算法中，多线程仅仅在执行交换的时候才需要交互，其他时候都不被打扰的运行，也感知不到其他线程的存在。多线程之间的交互点缩小了并且被限制在执行原子操作的期间。</p> 
-   </div> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="一种轻量级加锁形式">一种轻量级加锁形式</h3> 
-   <div class="paragraph"> 
-    <p>上面看到的<em>循环直到成功</em>的策略在许多无锁算法中用到了，被称之为<strong>自旋锁(spinlock)</strong>：一个简单的循环，线程不停的尝试执行操作直到成功。这是一种轻量级的加锁形式，此时线程是实时活跃运行的，不会被操作系统休眠，尽管这个循环成功之前工作不会有进展。相比之下，互斥锁或者信号量中用到的常规锁代价非常高，因为一个挂起/唤醒周期需要大量的底层工作。</p> 
-   </div> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="aba问题">ABA问题</h3> 
-   <div class="paragraph"> 
-    <p>行（1）和（2）所示指令虽然有所不同，但不是连续的。另一个线程可能插入中间，再（1）读取完成之后修改共享数据。更确切的说，另一个线程可以将初始数据，假设为A，修改为B，然后在（2）所示的比较并交换操作执行之前再修改回A。执行CAS操作的线程不会发现数据的变化而成功执行交换操作。这就是所谓的ABA问题：有时候你可以简单的直接忽略，如果你的算法就像上面那个一样简单，而有时候你就需要避免此问题，因为这会给你的应用程序引入非常难以发现的问题。幸运的是有<span class="underline"><a href="https://en.wikipedia.org/wiki/Compare-and-swap#ABA_problem">几种方式</a></span> 可以绕过这个问题。</p> 
-   </div> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="cas循环可以交换任意的事情">CAS循环可以交换任意的事情</h3> 
-   <div class="paragraph"> 
-    <p>CAS循环经常用来交换指针，这也是<em>比较并交换</em>操作支持的类型之一。当你需要修改复杂的诸如对象或者数组的数据集的时候非常有用：创建本地数据副本，按需修改这个副本，合适的时候交换本地副本数据和全局共享数据的指针。这样的话全局共享数据就指向了本地副本数据在内存中指针，其他线程就会看到更新后的最新数据。</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>这个技术允许你同步非基本数据实体(primitive entities)，尽管要做到这个也有一定的难度。比如交换完成之后，一个读线程还在读取老的指针？如何安全的删除之前的数据副本而不引起非常危险的野指针问题？工程师们再一次的找到了很多解决方案，比如使用支持内存自动<span class="underline"><a href="https://en.wikipedia.org/wiki/Garbage_collection_(computer_science)">垃圾回收</a></span>的语言，或者一些深奥的技术如<span class="underline"><a href="https://aturon.github.io/blog/2015/08/27/epoch/">分代内存回收</a></span>， <a href="https://en.wikipedia.org/wiki/Hazard_pointer">冒险指针</a>或者<span class="underline"><a href="https://en.wikipedia.org/wiki/Reference_counting">引用计数</a></span>。</p> 
-   </div> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="无锁和无等待">无锁和无等待</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>每个基于原子操作的算法或者数据结构都可以归为2类：<strong>无锁的</strong> 或者<strong>无等待的</strong>。当你要评估基于原子操作的类库对你应用程序性能的影响时，这是一个非常重要的不同点。</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>无锁算法允许其他线程继续执行有用的工作，尽管有一个线程正在忙等。换句话说，至少有一个线程是可以继续执行的。CAS循环是一个非常好的无锁算法例子，因为循环的过程中如果有一些交换尝试失败了，一定是因为另一个线程成功修改了共享数据。尽管如此，无锁算法可能会在无法预知的时间内不停的忙等，尤其是有许多个线程在同时竞争同一个共享数据：更确切的说，当<strong>竞争</strong>非常激烈的时候。极端情况下，一个无锁算法的CPU资源效率可能远远不及让线程阻塞休眠的互斥锁。</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>相比之下，在无等待算法中（无锁算法的子集），任何线程都能够在有限的步骤内完成工作，无论执行速度是怎样的，或者其他线程的工作负载水平是怎样的。本文中基于<em>fetch-and-add</em>操作的第一个代码片段就是一个无等待算法实例：没有循环，没有重试，就是干净的业务流。还有，无等待算法是<strong>容错的</strong>：任何其他线程的失败，或者执行速度的波动都不会使当前线程结束不了工作。这些特性使得无等待算法非常适合复杂的<span class="underline"><a href="https://en.wikipedia.org/wiki/Real-time_computing">实时系统</a></span>，因为这里并发代码的行为可预知是必要的。</p> 
-  </div> 
-  <div class="imageblock"> 
-   <div class="content"> 
-    <img src="https://www.reploop.org/blog/2020/02/images/lock-free-wait-free.png" alt="Lock-free" width="wait-free"> 
-   </div> 
-   <div class="title">
-    Figure 3. 无等待算法是无锁算法的子集
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>无等待是并发代码非常需要的，但也是很难获得的特性。总而言之，无论你正在构建一个阻塞的，无锁的还是无等待的算法，黄金法则是你一定要做基准测试并且衡量测试结果。有时候旧时的互斥锁比时髦的同步原语性能要好，尤其是并发任务的复杂度非常高的时候。</p> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="写到最后">写到最后</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>原子操作是无锁编码的必要组成，甚至在单处理器的机器上也是。没有原子性，一个线程可能在事务中途被中断，可能会导致不一致的数据状态。本文中，我仅仅是浅尝辄止：一旦你把多核/多线程考虑进去，就打开了新世界。<strong>顺序一致性</strong> 和<strong>内存屏障</strong>是非常关键的部分，如果要充分利用无锁算法，就不应该被忽视。我将在下一文章中讨论这些主题。</p> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="参考">参考</h2> 
- <div class="sectionbody"> 
-  <div class="ulist"> 
-   <ul> 
-    <li> <p>Preshing on Programming - <a href="https://preshing.com/20120612/an-introduction-to-lock-free-programming/">An Introduction to Lock-Free Programming</a></p> </li> 
-    <li> <p>Preshing on Programming - <a href="https://preshing.com/20130618/atomic-vs-non-atomic-operations/">Atomic vs. Non-Atomic Operations</a></p> </li> 
-    <li> <p>Preshing on Programming - <a href="https://preshing.com/20150402/you-can-do-any-kind-of-atomic-read-modify-write-operation/">You Can Do Any Kind of Atomic Read-Modify-Write Operation</a></p> </li> 
-    <li> <p>StackOverflow - <a href="https://stackoverflow.com/questions/1525189/do-i-need-a-mutex-for-reading">Do I need a mutex for reading?</a></p> </li> 
-    <li> <p>StackOverflow - <a href="https://stackoverflow.com/questions/39795265/will-atomic-operations-block-other-threads">Will atomic operations block other threads?</a></p> </li> 
-    <li> <p>StackOverflow - <a href="https://stackoverflow.com/questions/38124337/spinlock-vs-busy-wait">Spinlock vs Busy wait</a></p> </li> 
-    <li> <p>GCC Wiki - <a href="https://gcc.gnu.org/wiki/Atomic/GCCMM/AtomicTypes">Atomics</a></p> </li> 
-    <li> <p>GCC Wiki - <a href="https://gcc.gnu.org/wiki/Atomic/GCCMM/AtomicSync">Memory model synchronization modes</a></p> </li> 
-    <li> <p>Threading Building Blocks - <a href="https://www.threadingbuildingblocks.org/docs/help/tbb_userguide/Atomic_Operations.html">Atomic Operations</a></p> </li> 
-    <li> <p>Just Software Solutions - <a href="https://www.justsoftwaresolutions.co.uk/threading/non_blocking_lock_free_and_wait_free.html">Definitions of Non-blocking, Lock-free and Wait-free</a></p> </li> 
-    <li> <p>Wikipedia - <a href="https://en.wikipedia.org/wiki/Compare-and-swap">Compare-and-swap</a></p> </li> 
-    <li> <p>Wikipedia - <a href="https://en.wikipedia.org/wiki/Read%E2%80%93modify%E2%80%93write">Read-modify-write</a></p> </li> 
-    <li> <p>Wikipedia - <a href="https://en.wikipedia.org/wiki/Test-and-set">Test-and-set</a></p> </li> 
-    <li> <p>Tyler Neely - <a href="https://medium.com/@tylerneely/fear-and-loathing-in-lock-free-programming-7158b1cdd50c">Fear and Loathing in Lock-Free Programming</a></p> </li> 
-    <li> <p>Jason Gregory - <a href="https://www.ebooks.com/en-us/95912264/game-engine-architecture-third-edition/jason-gregory/">Game Engine Architecture, Third Edition</a></p> </li> 
-    <li> <p>AA.VV. - <a href="https://spcl.inf.ethz.ch/Publications/.pdf/atomic-bench.pdf">Evaluating the Cost of Atomic Operations on Modern Architectures</a></p> </li> 
-    <li> <p>Herb Sutter, CppCon 2014 - <a href="https://www.youtube.com/watch?v=c1gO9aB9nbs">Lock-Free Programming (or, Juggling Razor Blades), Part 1</a></p> </li> 
-    <li> <p>Herb Sutter, CppCon 2014 - <a href="http://www.youtube.com/watch?v=CmxkPChOcvw">Lock-Free Programming (or, Juggling Razor Blades), Part 2</a></p> </li> 
-    <li> <p>Maurice Herlihy - <a href="https://cs.brown.edu/~mph/Herlihy91/p124-herlihy.pdf">Wait-free synchronization</a></p> </li> 
-    <li> <p>Fedor Pikus, CppCon 2014 - <a href="https://www.youtube.com/watch?v=rxQ5K9lo034">Read, Copy, Update, then what? RCU for non-kernel programmers</a></p> </li> 
-    <li> <p>1024cores - <a href="http://www.1024cores.net/home/lock-free-algorithms">Lockfree Algorithms</a></p> </li> 
-    <li> <p>Microsoft - <a href="https://docs.microsoft.com/en-us/windows/win32/dxtecharts/lockless-programming">Lockless Programming Considerations for Xbox 360 and Microsoft Windows</a></p> </li> 
-    <li> <p>Brian Goetz, IBM - <a href="https://www.ibm.com/developerworks/java/library/j-jtp11234/">Going Atomic</a></p> </li> 
-   </ul> 
-  </div> 
-  <div class="paragraph"> 
-   <p>本文译自https://www.internalpointers.com/post/lock-free-multithreading-atomic-operations，英文读者可直接阅读原文。</p> 
-  </div> 
- </div> 
-</div></p>
 
 	<hr />
 	
@@ -805,7 +563,7 @@ writer_thread()
     
     <div id="footer">
       <div class="container">
-        <p class="muted credit">&copy; 2020 | Mixed with <a href="http://getbootstrap.com/">Bootstrap v3.1.1</a> | Baked with <a href="http://jbake.org">JBake v${jbakeVersion}</a></p>
+        <p class="muted credit">&copy; 2020 | Mixed with <a href="http://getbootstrap.com/">Bootstrap v3.1.1</a> | Baked with <a href="http://jbake.org">JBake v2.7.0.8</a></p>
       </div>
     </div>
     

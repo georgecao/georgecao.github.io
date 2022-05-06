@@ -6,9 +6,234 @@
         <atom:link href="https://www.reploop.org/feed.xml" rel="self" type="application/rss+xml"/>
         <description>REPLoop，在脚本编程语言中经常能看到REPL，也就是Read-Evaluate-Print-Loop，意思是读取源代码，评估执行，打印结果的循环。这个过程能够快速的学习实践然后得到结果。非常像一个学习成长的过程：输入信息，消化吸收，输出知识并用于实践，然后持之以恒的坚持。4个环节缺一不可，而且最难做到的大概是持之以恒了。</description>
         <language>en-gb</language>
-        <pubDate>Tue, 22 Mar 2022 15:34:16 +0800</pubDate>
-        <lastBuildDate>Tue, 22 Mar 2022 15:34:16 +0800</lastBuildDate>
+        <pubDate>Fri, 6 May 2022 23:42:37 +0800</pubDate>
+        <lastBuildDate>Fri, 6 May 2022 23:42:37 +0800</lastBuildDate>
 
+            <item>
+                <title>商业核心窥探</title>
+                <link>https://www.reploop.org/blog/2022/04/maths-in-bussiness.html</link>
+                <pubDate>Mon, 11 Apr 2022 00:00:00 +0800</pubDate>
+                <guid isPermaLink="false">blog/2022/04/maths-in-bussiness.html</guid>
+                <description>
+                        &lt;div id=&quot;preamble&quot;&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;创业公司的经营视角看业务，经常会遇到很多商业术语，这对理解商业模式非常有帮助。同时跟不同角色的人打交道，更需要理解术语，还需要理解术语之间的关系，才能顺畅的交流。术语本身是就像&lt;strong&gt;世上本没有路，走的人多了也就成了路&lt;/strong&gt;一样，是随着特定行业领域发展而总结出来的有一定概括性的描述或概念，用来高效表达与交流的。&lt;/p&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;sect1&quot;&gt; 
+ &lt;h2 id=&quot;业务核心&quot;&gt;业务核心&lt;/h2&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;基本上，任何生意的最核心部分就是三个公式：&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div id=&quot;eq1&quot; class=&quot;listingblock&quot;&gt; 
+   &lt;div class=&quot;content&quot;&gt; 
+    &lt;pre class=&quot;highlight&quot;&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;订单数 * 客单价 = 总收入 &lt;i class=&quot;conum&quot; data-value=&quot;1&quot;&gt;&lt;/i&gt;&lt;b&gt;(1)&lt;/b&gt;&lt;/code&gt;&lt;/pre&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;listingblock&quot;&gt; 
+   &lt;div class=&quot;content&quot;&gt; 
+    &lt;pre class=&quot;highlight&quot;&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;变动成本 + 固定成本 = 总成本 &lt;i class=&quot;conum&quot; data-value=&quot;2&quot;&gt;&lt;/i&gt;&lt;b&gt;(2)&lt;/b&gt;&lt;/code&gt;&lt;/pre&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;listingblock&quot;&gt; 
+   &lt;div class=&quot;content&quot;&gt; 
+    &lt;pre class=&quot;highlight&quot;&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;总收入 - 总成本 = 总利润 &lt;i class=&quot;conum&quot; data-value=&quot;3&quot;&gt;&lt;/i&gt;&lt;b&gt;(3)&lt;/b&gt;&lt;/code&gt;&lt;/pre&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;这里面有些生意是&lt;strong&gt;直接的&lt;/strong&gt;，比如你开一个小卖铺卖煎饼，算账就这么直接算就好了；而有些是&lt;strong&gt;间接的&lt;/strong&gt;，比如互联网业务是&lt;strong&gt;羊毛出在猪身上&lt;/strong&gt;，主营业务和盈利方式不是那么的直接看出来。像给用户出租车辆的租车公司挣的是保险的钱，而不是租金，而持车公司则是挣两三年之后卖二手车的残值。但是不管怎么样，公司最后都要回到上面3个公式来挣钱。这就要需要先通过&lt;strong&gt;单位经济效益&lt;/strong&gt;来确定订单之后在分析。&lt;/p&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;sect1&quot;&gt; 
+ &lt;h2 id=&quot;单位经济效益&quot;&gt;单位经济效益&lt;/h2&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;quoteblock&quot;&gt; 
+   &lt;blockquote&gt;
+     单位经济效益是，在商业模型中，能够体现收入与成本关系的某个最小运作单元。（公司的整体交易数据都是由所有的单笔交易叠加在一起得来的，所以只研究透单笔交易的逻辑可以排除很多不必要的干扰，更容易看出商业模式的本质，并且找出其中最需要关注的问题点。）想要分析单位经济效益，第一个任务就是判断和选定某个商业模式中的“最小运作单元”。这个单元一般就是产品或服务收费的最小单元，比如“一件快件”、“一盒化妆品”、“一公里车费”、“一小时美甲”等。这个最小单元的选择并不一定是唯一的，但核心宗旨就是选出那个最能体现收入和成本变化联系的最小的单元。当单元选定之后，就是判断围绕这个单元的收入和成本构成了。 
+   &lt;/blockquote&gt; 
+   &lt;div class=&quot;attribution&quot;&gt;
+     — 曲凯
+    &lt;br&gt; &lt;cite&gt;《创投42章经》&lt;/cite&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;这个最小单元就是核心公式中的订单的选择了。&lt;/p&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;sect1&quot;&gt; 
+ &lt;h2 id=&quot;商业术语&quot;&gt;商业术语&lt;/h2&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;dlist&quot;&gt; 
+   &lt;dl&gt; 
+    &lt;dt class=&quot;hdlist1&quot;&gt;
+     客单价
+    &lt;/dt&gt; 
+    &lt;dd&gt; 
+     &lt;p&gt;客人每笔订单均价。还有一种说法就是一个客人每次消费的价格，这时有可能一次消费包含了多笔订单，而将这部分订单总额理解为客单价。比如去一次中免免税城，在不同的柜台买了不同的东西，肯定是多笔订单，但是中免对外说客单价是大几千上万元。&lt;/p&gt; 
+    &lt;/dd&gt; 
+    &lt;dt class=&quot;hdlist1&quot;&gt;
+     固定成本
+    &lt;/dt&gt; 
+    &lt;dd&gt; 
+     &lt;p&gt;和订单不直接相关的，卖多卖少都一样的那类成本，比如办公室租赁，人员工资，办公设备等。通常固定成本是比较容易知道的。我们可以计算一下&lt;code&gt;固定成本占比 = 固定成本 / 总成本 =（总成本 - 变动成本）/ 总成本&lt;/code&gt;。 盈亏平衡点上：总成本等于总收入，已知固定成本的情况下：&lt;/p&gt; 
+    &lt;/dd&gt; 
+   &lt;/dl&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;listingblock&quot;&gt; 
+   &lt;div class=&quot;content&quot;&gt; 
+    &lt;pre class=&quot;highlight&quot;&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;总收入 = 总成本 = 固定成本 / 固定成本占比
+
+固定成本占比 = 固定成本 / 总成本 = （总成本 - 变动成本）/ 总成本 = （总收入 - 变动成本）/ 总收入
+
+边际贡献率 = 固定成本占比 = 固定成本 /（（总收入-变动成本）/ 总收入）&lt;/code&gt;&lt;/pre&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;dlist&quot;&gt; 
+   &lt;dl&gt; 
+    &lt;dt class=&quot;hdlist1&quot;&gt;
+     变动成本
+    &lt;/dt&gt; 
+    &lt;dd&gt; 
+     &lt;p&gt;和订单相关的成本，订单成交就有，没有成交就没有的那部分成本，比如商品原材料（假设下单之后才采购），销售提成等。&lt;/p&gt; 
+    &lt;/dd&gt; 
+    &lt;dt class=&quot;hdlist1&quot;&gt;
+     毛利率
+    &lt;/dt&gt; 
+    &lt;dd&gt; 
+     &lt;p&gt;这个是经常提到的一个指标，通过一个生意的毛利率就大体上能判断出能不能做了，当然了，这需要需要相关行业经验。&lt;/p&gt; 
+    &lt;/dd&gt; 
+   &lt;/dl&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;listingblock&quot;&gt; 
+   &lt;div class=&quot;content&quot;&gt; 
+    &lt;pre class=&quot;highlight&quot;&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;毛利率 =（总收入 - 变动成本）/ 总收入&lt;/code&gt;&lt;/pre&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;一般计算毛利率的时候成本中不包含固定成本，也就是只计算变动成本。现在做生意，没有资本的加持，经验来说小本经营至少需要一个10%的毛利才能赢亏平衡，甚至有利可图。&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;dlist&quot;&gt; 
+   &lt;dl&gt; 
+    &lt;dt class=&quot;hdlist1&quot;&gt;
+     净利率
+    &lt;/dt&gt; 
+   &lt;/dl&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;listingblock&quot;&gt; 
+   &lt;div class=&quot;content&quot;&gt; 
+    &lt;pre class=&quot;highlight&quot;&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;净利率 = （总收入 - 总成本）/ 总收入&lt;/code&gt;&lt;/pre&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;这个就是业务的最终目的了，商业逐利。&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;dlist&quot;&gt; 
+   &lt;dl&gt; 
+    &lt;dt class=&quot;hdlist1&quot;&gt;
+     订单数
+    &lt;/dt&gt; 
+    &lt;dd&gt; 
+     &lt;p&gt;把上面&lt;a href=&quot;#eq1&quot;&gt;公式1&lt;/a&gt;中的&lt;strong&gt;订单数&lt;/strong&gt;分解一下：&lt;/p&gt; 
+    &lt;/dd&gt; 
+   &lt;/dl&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;listingblock&quot;&gt; 
+   &lt;div class=&quot;content&quot;&gt; 
+    &lt;pre class=&quot;highlight&quot;&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;订单数 = 下单用户数 * 购买次数
+      = 总用户数 * 下单转化率 * 购买次数
+      = (新增用户数 + 存量用户数) * 下单转化率 * 购买次数 &lt;i class=&quot;conum&quot; data-value=&quot;4&quot;&gt;&lt;/i&gt;&lt;b&gt;(4)&lt;/b&gt;&lt;/code&gt;&lt;/pre&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;dlist&quot;&gt; 
+   &lt;dl&gt; 
+    &lt;dt class=&quot;hdlist1&quot;&gt;
+     新增用户数
+    &lt;/dt&gt; 
+    &lt;dd&gt; 
+     &lt;p&gt;一般是市场或者营销的工作，也有专门的用户增长领域。为了获取新增用户，需要花费一定的成本，&lt;code&gt;这个就是用户获取成本&lt;/code&gt;：&lt;strong&gt;获客成本&lt;/strong&gt;。新增用户的时候刚开始一个重要的指标是&lt;strong&gt;留存率&lt;/strong&gt;。&lt;/p&gt; 
+    &lt;/dd&gt; 
+    &lt;dt class=&quot;hdlist1&quot;&gt;
+     存量用户数
+    &lt;/dt&gt; 
+    &lt;dd&gt; 
+     &lt;p&gt;对于平台类公司，这个一般是运营主要在做的事情。存量用户是系统内留存下来的，你可以很方便的通过产品、活动或者其他手段触达的用户。存量用户要有一定的&lt;strong&gt;活跃率&lt;/strong&gt;，或者转化率。&lt;/p&gt; 
+    &lt;/dd&gt; 
+    &lt;dt class=&quot;hdlist1&quot;&gt;
+     流失用户数
+    &lt;/dt&gt; 
+    &lt;dd&gt; 
+     &lt;p&gt;用户到达一定量之后，不可避免的有流失，所以新增一定要大于等于流失，听起来才是有发展的。一个用户从新增到流失，就是用户在系统内的&quot;一生&quot;总共的&lt;strong&gt;订单量*客单价=用户终身价值&lt;/strong&gt;。用户终身价值一定要大于获客成本，不然的话没有任何可以盈利的可能性。&lt;/p&gt; 
+    &lt;/dd&gt; 
+    &lt;dt class=&quot;hdlist1&quot;&gt;
+     每用户收入(ARPU)
+    &lt;/dt&gt; 
+   &lt;/dl&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;listingblock&quot;&gt; 
+   &lt;div class=&quot;content&quot;&gt; 
+    &lt;pre class=&quot;highlight&quot;&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;每用户收入（ARPU） = （总收入 - 总成本）/ 总用户数&lt;/code&gt;&lt;/pre&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;这个也经常用来评价用户对收益的贡献率。&lt;/p&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;sect1&quot;&gt; 
+ &lt;h2 id=&quot;效率&quot;&gt;效率&lt;/h2&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;上面的数据有些是累计总和，累计数据通常是要涉及一个时间或者空间范围的。空这里面就涉及一个基本单位，汇总就是所有基本单位的总和。这个基本单位有可能以时间为单位，也可能是以个体为单位等等。&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;我们可以以时间为单位的总量明确一个时间周期，比如年销售额，月流水等。实际上很多公司干同样的事情，但是谁在最短的时间内做到谁就有竞争优势，直到在竞争中战胜对手。这就是一个效率的问题，给所有的事情或者数据都加上一个时间周期，比如每月，每年等，然后就是&lt;strong&gt;周期内总量/周期=效率&lt;/strong&gt;。&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;同时也有些是以空间为单位的，比如酒店的客房数，餐厅的餐桌数，池塘里面的蝌蚪数。结合不同的基本单位，就有了很多衡量效率的术语。比如常见的衡量用户活跃度的&lt;strong&gt;日活&lt;/strong&gt;，&lt;strong&gt;月活&lt;/strong&gt;等，高频打低频中的&lt;strong&gt;频次&lt;/strong&gt;，餐馆中的&lt;strong&gt;翻台率&lt;/strong&gt;，酒店中的&lt;strong&gt;坪效率&lt;/strong&gt;，HR中的&lt;strong&gt;人效&lt;/strong&gt;等等。&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;效率非常重要，效率越高越可能在市场上有竞争力，从而取得经营成功。&lt;/p&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;sect1&quot;&gt; 
+ &lt;h2 id=&quot;总结&quot;&gt;总结&lt;/h2&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;无论我们做什么，我们都在按照不同的方式，分工服务上面那3个公式。&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;理解了这些公式，具体经营的过程中就是优化或者改善公式中的变量，有时候还会把单个变量拆分为更具体的变量，然后逐个优化。这样做的最终目的是使劲的提高总收入，降低总成本，使得公司健康发展。&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;imageblock right&quot;&gt; 
+   &lt;div class=&quot;content&quot;&gt; &lt;a class=&quot;image&quot; href=&quot;https://book.douban.com/subject/26278639/&quot;&gt;&lt;img src=&quot;https://www.reploop.org/blog/2022/04/images/lean-analytics.png&quot; alt=&quot;精益数据分析&quot; width=&quot;140&quot;&gt;&lt;/a&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;有时候这些公式也会被割裂开来看，比如表面上看交易不直接的，有可能会说用户量有多大多大，会花大力气的先把用户量拉上去，而暂时忽略看不见的转化率等，未来无限可能。&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;但是过于概括的公式对具体的生意可能就没有指导意义了，更理想的情况是给公式中的变量都乘以一个系数，体现出每个变量在不同生意模式中不同的重要程度。这样就将公式展开细化后有侧重的去开展工作了。这方面推荐&lt;span class=&quot;underline&quot;&gt;&lt;a href=&quot;https://book.douban.com/subject/26278639/&quot;&gt;《精益数据分析》&lt;/a&gt;&lt;/span&gt;这本书。&lt;/p&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;sect1&quot;&gt; 
+ &lt;h2 id=&quot;参考&quot;&gt;参考&lt;/h2&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;ulist&quot;&gt; 
+   &lt;ul&gt; 
+    &lt;li&gt; &lt;p&gt;MBA智库， &lt;a href=&quot;https://wiki.mbalib.com/wiki/%E5%9F%BA%E6%9C%AC%E7%AB%9E%E4%BA%89%E6%88%98%E7%95%A5&quot;&gt;基本竞争战略&lt;/a&gt;&lt;/p&gt; &lt;/li&gt; 
+   &lt;/ul&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt;
+                </description>
+            </item>
             <item>
                 <title>复式记账</title>
                 <link>https://www.reploop.org/blog/2022/03/the-double-entry-counting-method.html</link>
@@ -48,7 +273,7 @@
     &lt;/div&gt; 
    &lt;/div&gt; 
    &lt;div class=&quot;paragraph&quot;&gt; 
-    &lt;p&gt;我个人认为这也是复式（double-entry）的意思。在这个有向图中，所有的节点都是账户，节点内的数字是账户余额；节点之间的边都是交易，每条边上标注的数字就是交易额，边的剪头表示经济资源的流向。&lt;/p&gt; 
+    &lt;p&gt;我个人认为这也是复式（double-entry）的意思。在这个有向图中，所有的节点都是账户，节点内的数字是账户余额；节点之间的边都是交易，每条边上标注的数字就是交易额，边的箭头表示经济资源的流向。&lt;/p&gt; 
    &lt;/div&gt; 
    &lt;div class=&quot;paragraph&quot;&gt; 
     &lt;p&gt;当我们一穷二白啥也没有的时候开始参与经济生活的时候，我们所有的账户余额都是0，所以余额之和也为0。随着交易的进行，比如领了工资，买了房子之类的交易的产生，各个账户的余额随着发生变化，但是所有账户的余额之和任然为0。这就是复式记账的妙处，也就是&lt;strong&gt;会计恒等式&lt;/strong&gt;始终成立的意思。如果所有账户预额为0不好理解的话，接着往下看。&lt;/p&gt; 
@@ -1164,9 +1389,13 @@ Income = -Income&lt;/code&gt;&lt;/pre&gt;
      &lt;pre class=&quot;highlight&quot;&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;usage: json2 &amp;lt;command&amp;gt; [ &amp;lt;args&amp;gt; ] &lt;i class=&quot;conum&quot; data-value=&quot;1&quot;&gt;&lt;/i&gt;&lt;b&gt;(1)&lt;/b&gt;
 
 Commands are:
-    bean    Convert JSON to POJO. &lt;i class=&quot;conum&quot; data-value=&quot;2&quot;&gt;&lt;/i&gt;&lt;b&gt;(2)&lt;/b&gt;
-    help    Display help information &lt;i class=&quot;conum&quot; data-value=&quot;3&quot;&gt;&lt;/i&gt;&lt;b&gt;(3)&lt;/b&gt;
-    proto   Translate JSON to Protobuf Schema. TBD. &lt;i class=&quot;conum&quot; data-value=&quot;4&quot;&gt;&lt;/i&gt;&lt;b&gt;(4)&lt;/b&gt;
+    all      Convert JSON to all supported targets in one run. &lt;i class=&quot;conum&quot; data-value=&quot;2&quot;&gt;&lt;/i&gt;&lt;b&gt;(2)&lt;/b&gt;
+    avro     Translate JSON to Apache Avro schema. &lt;i class=&quot;conum&quot; data-value=&quot;3&quot;&gt;&lt;/i&gt;&lt;b&gt;(3)&lt;/b&gt;
+    bean     Convert JSON to Java POJO. &lt;i class=&quot;conum&quot; data-value=&quot;4&quot;&gt;&lt;/i&gt;&lt;b&gt;(4)&lt;/b&gt;
+    go       Translate JSON to golang struct. &lt;i class=&quot;conum&quot; data-value=&quot;5&quot;&gt;&lt;/i&gt;&lt;b&gt;(5)&lt;/b&gt;
+    help     Display help information &lt;i class=&quot;conum&quot; data-value=&quot;6&quot;&gt;&lt;/i&gt;&lt;b&gt;(6)&lt;/b&gt;
+    proto    Translate JSON to Protobuf Schema. &lt;i class=&quot;conum&quot; data-value=&quot;7&quot;&gt;&lt;/i&gt;&lt;b&gt;(7)&lt;/b&gt;
+    thrift   Translate JSON to Thrift IDL. &lt;i class=&quot;conum&quot; data-value=&quot;8&quot;&gt;&lt;/i&gt;&lt;b&gt;(8)&lt;/b&gt;
 
 See &apos;json2 help &amp;lt;command&amp;gt;&apos; for more information on a specific command.&lt;/code&gt;&lt;/pre&gt; 
     &lt;/div&gt; 
@@ -1180,15 +1409,31 @@ See &apos;json2 help &amp;lt;command&amp;gt;&apos; for more information on a spe
       &lt;/tr&gt; 
       &lt;tr&gt; 
        &lt;td&gt;&lt;i class=&quot;conum&quot; data-value=&quot;2&quot;&gt;&lt;/i&gt;&lt;b&gt;2&lt;/b&gt;&lt;/td&gt; 
-       &lt;td&gt;bean命令，生成POJO。&lt;/td&gt; 
+       &lt;td&gt;all命令，一次性生成所有支持的格式，效果相当于分别执行不同的命令。&lt;/td&gt; 
       &lt;/tr&gt; 
       &lt;tr&gt; 
        &lt;td&gt;&lt;i class=&quot;conum&quot; data-value=&quot;3&quot;&gt;&lt;/i&gt;&lt;b&gt;3&lt;/b&gt;&lt;/td&gt; 
-       &lt;td&gt;help命令，默认打印帮助信息。&lt;/td&gt; 
+       &lt;td&gt;avro命令，生成Apache Avro Schema。&lt;/td&gt; 
       &lt;/tr&gt; 
       &lt;tr&gt; 
        &lt;td&gt;&lt;i class=&quot;conum&quot; data-value=&quot;4&quot;&gt;&lt;/i&gt;&lt;b&gt;4&lt;/b&gt;&lt;/td&gt; 
-       &lt;td&gt;proto命令，生成Protobuf Schema。筹划中。。。&lt;/td&gt; 
+       &lt;td&gt;bean命令，生成POJO。&lt;/td&gt; 
+      &lt;/tr&gt; 
+      &lt;tr&gt; 
+       &lt;td&gt;&lt;i class=&quot;conum&quot; data-value=&quot;5&quot;&gt;&lt;/i&gt;&lt;b&gt;5&lt;/b&gt;&lt;/td&gt; 
+       &lt;td&gt;go命令，生成Golang struct。&lt;/td&gt; 
+      &lt;/tr&gt; 
+      &lt;tr&gt; 
+       &lt;td&gt;&lt;i class=&quot;conum&quot; data-value=&quot;6&quot;&gt;&lt;/i&gt;&lt;b&gt;6&lt;/b&gt;&lt;/td&gt; 
+       &lt;td&gt;help命令，默认打印帮助信息。&lt;/td&gt; 
+      &lt;/tr&gt; 
+      &lt;tr&gt; 
+       &lt;td&gt;&lt;i class=&quot;conum&quot; data-value=&quot;7&quot;&gt;&lt;/i&gt;&lt;b&gt;7&lt;/b&gt;&lt;/td&gt; 
+       &lt;td&gt;proto命令，生成Protobuf Schema。&lt;/td&gt; 
+      &lt;/tr&gt; 
+      &lt;tr&gt; 
+       &lt;td&gt;&lt;i class=&quot;conum&quot; data-value=&quot;8&quot;&gt;&lt;/i&gt;&lt;b&gt;8&lt;/b&gt;&lt;/td&gt; 
+       &lt;td&gt;thrift命令，生成Thrift IDL。&lt;/td&gt; 
       &lt;/tr&gt; 
      &lt;/tbody&gt;
     &lt;/table&gt; 
@@ -1293,7 +1538,7 @@ See &apos;json2 help &amp;lt;command&amp;gt;&apos; for more information on a spe
   &lt;div class=&quot;sect2&quot;&gt; 
    &lt;h3 id=&quot;shell&quot;&gt;Shell&lt;/h3&gt; 
    &lt;div class=&quot;paragraph&quot;&gt; 
-    &lt;p&gt;工作大部分时间都是面向服务端的而且需要自己运维机器，所有命令行工具就必须要掌握。所以统计脚本，写过服务启动、停止的脚本，写过监控的脚本。有很多问题用脚本验证一下也很快。&lt;/p&gt; 
+    &lt;p&gt;工作大部分时间都是面向服务端的而且需要自己运维机器，所有命令行工具就必须要掌握。编写统计脚本，写过服务启动、停止的脚本，写过监控的脚本，自动化运维脚步，日志回滚脚步。服务CPU负载，内存，磁盘，网络等状态查看等等。有很多问题用shell或者命令行脚本快速验证一下非常便捷。&lt;/p&gt; 
    &lt;/div&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;sect2&quot;&gt; 
@@ -1317,7 +1562,7 @@ See &apos;json2 help &amp;lt;command&amp;gt;&apos; for more information on a spe
   &lt;div class=&quot;sect2&quot;&gt; 
    &lt;h3 id=&quot;python&quot;&gt;Python&lt;/h3&gt; 
    &lt;div class=&quot;paragraph&quot;&gt; 
-    &lt;p&gt;Python大部分情况下是shell脚本搞不定了，就用Python来写写。谈不上会写Python，也没有经历过大型生产环境的项目。只能是放本字典再身边，用的时候翻字典，开卷考试那种。&lt;/p&gt; 
+    &lt;p&gt;Python大部分情况下是shell脚本搞不定了，就用Python来写写。谈不上会写Python，也没有经历过大型生产环境的项目。只能像是放本字典在身边，用的时候翻字典，开卷考试那种。&lt;/p&gt; 
    &lt;/div&gt; 
   &lt;/div&gt; 
  &lt;/div&gt; 
@@ -1326,7 +1571,7 @@ See &apos;json2 help &amp;lt;command&amp;gt;&apos; for more information on a spe
  &lt;h2 id=&quot;如何学习&quot;&gt;如何学习&lt;/h2&gt; 
  &lt;div class=&quot;sectionbody&quot;&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
-   &lt;p&gt;从语言到工程应用，学习的过程基本上就是围绕着系统的生命周期来。&lt;/p&gt; 
+   &lt;p&gt;从语言到工程应用，学习的过程基本上就是围绕着系统的生命周期来的。&lt;/p&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;dlist&quot;&gt; 
    &lt;dl&gt; 
@@ -1392,7 +1637,7 @@ See &apos;json2 help &amp;lt;command&amp;gt;&apos; for more information on a spe
    &lt;p&gt;还有一类问题，是我要不要学习某某语言？反过来看这可能不是你决定的，是事情决定的。当然你要是对某某语言特别有兴趣，那就自己学就好了。如果语言只是吃饭讨生活的工具，那就遇到什么样子的问题，准备最合适解决该问题的工具吧。&lt;/p&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
-   &lt;p&gt;最后，也经常听到有人接我不会某某语言，解决不了某某问题。 这就是问题还不够要命，职责还不够明确。职场上要不想办法解决了，要不就换一个坑位吧。作为程序员，以我不会某某语言为由，在我看来大概也不可能是一个优秀的工程师了，持续学习很重要。&lt;/p&gt; 
+   &lt;p&gt;最后，也经常听到有人说我不会某某语言，解决不了某某问题。 这就是问题还不够要命，职责还不够明确。职场上要不想办法解决了，要不就换一个坑位吧。作为程序员，以我不会某某语言为由，在我看来大概也不可能是一个优秀的工程师了，持续学习很重要。&lt;/p&gt; 
   &lt;/div&gt; 
  &lt;/div&gt; 
 &lt;/div&gt;
@@ -3024,6 +3269,18 @@ ClassLoader.getSystemResource(path); &lt;i class=&quot;conum&quot; data-value=&q
     &lt;/dt&gt; 
     &lt;dd&gt; 
      &lt;p&gt;without, 经常在github的issue中看到w/o，勉强也可也算开发术语，w/o转化为without之后就简单了吧？&lt;/p&gt; 
+    &lt;/dd&gt; 
+    &lt;dt class=&quot;hdlist1&quot;&gt;
+     PoC
+    &lt;/dt&gt; 
+    &lt;dd&gt; 
+     &lt;p&gt;Proof of Concept, 有一个想法，在正式实施之前证明其可行性的意思。&lt;/p&gt; 
+    &lt;/dd&gt; 
+    &lt;dt class=&quot;hdlist1&quot;&gt;
+     WDYT
+    &lt;/dt&gt; 
+    &lt;dd&gt; 
+     &lt;p&gt;What do you think？ 你怎么看？Github上经常能看到，当咨询别人的看法时使用。&lt;/p&gt; 
     &lt;/dd&gt; 
    &lt;/dl&gt; 
   &lt;/div&gt; 
