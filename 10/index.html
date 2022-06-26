@@ -1,13 +1,18 @@
 <!DOCTYPE html>
 <html lang="zh_CN">
-  <head>
+<head>
     <meta charset="utf-8"/>
     <title>REPLoop</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="author" content="乔治">
-    <meta name="keywords" content="REPL,REPLoop,George,乔治">
+    <meta name="keywords"
+          content="REPL,REPLoop,George,乔治">
     <meta name="generator" content="JBake v2.7.0.8">
     <meta property=og:locale content=zh_CN>
+    <meta property="og:title"
+          content="REPLoop"/>
+    <meta property="og:type" content="article"/>
+    <meta property="og:image" content="../img/favicon.svg"/>
     <!-- Le styles -->
     <link href="../css/bootstrap.min.css" rel="stylesheet">
     <link href="../css/asciidoctor.css" rel="stylesheet">
@@ -16,7 +21,7 @@
 
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
-      <script src="../js/html5shiv.min.js"></script>
+    <script src="../js/html5shiv.min.js"></script>
     <![endif]-->
 
     <!-- Fav and touch icons -->
@@ -25,9 +30,10 @@
     <link rel="apple-touch-icon-precomposed" sizes="72x72" href="../assets/ico/apple-touch-icon-72-precomposed.png">
     <link rel="apple-touch-icon-precomposed" href="../assets/ico/apple-touch-icon-57-precomposed.png">-->
     <link rel="shortcut icon" href="../img/favicon.svg">
-    <script data-ad-client="ca-pub-2350040335860411" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-  </head>
-  <body onload="prettyPrint()">
+    <script data-ad-client="ca-pub-2350040335860411" async
+            src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+</head>
+<body onload="prettyPrint()">
     <div id="wrap">	
 	<!-- Fixed navbar -->
     <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -52,6 +58,106 @@
       </div>
     </div>
     <div class="container">
+  		<a href="blog/2020/01/gc-in-video.html"><h1>视频的GC</h1></a>
+  		<p>
+			<a href="/about.html"><strong>乔治</strong></a>于2020年01月20日
+					<span class="badge badge-dark">视频</span>
+					<span class="badge badge-dark">快餐</span>
+					<span class="badge badge-dark">信息获取</span>
+		</p>
+  		<p><div class="paragraph"> 
+ <p>很久以前，看闾丘露薇的文章说她每次出差回香港，都要到报刊亭“扫货”，收各种娱乐八卦小报回来看。以闾丘露薇报道的内容来臆测一下，她未必会对娱乐八卦感兴趣，为啥要看？为了跟同事信息同步，重回办公室后和大家有的聊。现在更是一个信息爆炸的时代，没有人能掌握周遭的全部信息，因此得有所取舍，才能真正掌握有价值的信息。不巧的是你“舍”的那部分可能就是别人“取”的那部分，那就得像闾丘露薇那样补回来，你才不脱节。</p> 
+</div> 
+<div class="paragraph"> 
+ <p>进一步说我们需要一个在很短的时间内，了解故事梗概的服务。就像吃顿快餐一样，很快，但足以果腹。</p> 
+</div> 
+<div class="paragraph"> 
+ <p>互联网上的“撕逼”大战，官员落马之后的“履历”等一样，大部分人是不会盯着电脑跟进展的，只需要第二天看一个“长微博”来梳理来龙去脉就可以了。</p> 
+</div> 
+<div class="paragraph"> 
+ <p>对于视频行业来说，时下最流行的剧未必是你的菜，但是大家都在聊，必须得补回来！这顿快餐的吃法可能是回家之后开始看，一路“拖拖拖”，快进着浏览一遍。看视频还真是不如翻书方便。或者你去搜索故事梗概，快速浏览一遍，那样你就失去了画面。</p> 
+</div> 
+<div class="paragraph"> 
+ <p>视频需要一个更快的快餐吃法，不需要“拖”，也不需要完全丢失她的味道。一个剧一般来讲都有几个主要演员，几条线同时铺开来讲故事。当然，主演的这条线就应该是主线了。只要抓住这条线看，你大概是不会错过绝大部分精彩的。</p> 
+</div> 
+<div class="paragraph"> 
+ <p>此时就应该把人们吐槽的“神剪辑”可以拿来用一下。就是应用图像识别技术，在视频中找到所有该演员出现的镜头剪辑成一个小片，供你观看，再进一步，还可以利用语音识别技术，把所有提到某演员的地方也都找出来。</p> 
+</div> 
+<div class="paragraph"> 
+ <p>这正是Java垃圾回收的思想Mark and Sweep，当然了，你如果特别讨厌一个角色，也可以定点清除；你只关心某个角色，也可以只看此角色的镜头，有点论坛时代的“只看楼主”的意思了。</p> 
+</div></p>
+  		<a href="blog/2020/01/bank-account-in-hk.html"><h1>香港开户经历</h1></a>
+  		<p>
+			<a href="/about.html"><strong>George Cao</strong></a>于2018年05月06日
+					<span class="badge badge-dark">香港</span>
+					<span class="badge badge-dark">开户</span>
+					<span class="badge badge-dark">银行</span>
+		</p>
+  		<p><div id="preamble"> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>香港金融中心，没有外汇管制，有个香港的账户方便很多。本文是个人亲身经历，介绍一下肉身到香港开户的过程。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="出行准备">出行准备</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>去香港之前，已经打听过一些准备资料，最基本的有：</p> 
+  </div> 
+  <div class="olist arabic"> 
+   <ol class="arabic"> 
+    <li> <p>身份证和港澳通行证。这个只要能去香港的话，基本都具备。需要注意的一点是大陆身份证也要携带，外资银行喜欢看上面的地址。</p> </li> 
+    <li> <p>地址证明。需要一个你能收到信的非公司地址证明。一般来说有以下几种地址：</p> 
+     <div class="ulist"> 
+      <ul> 
+       <li> <p>身份证上的地址。大陆一般这个地址都是派出所地址，基本上没用。</p> </li> 
+       <li> <p>水电缴费单，上面有个人名字的。我家的缴费单只写到门牌号，没有名字。按照渣打银行客户经理的话说，大陆是只管这个单元有人交水电费，而不管谁交。</p> </li> 
+       <li> <p>信用卡账单地址。可能是唯一拿得出手的，有用的地址了。</p> </li> 
+       <li> <p>保险单地址。如果有买保险的话，这个地址或许也可以用用。</p> </li> 
+      </ul> 
+     </div> </li> 
+    <li> <p>存款准备金。开户的时候一般银行都有最低存款额要求，不同的银行要求不同。另外，银行看账户的总资产，比如你买了20万的股票，10万的保险，虽然没有一分钱现金，但是你的总资产在30万了。</p> </li> 
+    <li> <p>银行流水单。用以证明你是有正当、稳定收入的。看一些介绍说有用，但是我这次没有用到。</p> </li> 
+   </ol> 
+  </div> 
+  <div class="paragraph"> 
+   <p>以上资料可能并不会全部用到，看银行具体要求和你遇到的客户经理了，多准备点总没有坏处。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="申请经历">申请经历</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>在香港，当时的行程是在中环有一个下午的时段空闲。中环的银行也比较多，就开始转悠。</p> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="渣打银行">渣打银行</h3> 
+   <div class="paragraph"> 
+    <p>第一家去了渣打银行。进门取了个号，晃悠了一圈，逮着个大堂工作人员说我想开个户，工作人员的第一反馈是问我准备存多少钱进来，干什么。在大陆的时候看过一些介绍， 所以就打肿脸蛋充胖子，说按照外汇管制的限额，我可能一年内存30万进来用于投资理财。随后工作人员说渣打银行最低存款要求20万，我符合要求。随后介绍一位同事过来，算是和我重复、正式的聊了一下上面的问题。</p> 
+   </div> 
+   <div class="paragraph"> 
+    <p>OK, 准备资料（身份证，港澳通行证，地址证明）拿去复印的同时介绍了一位客户经理过来，到一个会议室继续聊，主要还是存多少钱和干什么的问题。 存多少钱没问题，但是我说的用于投资理财的用途则有点勉强了。由于监管变严格，<strong>为了防止洗钱，资金外逃等，现在大陆来香港开单纯的股票、基金账户不好审批</strong>。因为大陆有渠道投资港股（没记错的话沪港通要50万才能用），理由不充分。但是香港的保险和大陆的有很大的不同，建议我同时买一份保险，就比较好审批。推荐了英国保诚的储蓄险种，我说要和家人再考虑考虑。不想让我留下一次被拒绝的记录，客户经理说等我考虑好了在帮忙提交申请， 同时，地址证明出了问题，外资银行不认可国内银行的账单地址，包括保险账单地址。他们最好的是身份证上的地址，其次是水电缴费单，有名字在上面的。所以我提供的地址证明全部没用了。期间也讨论过其他的方式，比如别的外资机构寄给我的东西，如果有地址的话也能用。第一次申请就此作罢。</p> 
+   </div> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="中国银行香港">中国银行(香港)</h3> 
+   <div class="paragraph"> 
+    <p>从渣打出来之后直接去了中国银行，过去的比较晚了，下午4点多到了之后拿了号码排队，银行五点以后就不允许进人了。中间就是等啊等，其实按照大陆的经验，排队的人倒是没几个，但是每个人办理业务的时间很长。到我办理的时候已经是下午六点了，当天的倒数第二位客户了。基本上很顺利，材料还是那些材料，20分钟不到就办理完成了。有意思的是说最低存款1万，但是也由于下班了，并没有要求我当场存款。所以就是没花钱开了个户口，但是没钱在里面是需要管理费的。</p> 
+   </div> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="后记">后记</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>中国银行（香港）出来之后所有的银行都下班了，也算是完成了开户的目标。晚上和一位在香港生活10多年的朋友吃饭，聊到这个事情，建议海外第一个账户选择中资银行，等有了第一个户头以后，再到外资银行说，想把业务转过来，他们就很喜欢了。还有所谓的开户最低存款，只是为了保证账户是有效账户。只要你开了账户，不管里面钱多钱少，只是管理费的问题了。另外，开户用途大陆很多文章说要选择投资理财账户，之所以这样，是因为这种账户客户经理可以提成，所以比较推荐。但是其实只申请一个储蓄账户，什么附加功能都不需要的账户也是可以的。不过，香港存款利率是千分之几，相当的低，所以香港人一般都不会存款的，单纯的存款，由于有管理费的存在，你的钱会越来越少的。</p> 
+  </div> 
+ </div> 
+</div></p>
   		<a href="blog/2020/01/the-bad-of-thrift.html"><h1>Thrift的坑</h1></a>
   		<p>
 			<a href="/about.html"><strong>George Cao</strong></a>于2017年06月03日

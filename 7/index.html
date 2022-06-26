@@ -1,13 +1,18 @@
 <!DOCTYPE html>
 <html lang="zh_CN">
-  <head>
+<head>
     <meta charset="utf-8"/>
     <title>REPLoop</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="author" content="乔治">
-    <meta name="keywords" content="REPL,REPLoop,George,乔治">
+    <meta name="keywords"
+          content="REPL,REPLoop,George,乔治">
     <meta name="generator" content="JBake v2.7.0.8">
     <meta property=og:locale content=zh_CN>
+    <meta property="og:title"
+          content="REPLoop"/>
+    <meta property="og:type" content="article"/>
+    <meta property="og:image" content="../img/favicon.svg"/>
     <!-- Le styles -->
     <link href="../css/bootstrap.min.css" rel="stylesheet">
     <link href="../css/asciidoctor.css" rel="stylesheet">
@@ -16,7 +21,7 @@
 
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
-      <script src="../js/html5shiv.min.js"></script>
+    <script src="../js/html5shiv.min.js"></script>
     <![endif]-->
 
     <!-- Fav and touch icons -->
@@ -25,9 +30,10 @@
     <link rel="apple-touch-icon-precomposed" sizes="72x72" href="../assets/ico/apple-touch-icon-72-precomposed.png">
     <link rel="apple-touch-icon-precomposed" href="../assets/ico/apple-touch-icon-57-precomposed.png">-->
     <link rel="shortcut icon" href="../img/favicon.svg">
-    <script data-ad-client="ca-pub-2350040335860411" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-  </head>
-  <body onload="prettyPrint()">
+    <script data-ad-client="ca-pub-2350040335860411" async
+            src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+</head>
+<body onload="prettyPrint()">
     <div id="wrap">	
 	<!-- Fixed navbar -->
     <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -52,6 +58,221 @@
       </div>
     </div>
     <div class="container">
+  		<a href="blog/2020/05/how-to-size-thread-pool.html"><h1>如何设置线程池的大小？</h1></a>
+  		<p>
+			<a href="/about.html"><strong>乔治</strong></a>于2020年05月04日
+					<span class="badge badge-dark">多线程</span>
+					<span class="badge badge-dark">线程池</span>
+		</p>
+  		<p><div id="preamble"> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>多核环境下，为了更好的资源利用率，多线程基本上算是一个常规武器了。 我们知道CPU是用来计算的，而计算所需要的外部数据则是交给独立的I/O系统处理的。CPU和I/O的特点就是一个快，一个慢，大约差<span class="underline"><a href="https://colin-scott.github.io/personal_website/research/interactive_latency.html">2～3个数量级</a></span>。所以为了不浪费快的资源，就把慢的事情交给独立的系统做，等慢的资源准备好了在通知快的资源(也叫<strong>中断处理</strong>)。所以一旦发生CPU需要等待外部数据的时候，操作系统的调度系统就会暂时保存当前计算的寄存器状态，程序计数器等(也叫<strong>上下文</strong>) ，让出CPU给其他的可调度的进程。 这个过程称为<strong>上下文切换</strong>。一旦发生了<strong>上下文切换</strong>，以<strong>线程</strong>统一进行计算与I/O传输的应用这时就是被<strong>阻塞</strong>了。为了提高CPU的利用率，也就是应用线程阻塞的时候CPU仍然有活干，应用层面就需要使用更多线程来保证CPU有计算可执行，同时还要避免线程创建和销毁的开销，线程池就是这么产生了。以下就是本文的核心问题，如果你要创建一个线程池，该怎么确定线程池的大小呢？可以肯定的是线程数也不是越多越好。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="线程池的大小">线程池的大小</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>关于线程池的大小，有两本非常有名的书中都有相关的论述。这两本书还都是Java生态里面重量级人物写的。分别看一下：</p> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="java_concurrency_in_practice">Java Concurrency In Practice</h3> 
+   <div class="quoteblock"> 
+    <blockquote>
+      For compute intensive tasks, an <em>N<sub>cpu</sub></em>-processor system usually achieves optimum utilization with a thread pool of <em>N<sub>cpu</sub></em>+1 threads. (Even compute intensive threads occasionally take a page fault or pause for some other reason, so an "extra" runnable thread prevents CPU cycles from going unused when this happens.) For tasks that also include I/O or other blocking operations, you want a larger pool, since not all of the threads will be schedulable at all times. In order to size the pool properly, you must estimate the ratio of waiting time to compute time for your tasks; this estimate need not be precise and can be obtained through profiling or instrumentation. Alternatively, the size of the thread pool can be tuned by running the application using several different pool sizes under a benchmark load and observing the level of CPU utilization. 
+    </blockquote> 
+    <div class="attribution">
+      — Brian Göetz
+     <br> <cite>Java Concurrency In Practice: p.107</cite> 
+    </div> 
+   </div> 
+   <div class="paragraph"> 
+    <p>书中先给出如下一些定义:</p> 
+   </div> 
+   <div class="paragraph"> 
+    <p><em>N<sub>cpu</sub></em> = CPU核心数,</p> 
+   </div> 
+   <div class="paragraph"> 
+    <p><em>U<sub>cpu</sub></em> = 目标CPU的使用率，其中 \$0 &lt;=\$<em>U<sub>cpu</sub></em>\$&lt;= 1\$,</p> 
+   </div> 
+   <div class="paragraph"> 
+    <p>\$w\$ = CPU等待时间，</p> 
+   </div> 
+   <div class="paragraph"> 
+    <p>\$c\$ = CPU计算时间，</p> 
+   </div> 
+   <div class="paragraph"> 
+    <p>\$w/c\$ = CPU等待时间和计算时间的比率,</p> 
+   </div> 
+   <div class="paragraph"> 
+    <p>然后就给出了能够使处理器保持在特定使用率的线程数最优公式：<em>N<sub>threads</sub></em>=<em>N<sub>cpu</sub></em>*<em>U<sub>cpu</sub></em>* (\$1 + w/c\$)</p> 
+   </div> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="programming_concurrency_on_the_jvm">Programming Concurrency on the JVM</h3> 
+   <div class="quoteblock"> 
+    <blockquote>
+      If tasks spend 50 percent of the time being blocked, then the number of threads should be twice the number of available cores. If they spend less time being blocked—that is, they’re computation intensive—then we should have fewer threads but no less than the number of cores. If they spend more time being blocked—that is, they’re IO intensive—then we should have more threads, specifically, several multiples of the number of cores. 
+    </blockquote> 
+    <div class="attribution">
+      — Venkat Subramaniam
+     <br> <cite>Programming Concurrency on the JVM: p.16</cite> 
+    </div> 
+   </div> 
+   <div class="paragraph"> 
+    <p>这本书里没有直接给出变量定义，而是用文字描述的。为了便于比较，这里也给出一些定义：</p> 
+   </div> 
+   <div class="paragraph"> 
+    <p><em>N<sub>threads</sub></em> = 总的线程数，</p> 
+   </div> 
+   <div class="paragraph"> 
+    <p><em>N<sub>cpu</sub></em> = 可用的CPU核心数，</p> 
+   </div> 
+   <div class="paragraph"> 
+    <p><em>B<sub>c</sub></em> = 阻塞系数，介于0和1之间的。</p> 
+   </div> 
+   <div class="paragraph"> 
+    <p>那么，就可以用如下的方式计算我们需要的线程数了：<em>N<sub>threads</sub></em>=<em>N<sub>cpu</sub></em>/ (1 -<em>B<sub>c</sub></em>)</p> 
+   </div> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="分析与结论">分析与结论</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>乍一看，两本书给出了2个不一样的公式，该如何取舍呢？</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>假设CPU的使用率<em>U<sub>cpu</sub></em>是100%的情况下，也就是如果目标都是尽可能的利用CPU资源，其实这两个公式是一样的。 只要定义阻塞系数(blocking coefficient) = \$w/(w+c)\$，也就是阻塞系数为阻塞时间与整个CPU时间的占比。那么他们就是一个意思：定性的描述就是阻塞时间越多，就需要更多线程来保证CPU有活干。上面2个不同的公式则是定量的表达上述思路了。优化线程池的大小是想用最少的线程上下文切换(或代价)来做到最大的(或特定目标)CPU使用率。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>第2本书没有把目标CPU使用率放到公式里面，都包含在阻塞系数里面了。</p> 
+  </div> 
+ </div> 
+</div></p>
+  		<a href="blog/2020/05/dev-acronyms.html"><h1>码农工作中的缩写词</h1></a>
+  		<p>
+			<a href="/about.html"><strong>乔治</strong></a>于2020年04月04日
+					<span class="badge badge-dark">缩写词</span>
+		</p>
+  		<p><div id="preamble"> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>码农工作中，如果经常看一些英文的文档，混迹于github上抄抄源代码，发发邮件交流的话，或者和早几年外企出来的人一起工作的话，可能经常能看到一些缩写词。不懂的人一脸懵逼，懂的人可能因为少打了几次键盘提高了效率而提前下班被领导白眼。 不过缩写词也就是习惯的问题，不是啥逼格的问题。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="常用缩写词">常用缩写词</h2> 
+ <div class="sectionbody"> 
+  <div class="dlist"> 
+   <dl> 
+    <dt class="hdlist1">
+     RP
+    </dt> 
+    <dd> 
+     <p>pull request, 两个不同的代码仓库之间的合并请求。在分布式源码管理系统出来之后才有的概念，就是让别人拉取代码仓库变化的意思。</p> 
+    </dd> 
+    <dt class="hdlist1">
+     MR
+    </dt> 
+    <dd> 
+     <p>merge request, 提交代码前的合并请求。为了控制代码质量，有些代码分支不允许直接提交。 MR一般发生在向一个受保护的分支提交代码并请求评审代码的意思。</p> 
+    </dd> 
+    <dt class="hdlist1">
+     IMHO
+    </dt> 
+    <dd> 
+     <p>In My Humble Opinion. 也就是以我之见，恕我直言的意思。一般情况下是用于提出不同意见的。</p> 
+    </dd> 
+    <dt class="hdlist1">
+     TBD
+    </dt> 
+    <dd> 
+     <p>to be done，未完待续。意思是说一项工作应该要做，但是还没有完成。好多开源项目的文档中经常会看到。</p> 
+    </dd> 
+    <dt class="hdlist1">
+     WIP
+    </dt> 
+    <dd> 
+     <p>work in process, 施工/设计/处理/工作中，指一项工作正在进行中，还没有完成。开源中的Pull Request如果特别大，要分多次合并的话，每个Pull Request都可以加上[WIP]，说明还有后续的合并请求。</p> 
+    </dd> 
+    <dt class="hdlist1">
+     WTF
+    </dt> 
+    <dd> 
+     <p>what the fuck，类似国骂"我艹"之类的，语气词，大概就是这是什么玩意的意思。代码注释中经常能看见WTF的身影，愤怒的程序员。</p> 
+    </dd> 
+    <dt class="hdlist1">
+     FYI
+    </dt> 
+    <dd> 
+     <p>for your information，供你参考。一般是想把一个信息同步给另一个人，请他知晓的意思。</p> 
+    </dd> 
+    <dt class="hdlist1">
+     TL;DR
+    </dt> 
+    <dd> 
+     <p>too long, don’t read，太长，别看，也就是长篇大论预警提示。一般是一个结论的详细说明，如果仅仅关注结论，不关心缘由的话可以直接跳过的。</p> 
+    </dd> 
+    <dt class="hdlist1">
+     LGTM
+    </dt> 
+    <dd> 
+     <p>looks good to me，看起来不错。代码评审中的同意的意思。</p> 
+    </dd> 
+    <dt class="hdlist1">
+     PTAL
+    </dt> 
+    <dd> 
+     <p>please take a look，请看一下我的提交。github上经常能看到，某个代码提交或者合并请求，需要某个人评审，就可以这么说。</p> 
+    </dd> 
+    <dt class="hdlist1">
+     SGTM
+    </dt> 
+    <dd> 
+     <p>sounds good to me，听起来不错。代码评审中的同意的意思，或者某项提议/设计方案不错的意思。</p> 
+    </dd> 
+    <dt class="hdlist1">
+     RTFM
+    </dt> 
+    <dd> 
+     <p>read the fucking manual, 先读一下手册。一般都是问题太简单，都写在手册里面了。</p> 
+    </dd> 
+    <dt class="hdlist1">
+     STFW
+    </dt> 
+    <dd> 
+     <p>search the fucking web, 先上网查一下。一般都是问题太简单，简单搜索就能找到答案。</p> 
+    </dd> 
+    <dt class="hdlist1">
+     W/O
+    </dt> 
+    <dd> 
+     <p>without, 经常在github的issue中看到w/o，勉强也可也算开发术语，w/o转化为without之后就简单了吧？</p> 
+    </dd> 
+    <dt class="hdlist1">
+     PoC
+    </dt> 
+    <dd> 
+     <p>Proof of Concept, 有一个想法，在正式实施之前证明其可行性的意思。</p> 
+    </dd> 
+    <dt class="hdlist1">
+     WDYT
+    </dt> 
+    <dd> 
+     <p>What do you think？ 你怎么看？Github上经常能看到，当咨询别人的看法时使用。</p> 
+    </dd> 
+   </dl> 
+  </div> 
+  <div class="paragraph"> 
+   <p>暂时写这么多，后面遇到新的在补充。</p> 
+  </div> 
+ </div> 
+</div></p>
   		<a href="blog/2020/04/nginx-location-matching-rules.html"><h1>nginx配置文件中的location匹配规则</h1></a>
   		<p>
 			<a href="/about.html"><strong>乔治</strong></a>于2020年04月04日
@@ -147,408 +368,6 @@ location ~ /uri/\d{1,}/ {}   <i class="conum" data-value="2"></i><b>(2)</b></cod
    <ul> 
     <li> <p>nginx.org - <a href="http://wiki.nginx.org/HttpCoreModule#location" class="bare">http://wiki.nginx.org/HttpCoreModule#location</a></p> </li> 
    </ul> 
-  </div> 
- </div> 
-</div></p>
-  		<a href="blog/2020/03/how-https-works.html"><h1>HTTPS如何工作的？</h1></a>
-  		<p>
-			<a href="/about.html"><strong>George Cao</strong></a>于2020年03月28日
-					<span class="badge badge-dark">HTTP</span>
-					<span class="badge badge-dark">HTTPS</span>
-					<span class="badge badge-dark">CA</span>
-					<span class="badge badge-dark">RSA</span>
-					<span class="badge badge-dark">信任链</span>
-					<span class="badge badge-dark">非对称加密</span>
-					<span class="badge badge-dark">证书</span>
-					<span class="badge badge-dark">密钥对</span>
-					<span class="badge badge-dark">证书链</span>
-					<span class="badge badge-dark">数字签名</span>
-		</p>
-  		<p><div id="preamble"> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>如今的HTTPS基本上已经占据了大部分流量,根据<span class="underline"><a href="https://transparencyreport.google.com/https/overview?hl=en">Google Chrome的统计</a></span>，截止2020年3月21日，有<strong>96%</strong>的请求是走HTTPS的。以Chrome浏览器的市场占有率，应该很能说明问题了。嗯，HTTPS在大部分场景下基本上是标配了。那弄懂HTTPS的工作机制就很有必要了。</p> 
-  </div> 
-  <div class="imageblock"> 
-   <div class="content"> 
-    <img src="https://www.reploop.org/blog/2020/03/images/https-by-chrome.png" alt="HTTPS Encryption by Chrome platform"> 
-   </div> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="从http到https">从HTTP到HTTPS</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>超文本传输协议（英语：HyperText Transfer Protocol，缩写：HTTP）是一种用于分布式、协作式和超媒体信息系统的应用层协议。HTTP是万维网的数据通信的基础。而HTTPS则可以称为安全版本的HTTP， HTTPS开发的主要目的，是提供对网站服务器的身份认证，保护交换数据的隐私与完整性。</p> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="网站服务器身份认证">网站服务器身份认证</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>拿Facebook作为例子，当我们在浏览器地址栏输入http://www.facebook.com之后，我们怎么能确定访问的就是Facebook的网站呢? 大部分情况下应该是的，但是也有些钓鱼网站，DNS污染等等手段是能让我们访问到别有用心的其他网站。也就是说不管怎么样，我们不能100%的确信。为了能够确定我们访问的是真正的Facebook，我们是需要一种方法来确认服务器是Facebook的而不是其他网站的，也就是服务器的身份认证。如果能做到这个，我们就能判断出是否访问了攻击者仿冒的网站而不是真正的Facebook。</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>幸运的是，使用非对称加密我们是可以做到的。具体就是Facebook需要有一对公钥和私钥，然后公布自己的公钥，但是把私钥安全保存在自己的服务器上。现在，你只要用Facebook的公钥加密自己的请求数据，根据加密知识，你知道只有Facebook的私钥才能解密这个数据。如果你访问的服务器能够正确的解密数据并且给你返回数据，你就能确信服务器有Facebook的私钥。</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>只要Facebook能够保护好自己的私钥，确保不被其他人盗用，我们就解决了服务器的认证问题，简单。这样的话，尽管受到互联网本身特性的制约，我们还是设计了一种方法来验证网站的身份。事实上，我们刚刚描述的这个过程和真正的HTTPS是非常像的。当我们说一个服务器的HTTPS证书的时候，我们其实说的就是一个公钥。</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>尽管如此，上述过程存在一个大问题，而这个问题HTTPS必须要解决的。这个问题就是你如何获取每个你想访问的网站的公钥呢？当然了，你有了Facebook的公钥就可以安全的访问Facebook了，但是，如果你想安全的访问Google，你需要Google的公钥。同样的，你想安全的访问Twitter，你需要Twitter的公钥。</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>互联网上有成千上万的网站，而且还在不停的变化。所以就不太可能在你的个人电脑上保存一份全部网站的公钥，只能换一种思路了。现在，我们可以不用在电脑上一直维护这个巨大的公钥列表，而是在第一次访问网站的时候让网站发给我们她的公钥。不过这样就又回到开始的问题了：如果我们在不知情的情况下访问了恶意的第三方，那第三方可能会伪装并且发送她自己的公钥给我们。</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>到这一步，你可能要泄气了。虽然我们使用了公钥和私钥，但是我们实际上又回到了最初的问题：我们需要一种让Facebook能够证明其身份的方法，然后我们才能信任他们的公钥。既然如此，公钥的真正的意义又是啥呢？</p> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="证书和证书颁发机构">证书和证书颁发机构</h3> 
-   <div class="paragraph"> 
-    <p>还有一个问题是互联网上的某个网站不能对每个访问者验证其公钥的有效性，因为现今互联网的规模大到这么做是不经济的。想象一下Facebook<span class="underline"><a href="https://www.statista.com/statistics/490424/number-of-worldwide-facebook-users/">16.9亿</a></span>用户，每个用户至少得发起一次请求，鉴于HTTP的无状态特性，每次请求都要验证一下这个公钥的有效性，这个规模是非常大的。为了解决这个问题，我们使用证书机构或者简称CA。</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>证书机构(CA)能正确工作的前提是我们首先得信任他。这听起来有很多顾虑，但是实践中却工作的很好。CA是依靠信任的，所以当CA做了一些可疑的事情，浏览器马上就不再信任这些CA，这些CA也就该倒闭了。即使是CA方面的简单错误也足以永久破坏其声誉。</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>那CA是如何解决我们的身份认证问题的呢？CA收钱为网站提供这种身份认证服务。DigiCert是一家有名的CA，同时也是Facebook使用的CA，我们就用她作为CA的例子。Facebook想证明她的公钥的有效身份，从而让用户安全的访问。所以她就花钱请DigiCert确认她就是真正的Facebook，一旦做了这个，DigiCert就会知道哪个公钥真的就是Facebook的。现在当你访问Facebook的时候，你就不需要Facebook证明她自己的身份了，你只需要Facebook证明DigiCert已经验证过她的身份就可以了。DigiCert为许多网站提供这种服务，你不需要弄清楚如何信任某个网站，你只需要信任DigiCert就可以了。如果你信任DigiCert，而DigiCert信任Facebook，那么理论上你就可以信任Facebook了。我们叫这个信任链。</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>从抽象的高度看，这就是HTTPS的工作原理了。但是，我们需要弄清楚该过程的中的两个具体细节，才能理解详细的工作原理。</p> 
-   </div> 
-   <div class="ulist"> 
-    <ul> 
-     <li> <p>你怎么知道你正在使用DigiCert，而不是仿冒的DigiCert？</p> </li> 
-    </ul> 
-   </div> 
-   <div class="paragraph"> 
-    <p>这看起来又回到问题的起点了。如果我们拥有DigiCert的公钥，则可以验证其身份。但是我们需要以某种方式确保我们拥有DigiCert的公钥，而不是别人的。这里的解决办法是什么呢？其实是我们使用的操作系统或浏览器已经存储了DigiCert的公钥。现如今，我们信任很多CA，只不过她们是众所周知的，才能让现代操作系统或者浏览器存储她们的公钥。这部分公钥存储在计算机的“受信任的根证书颁发机构存储区(Trusted Root Certificate Authority Store)”中。存储的密钥数量似乎很多，但这总比为互联网上的每个网站存储一个公钥要容易多了。</p> 
-   </div> 
-   <div class="ulist"> 
-    <ul> 
-     <li> <p>Facebook如何证明DigiCert对其进行了验证？</p> </li> 
-    </ul> 
-   </div> 
-   <div class="paragraph"> 
-    <p>一旦DigiCert验证过Facebook就是Facebook之后，DigiCert就知道了Facebook的真正公钥，然后使用自己的私钥对Facebook的公钥进行数字签名，并且将这个签名后的公钥给Facebook。这种交互完全发生在Facebook和DigiCert之间，而且远远早于用户连接到Facebook的时间，一般网站上线之前就发生了。现在，当你连接到Facebook时，Facebook会给你发送一个已由DigiCert的私钥签名的公钥。然后你可以使用操作系统存储的公钥来验证DigiCert对Facebook的公钥进行了签名。</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>整个过程中有两对公钥和私钥，一对是网站的，一对是CA的。双方都对外公布自己的公钥，并安全保存自己的私钥。网站的公钥先是给了CA，被签名之后间接的最终还是给了用户，这个公钥在协商阶段还会用到。而CA的公钥则直接被操作系统或者浏览器存储下来了，也相当于给了用户。CA用自己的私钥对网站的公钥进行数字签名，发给网站，这就是服务器的证书。当用户连接到服务器的握手环节，服务器发送证书给用户，用户通过本地的CA的公钥来解密网站发来的证书(CA私钥签名过的网站公钥)，如果成功则完成了验证问题。</p> 
-   </div> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="保护交换数据的隐私与完整性">保护交换数据的隐私与完整性</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>使用非对称加密完成了网站服务器的身份认证，接下来的保护交换数据的隐私与完整性则最终使用了对称加密手段。过程非常复杂，HTTPS的握手环节还进了用户与服务器之间一系列的加密算法，对称加密密码等等协商之后就可以进行安全的访问了。HTTPS完整的握手环节可以通过<span class="underline"><a href="https://tls13.ulfheim.net/">这里</a></span>查看，详细到每个字节，同时也解释了协议并且图形化描述了整个过程。</p> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="参考">参考</h2> 
- <div class="sectionbody"> 
-  <div class="olist arabic"> 
-   <ol class="arabic"> 
-    <li> <p>Google Transparency Report - <a href="https://transparencyreport.google.com/https/overview?hl=en">HTTPS encryption on the web</a></p> </li> 
-    <li> <p>www.youdzone.com - <a href="http://www.youdzone.com/signature.html">What is a Digital Signature?</a></p> </li> 
-    <li> <p>ulfheim.net - <a href="https://tls13.ulfheim.net/">The New Illustrated TLS Connection</a></p> </li> 
-    <li> <p>dnsimple.com - <a href="https://support.dnsimple.com/articles/what-is-ssl-certificate-chain/">What is the SSL Certificate Chain?</a></p> </li> 
-   </ol> 
-  </div> 
- </div> 
-</div></p>
-  		<a href="blog/2020/02/understanding-memory-reordering.html"><h1>理解内存重排序以及为什写无锁多线程代码时很重要</h1></a>
-  		<p>
-			<a href="/about.html"><strong>George Cao</strong></a>于2020年02月29日
-					<span class="badge badge-dark">内存模型</span>
-					<span class="badge badge-dark">多线程</span>
-					<span class="badge badge-dark">原子性</span>
-					<span class="badge badge-dark">多线程</span>
-					<span class="badge badge-dark">内存重排序</span>
-		</p>
-  		<p><div id="preamble"> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>此系列前一篇文章中，<a href="https://www.reploop.org/blog/2020/02/lock-free-multithreading-with-atomic-operations.html">用原子操作实现无锁多线程</a>，我介绍了无锁多线程：并发软件中线程同步的底层机制。</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>基于<strong>原子操作</strong>，也就是CPU直接执行的不能细分为更小步骤的机器指令，相比传统的同步原语如<a href="https://www.reploop.org/blog/2020/02/introduction-to-thread-synchronization.html">互斥锁和信号量</a>，无锁多线程提供了更快和更细粒度控制的同步机制。</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>一如既往的，能力越大，责任越大。无锁编码中你更接近本质，因此理解机器是如何工作的以及机器的特性是非常有益的。</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>本文中我会介绍一些硬件（和软件）对无锁代码产生的非常重要的副作用。这也是惊叹计算机内部小型世界的复杂性的机会。</p> 
-  </div> 
-  <div class="ulist"> 
-   <div class="title">
-    本系列中的其他文章
-   </div> 
-   <ul> 
-    <li> <p><a href="https://www.reploop.org/blog/2020/02/a-gentle-introduction-to-multithreading.html">多线程简介</a> - 一步一步走进并发的世界</p> </li> 
-    <li> <p><a href="https://www.reploop.org/blog/2020/02/introduction-to-thread-synchronization.html">线程同步简介</a> - 多线程应用中最常见的并发控制方法之一</p> </li> 
-    <li> <p><a href="https://www.reploop.org/blog/2020/02/lock-free-multithreading-with-atomic-operations.html">用原子操作实现无锁多线程</a> - 底层线程同步</p> </li> 
-   </ul> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="内存重排序或者不愉快的惊喜">内存重排序或者不愉快的惊喜</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>现有编程课程首先要教你的是计算机如何<strong>顺序</strong>执行用源代码写出的指令。一段程序就是文本文件中的一系列操作，处理器会从上到下执行这些操作。</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>意外的，这常常是一个谎言：你的机器有能力按需调整<em>一些</em>底层指令的执行顺序，尤其是内存读取的时候。这个诡异的修改，叫做<strong>内存重排序</strong>，会发生在硬件和软件层面，且经常是因为性能的原因。</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>内存重排序开发出来旨在利用那些原本要浪费掉的指令周期。这个技巧能大幅度提升你程序的执行速度；另一方面，它可能对无锁多线程造成严重破坏。我们马上能看到为啥。</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>我们先来仔细看一下内存重排序这种不可预知的行为存在的原因。</p> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="内存重排序总结">内存重排序总结</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>程序想要执行，必须加载进<strong>主内存</strong>。CPU的任务就是执行存储在那的指令，同时在必要的时候读数据或者写数据。</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>随着时间的推移，这种类型的内存和处理器比起来变得非常慢。例如，一个现代的CPU一个纳秒内能够执行10个指令，但是需要纳秒的许多倍时间从主内存中读取数据！工程师们不喜欢时间就这样浪费了，所以他们给CPU配上了容量很小但是速度非常快的特殊内存，我们称之为<strong>缓存</strong>。</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>缓存是为了避免和慢速主内存交互，用来存储CPU最常用的数据的。如果CPU需要从主内存读取或者写入主内存，它首先检测缓存看是不是有所需数据的副本。如果有，处理器就直接从缓存读取或者写入缓存而不会等待相比较慢的主内存的响应。</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>现代CPU有多个核心组成的，<strong>核心(core)</strong> 是真正执行计算的组件。每个核心拥有自己的独立缓存，如下图所示：</p> 
-  </div> 
-  <div class="imageblock"> 
-   <div class="content"> 
-    <img src="https://www.reploop.org/blog/2020/02/images/cpu-cache-main-memory.png" alt="CPU" width="cache and main memory"> 
-   </div> 
-   <div class="title">
-    Figure 1. 多个核心通过缓存和主内存交互的简化模型。这也叫做共享内存系统，因为主内存被多个实体访问。
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>总而言之，缓存能让计算机运行更快。更准确的说，缓存通过让处理器总是繁忙和高效来帮助处理器不要因为等待主内存响应而浪费宝贵的时间。</p> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="内存重排序作为优化技巧">内存重排序作为优化技巧</h3> 
-   <div class="paragraph"> 
-    <p>很明显缓存机制增加了多核场景下系统的复杂性。现在你需要详细的规则来决定数据如何在不同的缓存间流动，来保证每个核心有最新版本的数据，称之为<strong>缓存一致性协议</strong>，他可能引发非常大的性能下降。所以工程师们就设想用内存重排序来充分发挥每个核心的作用。</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>内存重排序为什么会发生的理由有很多个。比如，考虑2个核心同时访问同样的内存块。核心A从内存读取数据，核心B写入数据到内存。内存一致性协议可能会强制核心A等待核心B将本地修改的数据写回到主内存，这样核心A就能读到最新的数据。这个等待的核心可以选择提前执行其他内存指令，而不是浪费珍贵的指令周期啥也不做，即使这个和你在程序中明确的代码顺序不一样。</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>当特定的优化开启了，编译器和虚拟机也会启用重排序指令。这些变化发生在编译时，可以通过汇编码或者字节码很容易的看到。软件内存重排序是充分利用底层硬件可能提供的特性来让你的代码运行的更快。</p> 
-   </div> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="硬件内存重排序的具体样例">硬件内存重排序的具体样例</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>考虑下面用硬件伪代码写的样例。程序的每一个步骤都对应一个处理器指令：</p> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlight"><code class="language-c" data-lang="c">x = 0
-v = false
-
-thread_one():
-    while load(v) == false:
-        continue
-    print(load(x))
-
-thread_two():
-    store(x, 1)
-    store(v, true)</code></pre> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>上面的代码片段中2个线程并发运行在2个不同的核心上。第1个线程等待第2个线程将<code>v</code>设置为<code>true</code>。让我们假设<code>store()</code>和<code>load()</code>都是读取内存的原子CPU指令。</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>你预计第1个线程在屏幕上打印出什么？如果他在线程2之前启动（<span class="underline"><a href="https://internalpointers.com/post/gentle-introduction-multithreading#race-conditions">并不总是这样的</a></span>），就没有正确的答案了。如果没有重排序发生，你可能会看到1。尽管如此，如果第2个线程中的存储指令发生重排序，<code>v</code> 的更新也可能发生在<code>x</code>之前，打印语句可能打印出<code>0</code>。相似的，内存重排序也可能发生在第1个线程中，也就是<code>x</code>的加载可能发生在<code>v</code>的检测之前。</p> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="内存重排序对多线程的影响">内存重排序对多线程的影响</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>硬件内存重排序在单核计算机上没有问题，因为线程是操作系统控制的软件结构。CPU就是收到连续的内存指令流。指令还是可以被重新排序，不过要符合一个基本规则：给定内核的内存访问看上去就像和代码写的一样。所以，内存重排序可能会发生，但是只在不影响最终结果的前提下。</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>这个规则也适用于多核场景下的每个单核，但不适用于不同操作同时跑在独立的硬件上的情况（<span class="underline"><a href="https://internalpointers.com/post/gentle-introduction-multithreading#what-threads-are-used-for">真并行(true parallelism)</a></span>）。让你的线程跑在两个物理内核上，你就会碰到上面样例中的各种诡异问题，更不用说让编译器和虚拟机执行重排序了。</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>常规的如互斥锁和信号量等<a href="https://www.reploop.org/blog/2020/02/introduction-to-thread-synchronization.html">锁同步机制</a>是设计用来处理硬件和软件层面的内存重排序的。毕竟他们是上层技术。</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>不过，应用无锁方案的多线程程序更接近底层：就像<a href="https://www.reploop.org/blog/2020/02/lock-free-multithreading-with-atomic-operations.html">上一篇文章</a>看到的，它利用存储和加载原子指令来同步线程。 搞笑的是这些操作可能被重排序，从而破坏了你的严谨计划。</p> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="如何解决内存重排序的问题">如何解决内存重排序的问题</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>你肯定不会基于一些随机变化的东西构建你的同步机制。这个问题可以通过引入<strong>内存屏障</strong>的方式来解决。内存屏障是强制处理器按照可预知的方式访问内存的CPU指令。内存屏障的工作方式类似路障：内存屏障之前的指令保证先于内存屏障之后的指令执行。</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>内存屏障是硬件层面的：你得直接和CPU交互。这是一个底层的解决方案，且不利于程序的可移植性。解决这个问题最好的方式是软件层次，利用操作系统，编译器或虚拟机提供的工具。</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>尽管如此，软件工具也仅仅是中间阶段。为了构建一个此问题的清晰的全景图，我们首先全局看一下所有可能在硬件或者软件系统中的内存场景。<strong>内存模型</strong> 在这个过程中发挥重要作用。</p> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="内存模型">内存模型</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>内存模型是抽象的方式描述系统中涉及到访问和重排序内存可能或者不可能发生的事情。处理器和编程语言会实现一个，尤其是利用多线程技术的时候：内存模型同时适用于硬件和软件层面。</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>当系统对改变内存操作顺序非常谨慎，我们说系统遵循<strong>强内存模型</strong>。相反的，<strong>弱内存模型</strong> 中你可能碰到各种各样的重排序。比如，x86系列的处理器属于前一类，而ARM和PowerPC处理器则属于后一类。软件层面又是怎么样的呢？</p> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="软件内存模型的好处">软件内存模型的好处</h3> 
-   <div class="paragraph"> 
-    <p>硬件内存模型存在的原因很明显，而对应的软件内存模型让你能够按需重排内存访问顺序。这个特性在你写无锁多线程代码的代码能帮很大的忙。</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>例如，为了避免同步机制中不受欢迎的原子操作的重排序，编译器可以编译出遵循强内存模型的机器码。当底层硬件实现的是弱内存模型的时候，编译器会通过加入正确的内存屏障指令来最大限度的提供你需要的内存模型。编译器也负责软件层面的内存重排序指令。使用软件内存模型可以解耦硬件细节。</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>基本上，所有的编程语言都会实现一种内存模型，某种意义上说，他们都遵循特定的规则来处理内存。一些编程语言也就到此为止了，因为他们不直接处理多线程。其他的比如<span class="underline"><a href="https://docs.oracle.com/javase/9/docs/api/java/lang/invoke/VarHandle.html">Java</a></span>， <a href="https://doc.rust-lang.org/nomicon/atomics.html">Rust</a>和<span class="underline"><a href="https://en.cppreference.com/w/cpp/atomic/memory_order">C++</a></span>等也会提供上述的控制内存重排序行为的工具。</p> 
-   </div> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="细粒度内存模型">细粒度内存模型</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>强和弱内存模型是对内存操作如何重排序的理论上的分类。具体到真实的编码，大多数支持原子操作的编程语言会提供3种控制内存重排序的方式。我们仔细看一下。</p> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="1顺序一致">1）顺序一致</h3> 
-   <div class="paragraph"> 
-    <p>较少干扰的内存重排序方式就是根本不重排序。这是强内存模型的一种形式，称之为顺序一致：这正是解决上面提到的所有无锁多线程问题所需要的。禁用重排序能让你的多线程程序容易理解：源代码是按照书写顺序执行的。</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>顺序一致给并行代码执行加了另外一个重要特性：它强制了所有线程中的所有内存原子操作的<strong>整体顺序</strong>。为了更好理解这句话，考虑如下的硬件伪代码样例：</p> 
-   </div> 
-   <div class="listingblock"> 
-    <div class="content"> 
-     <pre class="highlight"><code class="language-c" data-lang="c">x = 0
-y = 0
-
-thread_A:
-    store(x, 1)
-
-thread_B:
-    store(y, 1)
-
-thread_C:
-    assert(load(x) == 1 &amp;&amp; load(y) == 0)
-
-thread_D:
-    assert(load(x) == 0 &amp;&amp; load(y) == 1)</code></pre> 
-    </div> 
-   </div> 
-   <div class="paragraph"> 
-    <p>我们暂时不考虑单个线程内的内存重排序，看一下全局情况。如果线程按照A-C-B-D的顺序运行，线程C能看到<code>x == 1</code>和<code>y == 0</code>，这是因为线程C是在线程A和线程B之间运行的，因此线程C的断言不会失败。但是这也是问题所在：顺序一致强加的全局顺序迫使线程D看到与线程C一样的事件，因此线程D的断言会失败。线程D不可能看到和线程C不一样的存储顺序。换句话说，线性一致下，所有的线程都看到同样的东西。</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>就像前面说过的，这是一个非常直观和自然的思考多线程执行的方式。尽管如此，顺序一致也取消了内存重排序带来的任何硬件或者软件优化：这通常会引起严重性能瓶颈。顺序一致有些时候是必要的，比如多生产者-多消费者情况下消费者必须按照生产者的生产顺序消费。</p> 
-   </div> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="2获取_释放顺序">2）获取-释放顺序</h3> 
-   <div class="paragraph"> 
-    <p><strong>获取-释放</strong> 是强和弱内存模型的中间状态。首先，获取-释放和顺序一致工作方式相似，除了没有全局执行顺序。我们在看一下上面的那个例子：在获取-释放情况下，线程D是允许看到不同于线程C的事件，因此线程D的断言有可能会通过。</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>全局顺序的缺失其实是个副作用。获取-释放是针对<em>特定</em>共享原子变量在<em>多个线程之间</em>同步的。也就是说，你在线程A和线程C之间同步共享变量<code>x</code>，使得线程C只能在线程A完成写入之后才读取。这种情况下，<code>y</code> 并没有考虑进去，所以你可碰到任何针对它的重排序。</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>具体来说，支持这种有序性的编程语言允许你将内存访问标记为获取或者释放。当线程B触发某共享变量上标记为获取的原子加载操作，线程A中的同一个共享变量上标记为释放的原子存储可确保线程B将看到线程A执行的完整且不是重新排序的内存事件序列。我知道这比较烧脑，不过这是互斥锁的基础：关键区和它保护的区域就是用这个构建的（获取-释放名字来源于互斥锁术语，也就是获取和释放互斥锁）。</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>获取-释放允许更多的优化机会，因为仅有部分内存重排序不被允许。换句话说，你的程序更不容易推理分析了。</p> 
-   </div> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="3松散顺序">3）松散顺序</h3> 
-   <div class="paragraph"> 
-    <p>还有一种弱内存模型的形式。<strong>松散顺序</strong> 的情况下，你写程序的时候根本不关心内存重排序。编译器和处理器可以尽可能的优化程序执行。当然了内存操作的原子特性是保留下来了：这在增加共享计数器的时候非常有用，这种情况下操作必须是原子的才能让其他线程不能看到未完成的中间状态。</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>松散有序性不保证任何特定的内存重排序，所以这不是可以安全使用的线程同步工具。另一方面，这也允许使用任何内存技巧来提升你的多线程程序的性能。</p> 
-   </div> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="下一步">下一步？</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>这篇文章中，我想对内存重排序问题以及其存在的原因和它对无锁多线程的影响有一个全面的了解。接下来我会写一些使用原子操作的C++代码来实践一下。</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>为什么是C++ ？因为C++语言近期引入了<span class="underline"><a href="https://en.cppreference.com/w/cpp/language/memormodel">非常详细的内存模型</a></span>，使得你能够细粒度的控制C++原子对象的内存重排序操作。我相信这是一个很好的方式去看顺序一致，获取-释放和松散有序在真实的场景下是如何一起工作的。祝我好运吧:)。</p> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="参考">参考</h2> 
- <div class="sectionbody"> 
-  <div class="ulist"> 
-   <ul> 
-    <li> <p>AA.VV. - <a href="https://www.morganclaypool.com/doi/abs/10.2200/S00346ED1V01Y201104CAC016">A Primer on Memory Consistency and Cache Coherence</a></p> </li> 
-    <li> <p>AA. VV. - <a href="https://books.google.it/books?id=MMNiDwAAQBAJ">C++ Reactive Programming</a></p> </li> 
-    <li> <p>Paul E. McKenney - <a href="http://www.puppetmastertrading.com/images/hwViewForSwHackers.pdf">Memory Barriers: a Hardware View for Software Hackers</a></p> </li> 
-    <li> <p>cppreference.com - <a href="https://en.cppreference.com/w/cpp/atomic/memory_order">std::memory_order</a></p> </li> 
-    <li> <p>GCC Wiki - <a href="https://gcc.gnu.org/wiki/Atomic/GCCMM/AtomicSync">Memory model synchronization modes</a></p> </li> 
-    <li> <p>doc.rust-lang.org - <a href="https://doc.rust-lang.org/nomicon/atomics.html">Atomics</a></p> </li> 
-    <li> <p>Herb Sutter - <a href="https://youtu.be/A8eCGOqgvH4?t=3419">Atomic Weapons 1 of 2</a></p> </li> 
-    <li> <p>The ryg blog - <a href="https://fgiesen.wordpress.com/2014/07/07/cache-coherency/">Cache coherency primer</a></p> </li> 
-    <li> <p>The ryg blog - <a href="https://fgiesen.wordpress.com/2014/08/18/atomics-and-contention/">Atomic operations and contention</a></p> </li> 
-    <li> <p>Bartosz Milewski - <a href="https://bartoszmilewski.com/2008/12/01/c-atomics-and-memory-ordering/">C++ atomics and memory ordering</a></p> </li> 
-    <li> <p>Bartosz Milewski - <a href="https://bartoszmilewski.com/2008/11/11/who-ordered-sequential-consistency/">Who ordered sequential consistency?</a></p> </li> 
-    <li> <p>StackOverflow - <a href="https://stackoverflow.com/questions/30958375/memory-barriers-force-cache-coherency">Memory barriers force cache coherency?</a></p> </li> 
-    <li> <p>StackOverflow - <a href="https://stackoverflow.com/questions/25345440/how-does-the-cache-coherency-protocol-enforce-atomicity">How does the cache coherency protocol enforce atomicity?</a></p> </li> 
-    <li> <p>StackOverflow - <a href="https://stackoverflow.com/questions/42746793/does-a-memory-barrier-ensure-that-the-cache-coherence-has-been-completed">Does a memory barrier ensure that the cache coherence has been completed?</a></p> </li> 
-    <li> <p>StackOverflow - <a href="https://stackoverflow.com/questions/6319146/c11-introduced-a-standardized-memory-model-what-does-it-mean-and-how-is-it-g">C11 introduced a standardized memory model. What does it mean? And how is it going to affect C programming?</a></p> </li> 
-    <li> <p>StackOverflow - <a href="https://stackoverflow.com/questions/12340773/how-do-memory-order-seq-cst-and-memory-order-acq-rel-differ">How do memory_order_seq_cst and memory_order_acq_rel differ?</a></p> </li> 
-    <li> <p>StackOverflow - <a href="https://stackoverflow.com/questions/12346487/what-do-each-memory-order-mean">What do each memory_order mean?</a></p> </li> 
-    <li> <p>Just Software Solutions - <a href="https://www.justsoftwaresolutions.co.uk/threading/memory_models_and_synchronization.html">Memory Models and Synchronization</a></p> </li> 
-    <li> <p>Wikipedia - <a href="https://en.wikipedia.org/wiki/CPU_cache">CPU cache</a></p> </li> 
-    <li> <p>Wikipedia - <a href="https://en.wikipedia.org/wiki/Cache_coherence">Cache coherence</a></p> </li> 
-    <li> <p>Wikipedia - <a href="https://en.wikipedia.org/wiki/Memory_barrier">Memory barrier</a></p> </li> 
-    <li> <p>Wikipedia - <a href="https://en.wikipedia.org/wiki/Memory_ordering">Memory ordering</a></p> </li> 
-    <li> <p>James Bornholt - <a href="https://www.cs.utexas.edu/~bornholt/post/memory-models.html">Memory Consistency Models: A Tutorial</a></p> </li> 
-    <li> <p>Preshing on Programming - <a href="https://preshing.com/20120625/memory-ordering-at-compile-time/">Memory Ordering at Compile Time</a></p> </li> 
-    <li> <p>Preshing on Programming - <a href="https://preshing.com/20120710/memory-barriers-are-like-source-control-operations/">Memory Barriers Are Like Source Control Operations</a></p> </li> 
-    <li> <p>Linux Journal - <a href="https://www.linuxjournal.com/article/8211">Memory Ordering in Modern Microprocessors, Part I</a></p> </li> 
-    <li> <p>Doug Lea - <a href="http://gee.cs.oswego.edu/dl/html/j9mm.html">Using JDK 9 Memory Order Modes</a></p> </li> 
-   </ul> 
-  </div> 
-  <div class="paragraph"> 
-   <p>本文译自https://www.internalpointers.com/post/understanding-memory-ordering，英文读者可直接阅读原文。</p> 
   </div> 
  </div> 
 </div></p>

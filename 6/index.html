@@ -1,13 +1,18 @@
 <!DOCTYPE html>
 <html lang="zh_CN">
-  <head>
+<head>
     <meta charset="utf-8"/>
     <title>REPLoop</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="author" content="乔治">
-    <meta name="keywords" content="REPL,REPLoop,George,乔治">
+    <meta name="keywords"
+          content="REPL,REPLoop,George,乔治">
     <meta name="generator" content="JBake v2.7.0.8">
     <meta property=og:locale content=zh_CN>
+    <meta property="og:title"
+          content="REPLoop"/>
+    <meta property="og:type" content="article"/>
+    <meta property="og:image" content="../img/favicon.svg"/>
     <!-- Le styles -->
     <link href="../css/bootstrap.min.css" rel="stylesheet">
     <link href="../css/asciidoctor.css" rel="stylesheet">
@@ -16,7 +21,7 @@
 
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
-      <script src="../js/html5shiv.min.js"></script>
+    <script src="../js/html5shiv.min.js"></script>
     <![endif]-->
 
     <!-- Fav and touch icons -->
@@ -25,9 +30,10 @@
     <link rel="apple-touch-icon-precomposed" sizes="72x72" href="../assets/ico/apple-touch-icon-72-precomposed.png">
     <link rel="apple-touch-icon-precomposed" href="../assets/ico/apple-touch-icon-57-precomposed.png">-->
     <link rel="shortcut icon" href="../img/favicon.svg">
-    <script data-ad-client="ca-pub-2350040335860411" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-  </head>
-  <body onload="prettyPrint()">
+    <script data-ad-client="ca-pub-2350040335860411" async
+            src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+</head>
+<body onload="prettyPrint()">
     <div id="wrap">	
 	<!-- Fixed navbar -->
     <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -52,6 +58,208 @@
       </div>
     </div>
     <div class="container">
+  		<a href="blog/2021/03/pay.html"><h1>支付API为啥那么麻烦？</h1></a>
+  		<p>
+			<a href="/about.html"><strong>乔治</strong></a>于2021年03月20日
+					<span class="badge badge-dark">支付宝</span>
+					<span class="badge badge-dark">微信</span>
+					<span class="badge badge-dark">支付</span>
+					<span class="badge badge-dark">安全</span>
+					<span class="badge badge-dark">数字签名</span>
+					<span class="badge badge-dark">RSA</span>
+					<span class="badge badge-dark">密钥对</span>
+		</p>
+  		<p><div id="preamble"> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>仅仅在API层面，不涉及财务会计，金融监管等等方面，仅仅从安全角度考虑，支付API的大部分繁琐工作都在保证<strong>你就是你</strong>的身份问题。 这个在新接入一家支付通道的时候感受非常明显。身份问题典型的解决方案就是基于非对称加密的<strong>数字签名</strong>技术。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="支付安全">支付安全</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>在一个支付流程中可能涉及的角色有平台用户，商户，平台，应用，商户用户等。整体上是一个三方参与的过程，比较复杂。支付也是一个异步流程，从商家的角度至少需要2步以上才能完成支付：</p> 
+  </div> 
+  <div class="olist arabic"> 
+   <ol class="arabic"> 
+    <li> <p>首先是商家调用平台API发起支付</p> </li> 
+    <li> <p>平台引导用户在平台上完成支付</p> </li> 
+    <li> <p>平台向商家发起支付结果通知的回调请求。</p> </li> 
+   </ol> 
+  </div> 
+  <div class="paragraph"> 
+   <p>用户在支付平台上付款的事情是支付平台自己处理的，作为没有支付牌照的商家是不需要操心这部分的，暂时略过。 剩下的两步骤都需要请求发起方向请求接收方证明<strong>你就是你</strong>.</p> 
+  </div> 
+  <div class="olist arabic"> 
+   <ol class="arabic"> 
+    <li> <p>商家调用平台API发起支付的时候的得告诉平台是谁在收钱。</p> </li> 
+    <li> <p>平台向商家发起回调请求的时候商家需要知道是平台在发起回掉。</p> </li> 
+   </ol> 
+  </div> 
+  <div class="paragraph"> 
+   <p>只有这样商家才放心说钱一定会收到的(毕竟每笔交易你都没查银行账户确认)，平台也有凭证说商家已经把钱收了，用户确信商家是会履约的。这是一个双向的严格的安全要求。这就是为啥调用支付API要申请应用，要生成证书，要验签名等。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>第1个商家向平台证明自己的身份使用OAuth相关的技术。以支付宝为例，你要对接先申请一个应用，拿到一个APP ID和APP Secret，熟悉OAuth的人可能都马上能联系到开放平台的事情。APP Secret一定要保管好，不能泄漏。 貌似这一步也可以支持证书认证。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>第2个平台向商家证明自己的身份使用证书相关的技术。这就是我们需要下载平台的支付证书（其实是个公钥）的原因。这是用来回调验证签的。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>严格来收这里面并没有用到想HTTPS那样的证书，而仅仅是非对称加密算法中的公钥-私钥的密钥对，然后这就是一个数字签名的过程。不像HTTPS，这中间也没有知名的证书机构(CA)参与。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="https不能保证这个吗">HTTPS不能保证这个吗？</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>虽说HTTPS逐渐普遍起来了，但是也不能完成保证支付安全的问题。因为HTTPS只能保证请求接收方的身份问题，不能确认请求发起方的身份问题。</p> 
+  </div> 
+  <div class="exampleblock"> 
+   <div class="content"> 
+    <div class="paragraph"> 
+     <p>注：其实HTTPS也支持客户端证书，开启之后就可以完成双向证书验证了。不过大部分情况下只是用服务端证书，而不启用客户端证书。</p> 
+    </div> 
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>以支付宝为例，也就是是说我们访问 <a href="https://openapi.alipay.com/gateway.do" class="bare">https://openapi.alipay.com/gateway.do</a> 成功后请求发起方能确认访问的就是支付宝的支付接口，但是支付宝支付平台不能安全的知道是谁在发起支付请求。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>相应的支付回调也是类似的，支付宝发起HTTPS的回调，只能知道是访问了商家的回调地址，而商家不能安全的确信这就是支付宝发起的回调。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>而且上面的方案在非HTTPS的环境也是可以工作的。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="参考">参考</h2> 
+ <div class="sectionbody"> 
+  <div class="ulist"> 
+   <ul> 
+    <li> <p>reploop.org - <a href="https://www.reploop.org/blog/2020/03/how-https-works.html">HTTPS如何工作的？</a></p> </li> 
+   </ul> 
+  </div> 
+ </div> 
+</div></p>
+  		<a href="blog/2020/09/discuss-a-problem.html"><h1>如何讨论一个问题？</h1></a>
+  		<p>
+			<a href="/about.html"><strong>乔治</strong></a>于2020年09月05日
+					<span class="badge badge-dark">认知</span>
+					<span class="badge badge-dark">视角</span>
+					<span class="badge badge-dark">变化</span>
+		</p>
+  		<p><div id="preamble"> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>如何和不同的人讨论一个问题？尤其是两个专业领域不同，背景不一致，坐下来讨论一个共同问题，并最终达成共识，然后在后续的执行过程中能够达到预期的结果，是一个很难的问题。每个人专业领域不一样，看问题的视角也不一样，接受信息的能力或者意愿也不一样，处理信息的方法也不一样，好好讨论问题并达成共识。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>先看一下看问题的视角。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="视角">视角</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>从创业公司层面的角度来看，做一个决策可能涉及到的考虑因素有：</p> 
+  </div> 
+  <div class="ulist"> 
+   <ul> 
+    <li> <p>市场</p> </li> 
+    <li> <p>运营</p> </li> 
+    <li> <p>品牌</p> </li> 
+    <li> <p>技术</p> </li> 
+    <li> <p>财务</p> </li> 
+    <li> <p>公司</p> </li> 
+    <li> <p>文化</p> </li> 
+    <li> <p>认知</p> </li> 
+    <li> <p>用户</p> </li> 
+    <li> <p>需求</p> </li> 
+    <li> <p>产品</p> </li> 
+    <li> <p>经济</p> </li> 
+    <li> <p>宏观</p> </li> 
+    <li> <p>行业</p> </li> 
+    <li> <p>人力</p> </li> 
+    <li> <p>商业</p> </li> 
+    <li> <p>管理</p> </li> 
+    <li> <p>人性</p> </li> 
+    <li> <p>信仰</p> </li> 
+   </ul> 
+  </div> 
+  <div class="paragraph"> 
+   <p>暂时不讨论他们之间的关系，也不把他们归类，只是把他们列出来看看。在这种情况下针对一个问题开始讨论了, 讨论的目的当然是要作出各方都认可的决策。那么可能发生的讨论过程是这样的：</p> 
+  </div> 
+  <div class="ulist"> 
+   <ul> 
+    <li> <p>你按照市场决策，他说财务是关键。</p> </li> 
+    <li> <p>你按照技术决策，他说市场不等人。</p> </li> 
+    <li> <p>你按照品牌决策，他说产品更重要。</p> </li> 
+    <li> <p>依次类推。。。</p> </li> 
+   </ul> 
+  </div> 
+  <div class="paragraph"> 
+   <p>这种场景最常见的就是某一个领域的下属和横向业务上的领导讨论问题时发生，最后屁股坐的正的说就这么办，之前的讨论就结束了。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>到了执行环节，下属将信将疑的免强做了动作，最后结果一汇报上去，领导不满意，还说你不专业。结果变成一个双输的局面。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="分析">分析</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>人们常说</p> 
+  </div> 
+  <div class="quoteblock"> 
+   <blockquote>
+     唯一不变的就是变化。 
+   </blockquote> 
+  </div> 
+  <div class="paragraph"> 
+   <p>我个人认为套用在和人相关的事情上都可以。如果你认同这句话，那就是要时刻准备接受变化，比如你读了更多的书，做了更多的项目，和更多的人接触，写了更多的代码，吃了更多的垃圾食品等等。现在让我们回到主题上了，这些变化会影响你看问题的角度，也就是会影响你作出决策，也就是之前的结论会变的。 剩下的问题就是变化有多快的事情了。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>假设 \$x\$ 为视角，\$w\$为视角的权重。那么讨论问题做出决策就可以表达为下面这个公式：</p> 
+  </div> 
+  <div class="stemblock"> 
+   <div class="content">
+     \$f(x) = sum_(i=1)^n w_ix_i\$ 
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>其中的权重制约关系为：</p> 
+  </div> 
+  <div class="stemblock"> 
+   <div class="content">
+     \$1 = sum_(i=1)^n w_i\$ 
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>所以变化部分其实就是某个视角的权重是变化的，各个视角的权重分配是动态变化的。随着人的专业，认知，经验等等发生变化，每个人对这个公式中视角的权重分配也是变化的，所以一个结论发生变化，实在是常有的事情。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>在这个结论下，一定要打开思路，敞开胸怀接受变化的发生，并积极想想如何应对变化了。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>那是不是就由着变化不停的变化吗？ 应该也不是。每个行业或者领域都是发展的，所以这个行业或者领域的变化应该是收敛的。所谓发展，就是迭代试错，不断地积累成功的经验规律。 在一定的周期内，随着行业的发展，每个视角的权重配比差不多达到一个最优的了，这就最终转化为行业的认识或者基本规律了。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="结论">结论</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>讨论一个问题，可能从量变与质变，定量与定性，过程与结果，存量与增量，绝对与相对等等多角度思考。 过程中要接受变化，并且认认真真的学习变化，最终收敛变化，完成一次迭代。</p> 
+  </div> 
+ </div> 
+</div></p>
   		<a href="blog/2020/05/primary-school-mathematics-in-work.html"><h1>小学数学在工作中应用</h1></a>
   		<p>
 			<a href="/about.html"><strong>乔治</strong></a>于2020年05月04日
@@ -172,221 +380,6 @@
    <ul> 
     <li> <p>Jeff Dean’s latency numbers plotted over time - <a href="https://colin-scott.github.io/personal_website/research/interactive_latency.html" class="bare">https://colin-scott.github.io/personal_website/research/interactive_latency.html</a></p> </li> 
    </ul> 
-  </div> 
- </div> 
-</div></p>
-  		<a href="blog/2020/05/how-to-size-thread-pool.html"><h1>如何设置线程池的大小？</h1></a>
-  		<p>
-			<a href="/about.html"><strong>乔治</strong></a>于2020年05月04日
-					<span class="badge badge-dark">多线程</span>
-					<span class="badge badge-dark">线程池</span>
-		</p>
-  		<p><div id="preamble"> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>多核环境下，为了更好的资源利用率，多线程基本上算是一个常规武器了。 我们知道CPU是用来计算的，而计算所需要的外部数据则是交给独立的I/O系统处理的。CPU和I/O的特点就是一个快，一个慢，大约差<span class="underline"><a href="https://colin-scott.github.io/personal_website/research/interactive_latency.html">2～3个数量级</a></span>。所以为了不浪费快的资源，就把慢的事情交给独立的系统做，等慢的资源准备好了在通知快的资源(也叫<strong>中断处理</strong>)。所以一旦发生CPU需要等待外部数据的时候，操作系统的调度系统就会暂时保存当前计算的寄存器状态，程序计数器等(也叫<strong>上下文</strong>) ，让出CPU给其他的可调度的进程。 这个过程称为<strong>上下文切换</strong>。一旦发生了<strong>上下文切换</strong>，以<strong>线程</strong>统一进行计算与I/O传输的应用这时就是被<strong>阻塞</strong>了。为了提高CPU的利用率，应用层面就是使用多个线程来保证CPU有计算可执行，线程池就是这么产生了。 以下就是本文的核心问题，如果你要创建一个线程池，该怎么确定线程池的大小呢？可以肯定的是线程数也不是越多越好。</p> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="线程池的大小">线程池的大小</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>关于线程池的大小，有两本非常有名的书中都有相关的论述。这两本书还都是Java生态里面重量级人物写的。分别看一下：</p> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="java_concurrency_in_practice">Java Concurrency In Practice</h3> 
-   <div class="quoteblock"> 
-    <blockquote>
-      For compute intensive tasks, an <em>N<sub>cpu</sub></em>-processor system usually achieves optimum utilization with a thread pool of <em>N<sub>cpu</sub></em>+1 threads. (Even compute intensive threads occasionally take a page fault or pause for some other reason, so an "extra" runnable thread prevents CPU cycles from going unused when this happens.) For tasks that also include I/O or other blocking operations, you want a larger pool, since not all of the threads will be schedulable at all times. In order to size the pool properly, you must estimate the ratio of waiting time to compute time for your tasks; this estimate need not be precise and can be obtained through profiling or instrumentation. Alternatively, the size of the thread pool can be tuned by running the application using several different pool sizes under a benchmark load and observing the level of CPU utilization. 
-    </blockquote> 
-    <div class="attribution">
-      — Brian Göetz
-     <br> <cite>Java Concurrency In Practice: p.107</cite> 
-    </div> 
-   </div> 
-   <div class="paragraph"> 
-    <p>书中先给出如下一些定义:</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p><em>N<sub>cpu</sub></em> = CPU核心数,</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p><em>U<sub>cpu</sub></em> = 目标CPU的使用率，其中 \$0 &lt;=\$<em>U<sub>cpu</sub></em>\$&lt;= 1\$,</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>\$w\$ = CPU等待时间，</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>\$c\$ = CPU计算时间，</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>\$w/c\$ = CPU等待时间和计算时间的比率,</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>然后就给出了能够使处理器保持在特定使用率的线程数最优公式：<em>N<sub>threads</sub></em>=<em>N<sub>cpu</sub></em>*<em>U<sub>cpu</sub></em>* (\$1 + w/c\$)</p> 
-   </div> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="programming_concurrency_on_the_jvm">Programming Concurrency on the JVM</h3> 
-   <div class="quoteblock"> 
-    <blockquote>
-      If tasks spend 50 percent of the time being blocked, then the number of threads should be twice the number of available cores. If they spend less time being blocked—that is, they’re computation intensive—then we should have fewer threads but no less than the number of cores. If they spend more time being blocked—that is, they’re IO intensive—then we should have more threads, specifically, several multiples of the number of cores. 
-    </blockquote> 
-    <div class="attribution">
-      — Venkat Subramaniam
-     <br> <cite>Programming Concurrency on the JVM: p.16</cite> 
-    </div> 
-   </div> 
-   <div class="paragraph"> 
-    <p>这本书里没有直接给出变量定义，而是用文字描述的。为了便于比较，这里也给出一些定义：</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p><em>N<sub>threads</sub></em> = 总的线程数，</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p><em>N<sub>cpu</sub></em> = 可用的CPU核心数，</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p><em>B<sub>c</sub></em> = 阻塞系数，介于0和1之间的。</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>那么，就可以用如下的方式计算我们需要的线程数了：<em>N<sub>threads</sub></em>=<em>N<sub>cpu</sub></em>/ (1 -<em>B<sub>c</sub></em>)</p> 
-   </div> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="分析与结论">分析与结论</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>乍一看，两本书给出了2个不一样的公式，该如何取舍呢？</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>假设CPU的使用率<em>U<sub>cpu</sub></em>是100%的情况下，也就是如果目标都是尽可能的利用CPU资源，其实这两个公式是一样的。 只要定义阻塞系数(blocking coefficient) = \$w/(w+c)\$，也就是阻塞系数为阻塞时间与整个CPU时间的占比。那么他们就是一个意思：定性的描述就是阻塞时间越多，就需要更多线程来保证CPU有活干。上面2个不同的公式则是定量的表达上述思路了。优化线程池的大小是想用最少的线程上下文切换(或代价)来做到最大的(或特定目标)CPU使用率。</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>第2本书没有把目标CPU使用率放到公式里面，都包含在阻塞系数里面了。</p> 
-  </div> 
- </div> 
-</div></p>
-  		<a href="blog/2020/05/dev-acronyms.html"><h1>码农工作中的缩写词</h1></a>
-  		<p>
-			<a href="/about.html"><strong>乔治</strong></a>于2020年04月04日
-					<span class="badge badge-dark">缩写词</span>
-		</p>
-  		<p><div id="preamble"> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>码农工作中，如果经常看一些英文的文档，混迹于github上抄抄源代码，发发邮件交流的话，或者和早几年外企出来的人一起工作的话，可能经常能看到一些缩写词。不懂的人一脸懵逼，懂的人可能因为少打了几次键盘提高了效率而提前下班被领导白眼。 不过缩写词也就是习惯的问题，不是啥逼格的问题。</p> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="常用缩写词">常用缩写词</h2> 
- <div class="sectionbody"> 
-  <div class="dlist"> 
-   <dl> 
-    <dt class="hdlist1">
-     RP
-    </dt> 
-    <dd> 
-     <p>pull request, 两个不同的代码仓库之间的合并请求。在分布式源码管理系统出来之后才有的概念，就是让别人拉取代码仓库变化的意思。</p> 
-    </dd> 
-    <dt class="hdlist1">
-     MR
-    </dt> 
-    <dd> 
-     <p>merge request, 提交代码前的合并请求。为了控制代码质量，有些代码分支不允许直接提交。 MR一般发生在向一个受保护的分支提交代码并请求评审代码的意思。</p> 
-    </dd> 
-    <dt class="hdlist1">
-     IMHO
-    </dt> 
-    <dd> 
-     <p>In My Humble Opinion. 也就是以我之见，恕我直言的意思。一般情况下是用于提出不同意见的。</p> 
-    </dd> 
-    <dt class="hdlist1">
-     TBD
-    </dt> 
-    <dd> 
-     <p>to be done，未完待续。意思是说一项工作应该要做，但是还没有完成。好多开源项目的文档中经常会看到。</p> 
-    </dd> 
-    <dt class="hdlist1">
-     WIP
-    </dt> 
-    <dd> 
-     <p>work in process, 施工/设计/处理/工作中，指一项工作正在进行中，还没有完成。开源中的Pull Request如果特别大，要分多次合并的话，每个Pull Request都可以加上[WIP]，说明还有后续的合并请求。</p> 
-    </dd> 
-    <dt class="hdlist1">
-     WTF
-    </dt> 
-    <dd> 
-     <p>what the fuck，类似国骂"我艹"之类的，语气词，大概就是这是什么玩意的意思。代码注释中经常能看见WTF的身影，愤怒的程序员。</p> 
-    </dd> 
-    <dt class="hdlist1">
-     FYI
-    </dt> 
-    <dd> 
-     <p>for your information，供你参考。一般是想把一个信息同步给另一个人，请他知晓的意思。</p> 
-    </dd> 
-    <dt class="hdlist1">
-     TL;DR
-    </dt> 
-    <dd> 
-     <p>too long, don’t read，太长，别看，也就是长篇大论预警提示。一般是一个结论的详细说明，如果仅仅关注结论，不关心缘由的话可以直接跳过的。</p> 
-    </dd> 
-    <dt class="hdlist1">
-     LGTM
-    </dt> 
-    <dd> 
-     <p>looks good to me，看起来不错。代码评审中的同意的意思。</p> 
-    </dd> 
-    <dt class="hdlist1">
-     PTAL
-    </dt> 
-    <dd> 
-     <p>please take a look，请看一下我的提交。github上经常能看到，某个代码提交或者合并请求，需要某个人评审，就可以这么说。</p> 
-    </dd> 
-    <dt class="hdlist1">
-     SGTM
-    </dt> 
-    <dd> 
-     <p>sounds good to me，听起来不错。代码评审中的同意的意思，或者某项提议/设计方案不错的意思。</p> 
-    </dd> 
-    <dt class="hdlist1">
-     RTFM
-    </dt> 
-    <dd> 
-     <p>read the fucking manual, 先读一下手册。一般都是问题太简单，都写在手册里面了。</p> 
-    </dd> 
-    <dt class="hdlist1">
-     STFW
-    </dt> 
-    <dd> 
-     <p>search the fucking web, 先上网查一下。一般都是问题太简单，简单搜索就能找到答案。</p> 
-    </dd> 
-    <dt class="hdlist1">
-     W/O
-    </dt> 
-    <dd> 
-     <p>without, 经常在github的issue中看到w/o，勉强也可也算开发术语，w/o转化为without之后就简单了吧？</p> 
-    </dd> 
-    <dt class="hdlist1">
-     PoC
-    </dt> 
-    <dd> 
-     <p>Proof of Concept, 有一个想法，在正式实施之前证明其可行性的意思。</p> 
-    </dd> 
-    <dt class="hdlist1">
-     WDYT
-    </dt> 
-    <dd> 
-     <p>What do you think？ 你怎么看？Github上经常能看到，当咨询别人的看法时使用。</p> 
-    </dd> 
-   </dl> 
-  </div> 
-  <div class="paragraph"> 
-   <p>暂时写这么多，后面遇到新的在补充。</p> 
   </div> 
  </div> 
 </div></p>

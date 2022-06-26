@@ -1,13 +1,18 @@
 <!DOCTYPE html>
 <html lang="zh_CN">
-  <head>
+<head>
     <meta charset="utf-8"/>
     <title>REPLoop</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="author" content="乔治">
-    <meta name="keywords" content="REPL,REPLoop,George,乔治">
+    <meta name="keywords"
+          content="REPL,REPLoop,George,乔治">
     <meta name="generator" content="JBake v2.7.0.8">
     <meta property=og:locale content=zh_CN>
+    <meta property="og:title"
+          content="REPLoop"/>
+    <meta property="og:type" content="article"/>
+    <meta property="og:image" content="img/favicon.svg"/>
     <!-- Le styles -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <link href="css/asciidoctor.css" rel="stylesheet">
@@ -16,7 +21,7 @@
 
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
-      <script src="js/html5shiv.min.js"></script>
+    <script src="js/html5shiv.min.js"></script>
     <![endif]-->
 
     <!-- Fav and touch icons -->
@@ -25,9 +30,10 @@
     <link rel="apple-touch-icon-precomposed" sizes="72x72" href="../assets/ico/apple-touch-icon-72-precomposed.png">
     <link rel="apple-touch-icon-precomposed" href="../assets/ico/apple-touch-icon-57-precomposed.png">-->
     <link rel="shortcut icon" href="img/favicon.svg">
-    <script data-ad-client="ca-pub-2350040335860411" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-  </head>
-  <body onload="prettyPrint()">
+    <script data-ad-client="ca-pub-2350040335860411" async
+            src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+</head>
+<body onload="prettyPrint()">
     <div id="wrap">	
 	<!-- Fixed navbar -->
     <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -52,6 +58,412 @@
       </div>
     </div>
     <div class="container">
+  		<a href="blog/2022/06/mybatis-sql-dumper.html"><h1>MyBatis Mapper中的SQL生成</h1></a>
+  		<p>
+			<a href="/about.html"><strong>乔治</strong></a>于2022年06月24日
+					<span class="badge badge-dark">Ognl</span>
+					<span class="badge badge-dark">SQL</span>
+					<span class="badge badge-dark">MyBatis</span>
+					<span class="badge badge-dark">优先级</span>
+					<span class="badge badge-dark">表达式求值</span>
+					<span class="badge badge-dark">实体关系图</span>
+					<span class="badge badge-dark">实体关系图</span>
+		</p>
+  		<p><div id="preamble"> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>MyBatis作为和Hibernate相比来说是一个轻量并且非常灵活的ORM框架，见过的Java项目中大部分都是使用MyBatis。MyBatis在运行时是支持日志输出SQL语句的，进而可以通过SQL做一些分析。如果要在编译时期做一些就像Java语言的静态分析之类的事情，通过解析XML的文件也是一个办法。本文通过项目<strong><a href="https://github.com/reploop/mybatis-sql-dump">mybatis-sql-dump</a></strong>来介绍一下如何从XML中生成SQL语句。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>现在数据库设计越来越的不遵守范式，数据库之间的主键和外键约束关系都不会落到数据库中，而是在应用程序中。因此在数据库中大部分情况下下看到的就是一些简单而独立的表，表之间的关系都弱化了，只有客户端SQL语句执行的时候才知道涉及的表之间的约束关系。通过联合查询的SQL来推断表之间的约束关系是本文的第2个目的。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="mybatis工作机制">MyBatis工作机制</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>MyBatis通过解析XML，通过<code>namespace</code>将XML文件和Java接口联系起来。然后将XML中的SQL语句解析为<code>MappedStatement</code>，并通过其id属性值和Java接口中的方法名对应起来，随后用生成代理的方式为接口中的每个方法行程代理，方法被调用的时候再通过方法名反向映射到XML中的SQL语句并执行。</p> 
+  </div> 
+  <div class="listingblock"> 
+   <div class="content"> 
+    <pre class="highlight"><code class="language-xml" data-lang="xml">&lt;?xml version="1.0" encoding="UTF-8" ?&gt;
+&lt;!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" &gt;
+&lt;mapper namespace="org.reploop.mapper.EntityMapper"&gt;    <i class="conum" data-value="1"></i><b>(1)</b>
+    &lt;select id="selectAll" resultMap="BaseResultMap"&gt;   <i class="conum" data-value="2"></i><b>(2)</b>
+        select *
+        from tb_entity
+    &lt;/select&gt;
+&lt;/mapper&gt;</code></pre> 
+   </div> 
+  </div> 
+  <div class="listingblock"> 
+   <div class="content"> 
+    <pre class="highlight"><code class="language-java" data-lang="java">package org.reploop.mapper;
+class Entity {
+    // Properties
+}
+public interface EntityMapper {
+    List&lt;Entity&gt; selectAll();   <i class="conum" data-value="2"></i><b>(2)</b>
+}</code></pre> 
+   </div> 
+  </div> 
+  <div class="colist arabic"> 
+   <table> 
+    <tbody>
+     <tr> 
+      <td><i class="conum" data-value="1"></i><b>1</b></td> 
+      <td>namespace就是Java中的Mapper接口</td> 
+     </tr> 
+     <tr> 
+      <td><i class="conum" data-value="2"></i><b>2</b></td> 
+      <td>XML中id对应Java接口中的方法</td> 
+     </tr> 
+    </tbody>
+   </table> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="生成sql">生成SQL</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>SQL语句是在解析生成<code>MappedStatement</code>的过程中解析并生成SqlSource，然后通过其方法：</p> 
+  </div> 
+  <div class="listingblock"> 
+   <div class="content"> 
+    <pre class="highlight"><code class="language-java" data-lang="java">BoundSql getBoundSql(Object parameterObject);</code></pre> 
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>能得到一个BoundSql实例，最后<code>BoundSql.getSql()</code>就得到了SQL语句。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>如果我们在XML里面写的就是单纯的SQL语句，那么到这里就结束了。实际上MyBatis还通过Ognl支持通过表达式求值的方式来根据入参来动态的调整SQL语句的输出。</p> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="sqlsource">SqlSource</h3> 
+   <div class="paragraph"> 
+    <p>SqlSource实质上是一个树形结构，体现了XML的嵌套结果的解析结果，然后执行<code>getBoundSql</code>的时候可以看作是层序遍历这个树，并且通过入参作为输入，对Ognl表达式进行求值(或者绑定变量)后的结果就是SQL语句了。</p> 
+   </div> 
+   <div class="paragraph"> 
+    <p>这个下面这个select语句中：</p> 
+   </div> 
+   <div class="listingblock"> 
+    <div class="content"> 
+     <pre class="highlight"><code class="language-xml" data-lang="xml">&lt;select&gt;
+select * from ${tableName} where deleted = 0 <i class="conum" data-value="1"></i><b>(1)</b>
+&lt;if test="userId != null"&gt; <i class="conum" data-value="2"></i><b>(2)</b>
+    and user_id = #{userId,jdbcType=INTEGER}
+&lt;/if&gt;
+&lt;/select&gt;</code></pre> 
+    </div> 
+   </div> 
+   <div class="colist arabic"> 
+    <table> 
+     <tbody>
+      <tr> 
+       <td><i class="conum" data-value="1"></i><b>1</b></td> 
+       <td>${tableName}这个变量在SQL语句生成阶段就会替换为入参中ableName这个变量的值；</td> 
+      </tr> 
+      <tr> 
+       <td><i class="conum" data-value="2"></i><b>2</b></td> 
+       <td>这个test内容是一个ognl表达式，只有入参中userId不为null的情况下，也就是表达式求值为真的情况下where子句中的第2个条件才会生效</td> 
+      </tr> 
+     </tbody>
+    </table> 
+   </div> 
+   <div class="paragraph"> 
+    <p>因此我们要生成完整的SQL语句，就需要解析这个表达式，收集表达式中需要的变量，以及为了能够让表达式求值结果为真，给变量合适的值。这样我们就需要解析Ognl表达式，并且走一遍表达式求值，从而推断出合适的变量值。</p> 
+   </div> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="ognl表达式">Ognl表达式</h3> 
+   <div class="paragraph"> 
+    <p>MyBatis集成了Ognl表达式的解析，解析完之后同样也是一个表达式语法树(AST)，而且是带有操作符的语法树。Ognl表达式中的操作大部分情况下最多是2个操作数，所以这个语法树也可以是一颗二叉树。</p> 
+   </div> 
+   <div class="imageblock"> 
+    <div class="content"> 
+     <img src="https://www.reploop.org/blog/2022/06/images/exp-tree.svg" alt="表达式树"> 
+    </div> 
+   </div> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="表达式求值">表达式求值</h3> 
+   <div class="paragraph"> 
+    <p>拿到表达式树之后，我们可用深度优先遍历(Depth-First Search)的方式遍历这棵树，并在遍历的过程中收集变量，并根据其操作觉得该变量的值，使得表达式求值结果为真。</p> 
+   </div> 
+   <div class="paragraph"> 
+    <p>其实深度优先遍历的输出就是操作树的<strong>后缀表达式</strong>，而后缀表达式的求值则使用双栈(Stack)，一个操作符栈，一个操作数栈遍历一遍就可以完成求值。一般的大学数据结构课程肯定是学过的。</p> 
+   </div> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="实体关系图er_diagram">实体关系图(ER-Diagram)</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>得到合法SQL之后就可以利用SQL解析器<strong><a href="https://github.com/JSQLParser/JSqlParser">JSqlParser</a></strong>分析，并通过JOIN语法来推断数据库表之间的主键和外键约束关系，之后通过<strong>graphviz</strong>来生成可视化的图片。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="结论">结论</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>本文本是想通过现成的MyBatis框架本身就解析XML文件，而不是从0开始写一个解析符合MyBatis的规范的XML解析器，这个过程有一个不太完美的地方，就是如果XML中依赖了项目中的类，比如MyBatis的ParameterType，ResultMap或则typeHandler是个业务自定义的实现类，那么这个过程是需要把这些类都加入到classpath中去的，这样才能正确运行。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>我们可以通过定制classloader的方式来解决，不过前提是XML的Mapper所在的项目需要提前编译好，这样才能通过定制classloader的方式指定搜索路径，来支持类的加载。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="参考">参考</h2> 
+ <div class="sectionbody"> 
+  <div class="ulist"> 
+   <ul> 
+    <li> <p>JSqlParser, <a href="https://github.com/JSQLParser/JSqlParser">JSqlParser</a></p> </li> 
+    <li> <p>MyBatis Spring Adapter, <a href="https://github.com/mybatis/spring" class="bare">https://github.com/mybatis/spring</a></p> </li> 
+    <li> <p>Expression Evaluation, <a href="https://cs.lmu.edu/~ray/notes/expressionevaluation/" class="bare">https://cs.lmu.edu/~ray/notes/expressionevaluation/</a></p> </li> 
+   </ul> 
+  </div> 
+ </div> 
+</div></p>
+  		<a href="blog/2022/04/rd-env.html"><h1>多人协作研发环境的设计思路</h1></a>
+  		<p>
+			<a href="/about.html"><strong>乔治</strong></a>于2022年04月24日
+					<span class="badge badge-dark">研发环境</span>
+					<span class="badge badge-dark">协作</span>
+					<span class="badge badge-dark">云原生</span>
+					<span class="badge badge-dark">虚拟化</span>
+					<span class="badge badge-dark">容器化</span>
+					<span class="badge badge-dark">资源隔离</span>
+		</p>
+  		<p><div id="preamble"> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>一般公司的研发环境至少会分为：<strong>开发(dev)</strong>，<strong>测试(test)</strong>和<strong>线上(prod)</strong>。这个大概是开发下意识就会有的基本思路。之所以分环境，主要是为了团队协作顺畅和线上系统稳定。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="环境划分">环境划分</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>从系统稳定性的角度，开发人员可以随时变更开发环境，稳定性最差；测试环境供测试团队使用，或者研发之外的产品，运营团队来测试，验收，要有一定的稳定性；线上或者生产环境是面向真实用户的，稳定性要求最高。对线上环境的变更需要有一定的流程和规范。有些在上线之前还可以有一个<strong>预发布环境(staging)</strong>，此环境是一个准生产环境，使用的资源都是线上的资源，只是服务入口对用户是隐藏的，一般是上线前内部评审使用的环境。这个功能也可以用测试环境代替，但是一般测试环境数据没有线上规范，可能会有部分效果看不到。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>从用户的角度，环境可归类为线上和线下两部分。线上环境包含生产和预发布环境，线下环境包含开发和测试环境。开发者一般都需要本机开发调试，所以开发环境又可以多一个<strong>本地(local)环境</strong>。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>最后可以组成一个<strong>本地</strong>，<strong>开发</strong>，<strong>测试</strong>，<strong>预发布</strong>和<strong>生产</strong>5个环境。不同的团队规模可以酌情全部使用，或者简化省略一部分环境。最简单的就是维护一个生产环境，开发直接变更生产环境，只是从团队协作和业务稳定的角度看风险非常高。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>从团队协作的角度，系统迭代通常会涉及<strong>开发</strong>，<strong>测试</strong>，<strong>运维</strong>，<strong>产品/运营</strong>到最终的<strong>用户/客户</strong>。不同开发之间的工作最好不要互相影响，不同测试之间的工作也不要影响。同时开发最好也不要影响测试工作，反之亦然。因此我们可以在<strong>一个环境内细分为多个分组（sharding/group）</strong>，分组之间可以共用一部分环境，但是在不同分组各自变更的部分是相互独立而不干扰。比如线上环境如果要支持A/B测试的话，那么也可以分为2个组，一个测试组和一个对照组。不同的开发按照不同的功能(feature)为分组各自独立开发、测试和上线。比如一个支付团队在迭代支付服务，电商团队在做购物车的迭代，购物车流程是要用到支付服务的。这时候电商团队和支付团队就可以在开发环境中分别为两个功能分组，各自开发，而不会因为支付团队也在开发状态而影响电商团队的迭代开发。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>最终的环境设计为下图的样子：</p> 
+  </div> 
+  <div class="imageblock"> 
+   <div class="content"> 
+    <img src="https://www.reploop.org/blog/2022/04/images/env.svg" alt="环境规划"> 
+   </div> 
+   <div class="title">
+    Figure 1. 环境规划
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>最后我们可以让不同的环境之间尽可能的保持相似或者一致，然后通过性能指标来调整资源分布，从而保持相似或者一致的前提下避免资源浪费。这样之后研发人员对各个环境会越来越熟悉，对于故障处理等紧急情况下的效率有很大的帮助。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="落地思路">落地思路</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>以上环境的规划，主要是通过各种资源的隔离来实现的。</p> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="隔离">隔离</h3> 
+   <div class="paragraph"> 
+    <p>区分环境主要是为了隔离，包括代码，数据库，消息队列，应用，负载均衡，基础设施比如机器以及网络环境等。还需要考虑依赖的第三方应用对环境的兼容性，比如第三方支付通道如微信支付不存在测试，应用要测试就是用微信支付线上的环境，线上的商户，线上的签名配置等。</p> 
+   </div> 
+   <div class="sect3"> 
+    <h4 id="物理隔离">物理隔离</h4> 
+    <div class="paragraph"> 
+     <p>这种隔离使用的是不同的物理机器，不同的部署服务，不同的代码仓库，不同数据库等等。这是物理级别的隔离，颗粒度比较粗的方式。比较常见的，比如把部分机器分配给测试组，其他人不能等。</p> 
+    </div> 
+   </div> 
+   <div class="sect3"> 
+    <h4 id="软件隔离">软件隔离</h4> 
+    <div class="paragraph"> 
+     <p>不过随着虚拟化和容器化，以及云原生的趋势，很多物理资源都可以按需共享，这要就在软件层面实现隔离。常听说的命名空间(namespace)和多路复用(multiplex)理解起来就是软件层面实现的隔离资源。</p> 
+    </div> 
+   </div> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="资源">资源</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>研发中涉及的资源最主要的就是代码和数据。</p> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="资源类型">资源类型</h3> 
+   <div class="dlist"> 
+    <dl> 
+     <dt class="hdlist1">
+      代码
+     </dt> 
+     <dd> 
+      <p>现在的SCM主要是git，可以很快速创建轻量级分支(branch)。</p> 
+     </dd> 
+     <dt class="hdlist1">
+      配置
+     </dt> 
+     <dd> 
+      <p>分布式配置中心，可以每个环境共享一套配置项，应该是没必要做到每个分组一套配置项。</p> 
+     </dd> 
+     <dt class="hdlist1">
+      数据库
+     </dt> 
+     <dd> 
+      <p>数据库连接字符串，主要是域名、端口设数据库名称。</p> 
+     </dd> 
+     <dt class="hdlist1">
+      服务器
+     </dt> 
+     <dd> 
+      <p>一般是IP和端口，其中的IP也可以绑定到内部域名。或者使用内部DNS服务来解析域名和IP的配置。</p> 
+     </dd> 
+     <dt class="hdlist1">
+      依赖服务
+     </dt> 
+     <dd> 
+      <p>主流是HTTP(S) URL，主要构成是域名、端口和context-path，亦或者是service-name等。</p> 
+     </dd> 
+     <dt class="hdlist1">
+      负载均衡
+     </dt> 
+     <dd> 
+      <p>主流是HTTP(S)，通过域名来使用Virtual Host来区分不同的环境。</p> 
+     </dd> 
+    </dl> 
+   </div> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="资源命名">资源命名</h3> 
+   <div class="paragraph"> 
+    <p>把资源先按照环境划分，每个环境在按照分组划分，然后形成对应的名字。 这个写出来就是：<strong>分组-环境-资源(sharding-env-resource)</strong>。这只是一个例子，实际上我们可以使用更多的维度来命名，就像TCP协议栈中的数据封装的方式一样，通过不停的打Tag或者加Header的方式继续扩展下去。</p> 
+   </div> 
+   <div class="imageblock"> 
+    <div class="content"> 
+     <img src="https://www.reploop.org/blog/2022/04/images/data-encapsulation.png" alt="TCP/IP数据封装"> 
+    </div> 
+    <div class="title">
+     Figure 2. TCP/IP数据封装
+    </div> 
+   </div> 
+   <div class="paragraph"> 
+    <p>如果我们把这些Tag按照一定的顺序连接起来，用容器的术语，我们也是在用<strong>命名空间(namespace)</strong>的概念来隔离资源了。从资源的角度看过去，我们就是在干sharding的事情，就像数据库的分库和分表一样的思路。</p> 
+   </div> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="tag的方式">Tag的方式</h3> 
+   <div class="paragraph"> 
+    <p>常见资源的Tag方式：</p> 
+   </div> 
+   <div class="ulist"> 
+    <ul> 
+     <li> <p>代码: git branch是一个天然的tag</p> </li> 
+     <li> <p>域名：子域名也是直观的的tag，比如tag.domain.com，f1-dev.domain.com, f2-test.domain.com</p> </li> 
+     <li> <p>HTTP Request:</p> 
+      <div class="ulist"> 
+       <ul> 
+        <li> <p>Query String: 参数的方式；</p> </li> 
+        <li> <p>Header: x-shard=f1 or group=tag, env=test or dev；</p> </li> 
+        <li> <p>Cookie: 跨请求无状态服务之间共享数据的方式；</p> </li> 
+       </ul> 
+      </div> </li> 
+     <li> <p>Tag metadata: 直接在数据中附带tag元数据。 比如我们常说的对象存储服务，之所以叫对象存储而不是块存储，就是因为对象存储除了数据以外还有一部分元数据。</p> </li> 
+    </ul> 
+   </div> 
+   <div class="paragraph"> 
+    <p><strong>命名空间</strong>和另一个概念<strong>多路复用(multiplex)</strong>也有一定的相似性，都是通过命名来区分资源的。如果你是Web开发者的话，理解起来就特别顺，比如一台机器上的不同端口，一个端口上的不同协议，相同协议的不同域名，相同域名中的不同的context-path等等都可以将资源隔离开来而又共享了部分资源。</p> 
+   </div> 
+   <div class="imageblock"> 
+    <div class="content"> 
+     <img src="https://www.reploop.org/blog/2022/04/images/app-tag.png" alt="应用的多路复用"> 
+    </div> 
+    <div class="title">
+     Figure 3. 应用的多路复用
+    </div> 
+   </div> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="资源创建与销毁">资源创建与销毁</h3> 
+   <div class="paragraph"> 
+    <p>要做到上面的环境，最好是有一个程序化的创建与销毁各种资源的方式，最好的匹配就是k8s环境。比如说你要使用一个开发域名，需要起一个邮件发申请，等着审核系统逐级审核到最后运维团队在执行的话，就非常的不适用这么灵活的环境。</p> 
+   </div> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="环境与分组sharding">环境与分组（sharding）</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>这样我们就可以是用最直观的<strong>分组-环境-资源</strong>三个维度来尝试实现一个共享与隔离同时具备的灵活的研发环境。</p> 
+  </div> 
+  <div class="ulist"> 
+   <ul> 
+    <li> <p>每个功能(feature)都可以作为一个分组，通过代码仓库的分支号来区分；</p> </li> 
+    <li> <p>每个功能都可以独立部署到对应的环境中，通过命名机制来在本环境内寻找相应的依赖资源；</p> </li> 
+    <li> <p>对应环境中开发此功能涉及到的依赖服务能需要能够共享。</p> </li> 
+   </ul> 
+  </div> 
+  <div class="paragraph"> 
+   <p>如何共享非变动的资源呢？通过Fallback机制或者动态路由来实现。</p> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="服务动态路由">服务动态路由</h3> 
+   <div class="paragraph"> 
+    <p>每个环境都需要有一个默认的分组，如果没有指定分组的话，可以使用默认分组。这样我们就可以在Request的经过的服务中根据分组和环境来路由到不通的服务实例，做到环境的隔离和不同角色的稳定协作。</p> 
+   </div> 
+   <div class="paragraph"> 
+    <p>虽说如此，但是环境与环境之间应该要严格隔离的。就是开发环境严格的不能使用测试的数据库，更不能链接线上的数据库。测试数据的规范和覆盖率，数据不完备或者不规范，导致很多逻辑验证不规范，覆盖率不到。会导致很多的时候测试环境没问题，一到线上就有问题的现象。这个可以通过线上数据脱敏之后定期同步到测试环境，而避免在测试环境中直接连接线上数据库。</p> 
+   </div> 
+   <div class="imageblock"> 
+    <div class="content"> 
+     <img src="https://www.reploop.org/blog/2022/04/images/image-service-route.png" alt="Service动态路由"> 
+    </div> 
+    <div class="title">
+     Figure 4. 服务动态路由
+    </div> 
+   </div> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="总结">总结</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>基于以上对环境的理解，整个研发环境的设计需要涉及基础设施如网络，域名等，数据库连接字符串，各种中间件，Servlet容器，反向代理等各个环节的适配，从而来构建这个多人协作并行开发的高效环境了。这个过程可以参考SkyWalking等APM服务对开发人员透明的不侵入应用的集成方案。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="参考">参考</h2> 
+ <div class="sectionbody"> 
+  <div class="ulist"> 
+   <ul> 
+    <li> <p>Sharma Rajesh, <a href="https://engineering.mercari.com/en/blog/entry/20220218-dynamic-service-routing-using-istio/">Dynamic Service Routing using Istio</a></p> </li> 
+    <li> <p>Packet Networking, <a href="http://packet-network.blogspot.com/2011/11/data-encapsulation.html">Data Encapsulation </a></p> </li> 
+   </ul> 
+  </div> 
+ </div> 
+</div></p>
   		<a href="blog/2022/04/maths-in-bussiness.html"><h1>商业核心窥探</h1></a>
   		<p>
 			<a href="/about.html"><strong>乔治</strong></a>于2022年04月11日
@@ -275,901 +687,6 @@
    <ul> 
     <li> <p>MBA智库， <a href="https://wiki.mbalib.com/wiki/%E5%9F%BA%E6%9C%AC%E7%AB%9E%E4%BA%89%E6%88%98%E7%95%A5">基本竞争战略</a></p> </li> 
    </ul> 
-  </div> 
- </div> 
-</div></p>
-  		<a href="blog/2022/03/the-double-entry-counting-method.html"><h1>复式记账</h1></a>
-  		<p>
-			<a href="/about.html"><strong>乔治</strong></a>于2022年03月19日
-					<span class="badge badge-dark">会计</span>
-					<span class="badge badge-dark">记账</span>
-					<span class="badge badge-dark">复式记账</span>
-					<span class="badge badge-dark">beancount</span>
-					<span class="badge badge-dark">有向图</span>
-		</p>
-  		<p><div id="preamble"> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>个人一直有一个记账的诉求，直到遇到beancount，才发现个人财务和这几年再创业公司了解的财务有许多相通之处，也是在使用beancount的时候才发现之前在公司了解的财务知识不够扎实，因此重新梳理一下复式记账的知识。</p> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="复式记账">复式记账</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>记账之前先了解一下交易。 经济里面说的一个人的支出是另一个人的收入，反之亦然。这是通过两两之间"等价交换"的方式来实现的，这就是交易。一笔交易会涉及2个主体，以及主体之间以交易额衡量的经济资源的转移。多方交易最终也是由两两之间交易构成的。记账最基本的就是记录清楚每笔交易。</p> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="单式记账">单式记账</h3> 
-   <div class="paragraph"> 
-    <p>单式记账是以账户拥有者的<strong>账户</strong>视角，记录账户余额随着交易的发生而产生的变化。 这里面只涉及一个账户，比如说你信用卡账单，就是信用卡这一个账户的<strong>流水账</strong>。如果你有多个银行卡，每个银行卡的账单之间是没有关系的。如果说有关系，那也是通过备注等描述信息标注出来的。</p> 
-   </div> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="复式记账_2">复式记账</h3> 
-   <div class="paragraph"> 
-    <p>复式记账则是交易的双方都需要记录本次交易，一笔交易在交易两方分别记了一次，以交易额的转移方向为箭头，流出就从出账户的余额减去交易额，流入就将入账户的余额增加交易额。复式记账的解释以DDIA的作者Martin Kleppmann写的这篇博文中<span class="underline"><a href="https://martin.kleppmann.com/2011/03/07/accounting-for-computer-scientists.html">Accounting for Computer Scientists</a></span>用计算机人知道的图论中有向图的方式最容易理解了：</p> 
-   </div> 
-   <div class="imageblock"> 
-    <div class="content"> 
-     <img src="https://www.reploop.org/blog/2022/03/images/account8.png" alt="账户与交易"> 
-    </div> 
-    <div class="title">
-     Figure 1. 账户与交易
-    </div> 
-   </div> 
-   <div class="paragraph"> 
-    <p>我个人认为这也是复式（double-entry）的意思。在这个有向图中，所有的节点都是账户，节点内的数字是账户余额；节点之间的边都是交易，每条边上标注的数字就是交易额，边的箭头表示经济资源的流向。</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>当我们一穷二白啥也没有的时候开始参与经济生活的时候，我们所有的账户余额都是0，所以余额之和也为0。随着交易的进行，比如领了工资，买了房子之类的交易的产生，各个账户的余额随着发生变化，但是所有账户的余额之和任然为0。这就是复式记账的妙处，也就是<strong>会计恒等式</strong>始终成立的意思。如果所有账户预额为0不好理解的话，接着往下看。</p> 
-   </div> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="会计恒等式">会计恒等式</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>我们先从财务会计书本上的会计恒等式开始：</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>资产（Assets） - 负债（Liabilities） = 权益（Equity）</p> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlight"><code class="language-text" data-lang="text">Assets - Liabilities = Equity <i class="conum" data-value="1"></i><b>(1)</b></code></pre> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>权益可以经一步细分为：初始资本（Capital）、收入（Income）和支出（Expenses）三部分。关系如下：</p> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlight"><code class="language-text" data-lang="text">Equity = Capital + Income − Expenses <i class="conum" data-value="2"></i><b>(2)</b></code></pre> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>整合一下上面两个公式，我们得到了：</p> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlight"><code class="language-text" data-lang="text">Assets - Liabilities = Capital + Income - Expenses <i class="conum" data-value="3"></i><b>(3)</b></code></pre> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>在这个公式里面，我们还是用Equity来表示初始资本（Capital），则公式最终为：</p> 
-  </div> 
-  <div id="eq4" class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlight"><code class="language-text" data-lang="text">Assets - Liabilities = Equity + Income - Expenses <i class="conum" data-value="4"></i><b>(4)</b></code></pre> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>到这一步的时候，上面4个公式都很直观，符合会计知识的，也比较符合现实情况。从记账的角度，公式4可以包含企业（包括）的所有的重要信息。所以这也是会计中账户的5个类型，不多也不少，交易账户必然属于其一。</p> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="账户类型">账户类型</h3> 
-   <div class="paragraph"> 
-    <p>我们以钱为例子，先理解一下账户类型：</p> 
-   </div> 
-   <div class="ulist"> 
-    <ul> 
-     <li> <p>资产（Assets）: 记录你当前所能支配的钱，或者通过交易可以变为钱东西。常见的比如各种银行的存款账户、兜里的现金、车子、房产等等。别人欠你的钱（应收账款）和你欠别人的钱（负债，因为钱在你这，你可以支配）都是你的资产。</p> </li> 
-     <li> <p>负债（Liabilities）: 你欠别人的钱。别人的钱现在是在你的兜里，在没有还回去之前，你可以自己决定怎么花，所以也是你的资产。</p> </li> 
-     <li> <p>支出（Expenses）: 你花出去的钱，而且是花出去之后不会在回来了。常见的如花钱买商品，买服务等。你不退款的前提下，这部分钱就是别人的了。</p> </li> 
-     <li> <p>收入（Income）: 你得到的钱，得到之后不用还回去的。比如常见的你劳动所得的工资，你投资的收益，股票的分红，公司出售商品/服务后客户支付的钱等。</p> </li> 
-     <li> <p>权益（Equity）: 根据会计恒等式，权益本来是资产净值，细分之后理解为资产净值的初始值，也就是记账周期开始时的资产净值，对企业来说就是企业所有者的资金。</p> </li> 
-    </ul> 
-   </div> 
-   <div class="paragraph"> 
-    <p>值得注意的是上面公式中的数值都是<strong>正数</strong>。既然都是正数，那么资产、负债、收入、支出或者权益的增减怎么表达呢？会计上使用<strong>借记</strong>和<strong>贷记</strong>。</p> 
-   </div> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="借记和贷记">借记和贷记</h3> 
-   <div class="paragraph"> 
-    <p><strong>借记</strong>和<strong>贷记</strong>在现在的会计概念中的具体含义以及理解方式参考<a href="https://www.reploop.org/blog/2022/03/basic-accounting-concepts-2-debits-and-credits.html">基本会计概念2-借记与贷记</a>中的介绍。总结一下就是<strong>借记</strong>和<strong>贷记</strong>是会计特有的分类系统，用他记录交易中经济资源从来源（<strong>贷记</strong>）到目的地（<strong>借记</strong>）的流动情况，它还确保在输入每笔交易后会计等式保持平衡。</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>『借记』和『贷记』只是用来标记经济资源的流向的，不代表借记一定是增加，贷记一定是减少。整个记账过程中先确定流向，接着确定交易额，再根据流向和每个账户的类型确定是将余额增加还是从余额中减少相应的交易额。这个事情做多了，就能总结出老会计牢记在心的口诀：就是什么账户类型，什么具体流向的账户余额是增加还是减少。这是大部分外行不明就里，产生困扰的地方。</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>在确定流向的过程中有4个重要的原则：</p> 
-   </div> 
-   <div class="olist arabic"> 
-    <ol class="arabic"> 
-     <li> <p>会计中记账都是从企业自身的角度记的。比如信用卡账单从持卡人的角度和从银行的角度来讲，交易记录中经济资源的流向是完全不同的。</p> </li> 
-     <li> <p>企业和企业所有者是两个独立的实体，他们之间也可以产生『交易』，比如所有者权益（Equity）</p> </li> 
-     <li> <p>记账人应该是一个企业运营者从企业的角度思考交易的</p> </li> 
-     <li> <p>会计系统是一个封闭的系统，也就是所有的交易都必须纳入其中，并只在此系统中流动（内循环 xD）</p> </li> 
-    </ol> 
-   </div> 
-   <div class="paragraph"> 
-    <p>那来源（贷记）和目的（借记）怎么确定呢？，配合着以上4个规则，问下面3个问题：</p> 
-   </div> 
-   <div class="ulist"> 
-    <ul> 
-     <li> <p>现实世界中交易涉及的经济资源的来源和目的是什么？</p> </li> 
-     <li> <p>在封闭的会计系统中的分别代表他们的账户是什么？</p> </li> 
-     <li> <p>账户分别属于什么类型？</p> </li> 
-    </ul> 
-   </div> 
-   <div class="paragraph"> 
-    <p>比如个人记账的过程中，领工资这个事情：</p> 
-   </div> 
-   <div class="ulist"> 
-    <ul> 
-     <li> <p>工资涉及的钱的<strong>来源</strong>是雇主公司，钱的<strong>目的（去向）</strong>是我的钱；</p> </li> 
-     <li> <p>『雇主公司』在复式记账系统中的代表是收入（Income）：记为贷，『我的钱』在记账系统中的代表是资产（Assets）：记为借；</p> </li> 
-     <li> <p>来源是收入（Income）-贷记，余额增加；去向是资产（Assets）-借记，余额增加</p> </li> 
-    </ul> 
-   </div> 
-   <div class="paragraph"> 
-    <p>用借记和贷记来描述会计恒等式，就是<strong>贷记总金额等于借记总金额</strong>。 现在你大概可以和公司的老会计正常交流了。</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>对<a href="#eq4">公式4</a>稍微做一下数学中等价变换，得到了下面这个公式5：</p> 
-   </div> 
-   <div id="eq5" class="listingblock"> 
-    <div class="content"> 
-     <pre class="highlight"><code class="language-text" data-lang="text">Assets + （-Liabilities） + （-Equity） + （-Income） + Expenses = 0 <i class="conum" data-value="5"></i><b>(5)</b></code></pre> 
-    </div> 
-   </div> 
-   <div class="paragraph"> 
-    <p>令：</p> 
-   </div> 
-   <div class="listingblock"> 
-    <div class="content"> 
-     <pre class="highlight"><code class="language-text" data-lang="text">Liabilities = -Liabilities;
-Equity = -Equity，
-Income = -Income</code></pre> 
-    </div> 
-   </div> 
-   <div class="paragraph"> 
-    <p>，然后替换<a href="#eq5">公式5</a>得到公式6：</p> 
-   </div> 
-   <div id="eq6" class="listingblock"> 
-    <div class="content"> 
-     <pre class="highlight"><code class="language-text" data-lang="text">Assets + Liabilities + Equity + Income + Expenses = 0 <i class="conum" data-value="6"></i><b>(6)</b></code></pre> 
-    </div> 
-   </div> 
-   <div class="paragraph"> 
-    <p>这个和前面<a href="#复式记账">复式记账</a>中用有向图的方式得出的结论是一样的：所有账户余额之和为0。对应到有向图中，就是负债（Liabilities），权益（Equity），收入（Income）这3种类型的账户余额是<strong>负数</strong>，而资产（Asserts）和支出（Expenses）这2种类型的账户余额是<strong>正数</strong>。这样就能统一为流出（来源）就从出账户的余额减去交易额，流入（目的）就将入账户的余额增加交易额。不用使用『借记』和『贷记』，非常好记账。这也是beancount再用的记账方式。后面再介绍beancount的使用。</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>我们能也能看出，余额为负只是一种数据计算上的便利，真正有意义的数字是他的绝对值。只要习惯就好。</p> 
-   </div> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="报表">报表</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>每笔交易记录清楚之后，就能产生会计中最重要的2张报表：资产负债表和损益表。 这完全就是不通的账户类型进入不通的报表。</p> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="账户分类与报表">账户分类与报表</h3> 
-   <div class="sect3"> 
-    <h4 id="余额与差额">余额与差额</h4> 
-    <div class="paragraph"> 
-     <p>账户之间最明显的一个区别是：我们到底想知道一个账户的余额，还是它的差额。比方说对于支付宝余额、信用卡欠款，我们更在意现在钱包还有多少钱，因此余额比起差额来说应该更加重要。而对于餐厅账户来说，比起了解这辈子到底花了多少钱吃饭，这个月到底花了多少才更具指导意义，因此对它来说差额又更加重要。</p> 
-    </div> 
-    <table class="tableblock frame-all grid-all stretch"> 
-     <colgroup> 
-      <col style="width: 25%;"> 
-      <col style="width: 25%;"> 
-      <col style="width: 25%;"> 
-      <col style="width: 25%;"> 
-     </colgroup> 
-     <tbody> 
-      <tr> 
-       <td class="tableblock halign-left valign-top"><p class="tableblock">B/D</p></td> 
-       <td class="tableblock halign-left valign-top"><p class="tableblock">正数</p></td> 
-       <td class="tableblock halign-left valign-top"><p class="tableblock">负数</p></td> 
-       <td class="tableblock halign-left valign-top"><p class="tableblock">报表</p></td> 
-      </tr> 
-      <tr> 
-       <td class="tableblock halign-left valign-top"><p class="tableblock">更关注<strong>余额</strong></p></td> 
-       <td class="tableblock halign-left valign-top"><p class="tableblock">资产（Assets）</p></td> 
-       <td class="tableblock halign-left valign-top"><p class="tableblock">负债（Liabilities）</p></td> 
-       <td class="tableblock halign-left valign-top"><p class="tableblock">资产负债表</p></td> 
-      </tr> 
-      <tr> 
-       <td class="tableblock halign-left valign-top"><p class="tableblock">更关注<strong>差额</strong></p></td> 
-       <td class="tableblock halign-left valign-top"><p class="tableblock">支出（Expenses）</p></td> 
-       <td class="tableblock halign-left valign-top"><p class="tableblock">收入（Income）</p></td> 
-       <td class="tableblock halign-left valign-top"><p class="tableblock">损益表</p></td> 
-      </tr> 
-     </tbody> 
-    </table> 
-   </div> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="位置与目的">位置与目的</h3> 
-   <div class="paragraph"> 
-    <p>账户还可以区分钱在哪（Location）和钱用来干什么了（Purpose）。</p> 
-   </div> 
-   <table class="tableblock frame-all grid-all stretch"> 
-    <colgroup> 
-     <col style="width: 25%;"> 
-     <col style="width: 25%;"> 
-     <col style="width: 25%;"> 
-     <col style="width: 25%;"> 
-    </colgroup> 
-    <tbody> 
-     <tr> 
-      <td class="tableblock halign-left valign-top"><p class="tableblock">L/P</p></td> 
-      <td class="tableblock halign-center valign-top" colspan="2"><p class="tableblock">账号类型</p></td> 
-      <td class="tableblock halign-left valign-top"><p class="tableblock">报表</p></td> 
-     </tr> 
-     <tr> 
-      <td class="tableblock halign-left valign-top"><p class="tableblock">位置（Location）</p></td> 
-      <td class="tableblock halign-left valign-top"><p class="tableblock">资产</p></td> 
-      <td class="tableblock halign-left valign-top"><p class="tableblock">负债</p></td> 
-      <td class="tableblock halign-left valign-top"><p class="tableblock">资产负债表</p></td> 
-     </tr> 
-     <tr> 
-      <td class="tableblock halign-left valign-top"><p class="tableblock">目的（Purpose）</p></td> 
-      <td class="tableblock halign-left valign-top"><p class="tableblock">收入</p></td> 
-      <td class="tableblock halign-left valign-top"><p class="tableblock">支出</p></td> 
-      <td class="tableblock halign-left valign-top"><p class="tableblock">损益表</p></td> 
-     </tr> 
-    </tbody> 
-   </table> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="结论">结论</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>我们从常规的流水账开始，扩展到复式记账，然后用大神总结出来的有向图的方式理解复式记账的一般形式，这对计算机相关专业的人来说比较直观。然后也尝试着把它和会计知识联系在一次，从而应用到日常生活和工作中，最后得到了最重要的两张报表：资产负债表和损益表，也间接的了解到账户和报表之间的关系。至于beancount的具体使用部分，后面再单独介绍。</p> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="参考">参考</h2> 
- <div class="sectionbody"> 
-  <div class="ulist"> 
-   <ul> 
-    <li> <p>Peter Selinger, Tutorial on multiple currency accounting, <a href="https://www.mathstat.dal.ca/~selinger/accounting/tutorial.html" class="bare">https://www.mathstat.dal.ca/~selinger/accounting/tutorial.html</a></p> </li> 
-    <li> <p>Martin Blais, The Double-Entry Counting Method, <a href="https://beancount.github.io/docs/the_double_entry_counting_method.html" class="bare">https://beancount.github.io/docs/the_double_entry_counting_method.html</a></p> </li> 
-    <li> <p>复式记账指北（一）：What and Why？ , <a href="https://blog.kaaass.net/archives/1659" class="bare">https://blog.kaaass.net/archives/1659</a></p> </li> 
-    <li> <p>Martin Kleppmann, Accounting for Computer Scientists, <a href="https://martin.kleppmann.com/2011/03/07/accounting-for-computer-scientists.html" class="bare">https://martin.kleppmann.com/2011/03/07/accounting-for-computer-scientists.html</a></p> </li> 
-    <li> <p><a href="https://www.reploop.org/blog/2022/03/basic-accounting-concepts-2-debits-and-credits.html">基本会计概念2-借记与贷记</a></p> </li> 
-   </ul> 
-  </div> 
- </div> 
-</div></p>
-  		<a href="blog/2022/03/basic-accounting-concepts-2-debits-and-credits.html"><h1>基本会计概念2-借记与贷记</h1></a>
-  		<p>
-			<a href="/about.html"><strong>乔治</strong></a>于2022年03月03日
-					<span class="badge badge-dark">复式记账</span>
-					<span class="badge badge-dark">借记</span>
-					<span class="badge badge-dark">贷记</span>
-					<span class="badge badge-dark">译文</span>
-		</p>
-  		<p><div id="preamble"> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>这是一个帮你理解借记与贷记这两个会计概念的教程。</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>大多数人认为会计涉及的数学不像理解会计概念那么难，而会计概念中最难理解掌握的2个就是借记与贷记。 现在借记和贷记的概念实际上已有500多年的历史，早在15世纪文艺复兴时期就被意大利威尼斯商人广泛使用。 这两个概念最早是在14世纪用拉丁文记载的，并在16世纪翻译为英语。随着500年的过去，我们可能对最初的含义和概念有些困惑，特别是英语对这些古老的词语采用了新的书面和日常含义，这有什么奇怪的吗？因此，当我们试图理解借记和贷记的概念时，回到最开始的地方可能是很有帮助…​…​但首先需要了解一些背景。</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>点击<span class="underline"><a href="https://youtu.be/2Vlsr7gP3M8">Debits and Credits - Founding Principles</a></span>观看视频。（自备梯子）</p> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="基本会计概念为会计学生而准备">基本会计概念：为会计学生而准备</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>这个培训课程针对有意愿学习更多会计知识的学生们。虽然是针对学生开发的课程，但是对其他有兴趣全面理解会计概念的人也是有帮助的。在开始本课程之前，建议先完成<span class="underline"><a href="https://www.basicaccountingconcepts.education/basic-accounting-concepts-1-define-accounting/">基本会计概念1：定义</a></span>。本培训课程假定你对会计有一点了解，但又意识到要在工作应用或学习中跟进一步，你需要更全面地了解借记和贷记的概念。因此，本课程旨在从学生会计员的角度，提供"借记"和"贷记"概念的培训。</p> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="关键词">关键词</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>借记，贷记，公司，账户，会计概念，记账，交易，会计系统，Luca Pacioli，账户类型，复式记账，交易的两面性</p> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="学习成果">学习成果</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>完成本次培训课程后，你将能够回答以下重点问题：</p> 
-  </div> 
-  <div class="ulist"> 
-   <ul> 
-    <li> <p>借记和贷记的由来是什么？</p> </li> 
-    <li> <p>为什么叫做借记和贷记？</p> </li> 
-    <li> <p>借记和贷记的基本概念是什么？</p> </li> 
-    <li> <p>14世纪的人们是如何应用借记和贷记的？</p> </li> 
-    <li> <p>是否有应用借记与贷记的其他方法？</p> </li> 
-   </ul> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="简介借记和贷记">简介：借记和贷记</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>在字典中，记账系统中的<strong>借记</strong>定义为"记录在左边的交易记录"，<strong>贷记</strong>定义为"记录在右边的交易记录"。现在一些人对这样的定义也能接受，并且在学习了会计的其他所有的规则之后，成为了非常好的会计员。</p> 
-  </div> 
-  <div class="imageblock"> 
-   <div class="content"> 
-    <img src="https://www.reploop.org/blog/2022/03/images/t-txn.png" alt="T型账户" width="600"> 
-   </div> 
-   <div class="title">
-    Figure 1. T型账户
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>不过，还有另外一些人希望对借记和贷记这两个基本会计概念有更多的理解，以便更有意义的应用它们。如果你是后一种人的话，这个课程就非常适合你。</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>这个课程也将会说明"规则必须要学习，但是到一定阶段后规则背后的原因也必须讲清楚；不然的话就没有太多教育价值"。（Russel，B. （1924） Economic Individualism，Cambridge，On Education）。在课程继续往下之前，不论是规则学习者还是概念理解学习者都有必要记住下边表格中的内容和扎实理解在记账过程中不同账户类型的定义。</p> 
-  </div> 
-  <div class="exampleblock"> 
-   <div class="content"> 
-    <div class="paragraph"> 
-     <p>注：非常清楚的是会计中使用的术语"借记"和"贷记"有其特殊的含义，不应该和他们的其他意思混淆。（例如欠别人的钱的债务和可以延迟支付购买商品的信用就不是会计中借记和贷记的意思）。同时，在同一个国家，一个术语的会计含义和它的常规含义也有不一样的用法。</p> 
-    </div> 
-   </div> 
-  </div> 
-  <div class="imageblock"> 
-   <div class="content"> 
-    <img src="https://www.reploop.org/blog/2022/03/images/debits-and-credits.jpg" alt="借记与贷记-缩略图" width="600"> 
-   </div> 
-   <div class="title">
-    Figure 2. 借记与贷记缩略图
-   </div> 
-  </div> 
-  <div class="admonitionblock note"> 
-   <table> 
-    <tbody>
-     <tr> 
-      <td class="icon"> <i class="fa icon-note" title="Note"></i> </td> 
-      <td class="content"> 点击<span class="underline"><a href="https://app.box.com/s/v4j6okexia4y6lnj50t0">https://app.box.com/s/v4j6okexia4y6lnj50t0</a></span>下载原始文档 </td> 
-     </tr> 
-    </tbody>
-   </table> 
-  </div> 
-  <table class="tableblock frame-all grid-all stretch"> 
-   <caption class="title">
-    Table 1. 我要借记还是贷记？
-   </caption> 
-   <colgroup> 
-    <col style="width: 33.3333%;"> 
-    <col style="width: 33.3333%;"> 
-    <col style="width: 33.3334%;"> 
-   </colgroup> 
-   <thead> 
-    <tr> 
-     <th class="tableblock halign-left valign-top">账户类型</th> 
-     <th class="tableblock halign-left valign-top">账户增加时，记作：</th> 
-     <th class="tableblock halign-left valign-top">账户减少时，记作：</th> 
-    </tr> 
-   </thead> 
-   <tbody> 
-    <tr> 
-     <td class="tableblock halign-left valign-top"><p class="tableblock">资产（Assets）</p></td> 
-     <td class="tableblock halign-left valign-top"><p class="tableblock">借记</p></td> 
-     <td class="tableblock halign-left valign-top"><p class="tableblock">贷记</p></td> 
-    </tr> 
-    <tr> 
-     <td class="tableblock halign-left valign-top"><p class="tableblock">负债（Liabilities）</p></td> 
-     <td class="tableblock halign-left valign-top"><p class="tableblock">贷记</p></td> 
-     <td class="tableblock halign-left valign-top"><p class="tableblock">借记</p></td> 
-    </tr> 
-    <tr> 
-     <td class="tableblock halign-left valign-top"><p class="tableblock">所有者权益（Owner’s Equity）</p></td> 
-     <td class="tableblock halign-left valign-top"><p class="tableblock">贷记</p></td> 
-     <td class="tableblock halign-left valign-top"><p class="tableblock">借记</p></td> 
-    </tr> 
-    <tr> 
-     <td class="tableblock halign-left valign-top"><p class="tableblock">收入（Revenue）</p></td> 
-     <td class="tableblock halign-left valign-top"><p class="tableblock">贷记</p></td> 
-     <td class="tableblock halign-left valign-top"><p class="tableblock">借记</p></td> 
-    </tr> 
-    <tr> 
-     <td class="tableblock halign-left valign-top"><p class="tableblock">支出（Expense）</p></td> 
-     <td class="tableblock halign-left valign-top"><p class="tableblock">借记</p></td> 
-     <td class="tableblock halign-left valign-top"><p class="tableblock">贷记</p></td> 
-    </tr> 
-   </tbody> 
-  </table> 
-  <div class="imageblock"> 
-   <div class="content"> 
-    <img src="https://www.reploop.org/blog/2022/03/images/debit-or-credit.jpg" alt="借记还是贷记缩略图" height="400"> 
-   </div> 
-   <div class="title">
-    Figure 3. 借记还是贷记缩略图
-   </div> 
-  </div> 
-  <div class="admonitionblock note"> 
-   <table> 
-    <tbody>
-     <tr> 
-      <td class="icon"> <i class="fa icon-note" title="Note"></i> </td> 
-      <td class="content"> 点击<span class="underline"><a href="https://app.box.com/s/e5ls2e8h1g7h8ykxfp3p">https://app.box.com/s/e5ls2e8h1g7h8ykxfp3p</a></span>下载海报 </td> 
-     </tr> 
-    </tbody>
-   </table> 
-  </div> 
-  <div class="paragraph"> 
-   <p>在用表1中的方法，你记录公司账户交易的时候可能会有以下问题：</p> 
-  </div> 
-  <div class="ulist"> 
-   <ul> 
-    <li> <p>交易相关的账户是什么？（至少涉及2个账户）</p> </li> 
-    <li> <p>每个账户分别属于哪个账户分组？（必须属于五个分组之一）</p> </li> 
-    <li> <p>该交易在账户中增加还是减少了相应的交易额？</p> </li> 
-    <li> <p>应用表格中的逻辑。</p> </li> 
-    <li> <p>确保"借记"部分的总金额="贷记"部分的总金额。</p> </li> 
-   </ul> 
-  </div> 
-  <table class="tableblock frame-all grid-all stretch"> 
-   <caption class="title">
-    Table 2. 基本账户类型的定义
-   </caption> 
-   <colgroup> 
-    <col style="width: 50%;"> 
-    <col style="width: 50%;"> 
-   </colgroup> 
-   <thead> 
-    <tr> 
-     <th class="tableblock halign-left valign-top">账户类型</th> 
-     <th class="tableblock halign-left valign-top">外行人的定义</th> 
-    </tr> 
-   </thead> 
-   <tbody> 
-    <tr> 
-     <td class="tableblock halign-left valign-top"><p class="tableblock">资产（Asset）</p></td> 
-     <td class="tableblock halign-left valign-top"><p class="tableblock">公司具有合法控制权的有价物品</p></td> 
-    </tr> 
-    <tr> 
-     <td class="tableblock halign-left valign-top"><p class="tableblock">负债（Liability）</p></td> 
-     <td class="tableblock halign-left valign-top"><p class="tableblock">公司欠外部实体的钱（比如债权人或者贷款提供者）</p></td> 
-    </tr> 
-    <tr> 
-     <td class="tableblock halign-left valign-top"><p class="tableblock">所有者权益（Equity or Owners Equity）</p></td> 
-     <td class="tableblock halign-left valign-top"><p class="tableblock">公司欠内部实体的钱（比如投资人或者所有者）</p></td> 
-    </tr> 
-    <tr> 
-     <td class="tableblock halign-left valign-top"><p class="tableblock">收入（Income）</p></td> 
-     <td class="tableblock halign-left valign-top"><p class="tableblock">客户购买公司所提供的商品或服务所支付的钱</p></td> 
-    </tr> 
-    <tr> 
-     <td class="tableblock halign-left valign-top"><p class="tableblock">支出（Expense）</p></td> 
-     <td class="tableblock halign-left valign-top"><p class="tableblock">公司为了挣钱而消耗的资产和物资。</p></td> 
-    </tr> 
-   </tbody> 
-  </table> 
-  <div class="sect2"> 
-   <h3 id="谁的视角">谁的视角？</h3> 
-   <div class="paragraph"> 
-    <p>一个困扰大多数新手会计的问题是"贷记"记录出现在他们自己的银行账单上。他们刚刚学到"银行里的现金"属于资产，根据表1的逻辑，当资产增加的时候记为"借记"。。。他们会问为什么我存钱的时候银行账户中的"贷记"总额反而增加了？</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>答案对会计系统来说非常基础，也就是<strong>每个公司都从自己的视角记录交易</strong>。所以从银行的视角想一下。。。他们怎么看你刚刚存进去的钱？那是谁的钱？没错，肯定是你的钱。所以你的存款从银行的视角看就是负债（银行欠存款用户的钱）。当你存款到你的账户时，<strong>银行</strong>的负债就增加了，这也是为什么银行把你的账户记录为"贷记"（根据表1的逻辑）。</p> 
-   </div> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="课程借记与贷记">课程：借记与贷记</h2> 
- <div class="sectionbody"> 
-  <div class="sect2"> 
-   <h3 id="第1部分借记和贷记的由来是什么">第1部分：借记和贷记的由来是什么？</h3> 
-   <div class="paragraph right"> 
-    <p><span class="image"><img src="https://www.reploop.org/blog/2022/03/images/illustrations.jpg" alt="达芬奇的插画" width="400"></span></p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>在更原始的贸易时代，记账并不是什么大问题，因为商品的生产或者制造者往往也是市场上销售或者交换该商品的人。然而，文艺复兴时期，由罗马建造的交通系统和更复杂社会比如意大利（尤其是威尼斯）的发展带来了贸易和银行系统的巨大增长。因此，14世纪的威尼斯商人开发了会计系统来精确记录这些当时流行的也更复杂的交易。</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>现在，那个时代的修士和数学家Luca Pacioli（1446-1517）被广泛的认为是"会计之父"。因为他是第一个在他的名为"数学，集合，比例以及比例关系的知识汇总"（翻译书名）的书中编写并发表这个会计系统的。这本书出版于1494年（大约是哥伦布发现美洲的时期），并且它是古腾堡出版社最早出版的书籍之一。Luca没有说是自己发明的会计系统，不过他确实是用其他人更容易理解的方式把它书写出来了。他记录意大利文艺复兴时期威尼斯商人使用的会计系统的目的是帮助Urbino的公爵Guidobaldo管理自己的财务。这个仅用全书五部分之中的一部分来描述的系统后来被称为"复式记账"系统。书中关于会计系统的36个简短章节是随后上百年里唯一的教科书，其原则一直为会计师所遵循，直到今日。 有趣的是，Luca Pacioli实际上和达芬奇的是同事，而且是达芬奇帮助他绘制了他的第二本最重要的书（神圣比例）的手稿中的插画。本书作者提到了这一事实，达芬奇也在他的笔记中多次提到Luca Pacioli。</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>上面是多面体的插画，也是达芬奇在Luca书中的插图之一。Marcino Guerrero在他的文章中披露了更多关于Luca和达芬奇的其他趣事。</p> 
-   </div> 
-   <div class="imageblock left"> 
-    <div class="content"> 
-     <img src="https://www.reploop.org/blog/2022/03/images/summa-2.jpg" alt="基本会计概念" width="180"> 
-    </div> 
-   </div> 
-   <div class="paragraph"> 
-    <p>Luca的大部分工作仍然支撑着我们现在所用的会计系统。来自他1494年出版的书中的那些基本会计概念至今还在沿用的有：</p> 
-   </div> 
-   <div class="ulist"> 
-    <ul> 
-     <li> <p>会计周期</p> </li> 
-     <li> <p>流水账和分类账的使用</p> </li> 
-     <li> <p>借记总金额等于贷记总金额：复式记账</p> </li> 
-     <li> <p>账户分为资产（包括应收账款和应付账款），负债，初始资金，收入和支出5类</p> </li> 
-     <li> <p>年底结算</p> </li> 
-     <li> <p>试算表，他相信可以用来说明分类帐目的结余的。</p> </li> 
-    </ul> 
-   </div> 
-   <div class="sect3"> 
-    <h4 id="总结">总结</h4> 
-    <div class="paragraph"> 
-     <p>在第1部分，我们了解了借记和贷记500年的历史，以及修士和数学家的Luca Pacioli通过他的复式记账系统为会计学做出的显著贡献。</p> 
-    </div> 
-   </div> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="第2部分为什么叫做借记和贷记">第2部分：为什么叫做借记和贷记？</h3> 
-   <div class="imageblock left"> 
-    <div class="content"> 
-     <img src="https://www.reploop.org/blog/2022/03/images/latin-coin.jpg" alt="拉丁硬币" width="180"> 
-    </div> 
-   </div> 
-   <div class="paragraph"> 
-    <p>我们要知道，Luca与其说是会计师，不如说是一名数学家，所以他的大脑会下意识的去寻找支撑威尼斯商人使用的财务记录系统的关键原则、概念和对称性（symmetry）。</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>他识别出来的关键概念有（1）在会计领域内，企业（或公司）是一个有自己权利的、有别于其所有者的独立实体。另外一个是（2）财务系统是封闭的系统。也就是说钱不是凭空产生，一个人收到的钱一定是别人给的，反之亦然。</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>这种给出和收到的封闭系统让他看到和公司有关的交易是涉及2方的概念。例如，当一个人委托一定数量的钱给一个独立的不同公司，那个公司就欠此人同样数目的钱并有偿还的义务。Luca用他的母语拉丁文将委托行为命名为"Credre"（意思是委托）以及公司相应的偿还义务命名为"Debere"（意思是欠钱）</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>因此，从公司的角度，他可以看出这个两面性原则对于该公司的每一笔交易都是成立的。对他来说，这不仅是一个公式，而是说交易的任何一方不能单独存在。在封闭系统中，每个"Debere"必须有一个对应的""Credre"，反之亦然。换句话说，"Debere"和"Credre"就是同一硬币的两面。（在金融领域，当某人"委托"钱财的时候一定有人会欠这部分钱）。</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>Luca还注意到这种交易的两面性引申自经济资源的从一个地方转移到另一个的地方的事实。换句话说，对于每一笔交易，一定是经济资源从其来源转移到另一个目的地了。他再次应用了这一概念，即当经济资源从一个地方流向另一个地方时，来源记为贷记，目的地记为借记。他是如此确信两面性的概念，以至于他宣称任何人在没有确认"借记"总额和""贷记"总额相等之前不允许睡觉。（贷记=借记）</p> 
-   </div> 
-   <div class="exampleblock"> 
-    <div class="content"> 
-     <div class="paragraph"> 
-      <p>注：英语翻译者使用拉丁词根来翻译这些概念，因此将他们命名为借记和贷记。也非常有可能我们也从拉丁词根中得出了这两概念的缩写形式（Dr 和 Cr）。因为英文词借记中没有"r"，但在其拉丁文"Debere"中有一个。</p> 
-     </div> 
-    </div> 
-   </div> 
-   <div class="sect3"> 
-    <h4 id="总结_2">总结</h4> 
-    <div class="paragraph"> 
-     <p>在第2部分中，我们看到了两面性概念的出现，其中借记和贷记只是同一枚硬币的两面，就像中国的“阴阳”概念在一个更大的整体中是互补的对立面一样。我们开始看到支持借记和贷记应用的概念，以及与原始拉丁词根及其原始含义的联系。</p> 
-    </div> 
-   </div> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="第3部分借记和贷记的基本概念是什么">第3部分：借记和贷记的基本概念是什么？</h3> 
-   <div class="paragraph"> 
-    <p>为了能够正确的理解借记与贷记，你需要首先了解支撑整个会计流程的概念。其中的一些称为会计惯例，而另一些则是加强了会计系统理解和记录交易的方式。</p> 
-   </div> 
-   <div class="sect3"> 
-    <h4 id="基本会计概念1_企业或公司是一个实体">基本会计概念1： 企业或公司是一个实体</h4> 
-    <div class="paragraph"> 
-     <p>简单来说，法律系统把实体定义为能够根据本国法律起诉或者被起诉的自然人或者非自然人。世界上的大多数国家，公司是作为非自然人实体，并被赋予和自然人相同的权利和义务。会计学进一步扩展了这个概念，每一个公司（包括个体户和合伙企业）都有自己的"会计实体"，并且每个实体的收入与资产净值都是通过自己的交易计算的。</p> 
-    </div> 
-   </div> 
-   <div class="sect3"> 
-    <h4 id="基本会计概念2企业公司是有别于企业主的一个独立实体">基本会计概念2：企业（公司）是有别于企业主的一个独立实体</h4> 
-    <div class="paragraph"> 
-     <p>尽管一个公司可以"合法"的支配一些有价资产，但是它不是这些东西的最终拥有者。换句话说，如果公司出售所有能卖的东西，它有义务用出售所得的钱去偿还其他人或者实体提出的索赔要求。公司首先要偿还的是外部人员的索赔（例如贷款和债权），然后用余下的钱去偿还所有者的索赔。企业然后回到了刚开始的状态，没有任何偿还义务也不支配任何有价资产。</p> 
-    </div> 
-   </div> 
-   <div class="sect3"> 
-    <h4 id="基本会计概念3_人可以有多种身份">基本会计概念3： 人可以有多种身份</h4> 
-    <div class="paragraph"> 
-     <p>虽然这并不是一个严格的会计概念，但却是识别交易记录的正确视角时非常重要的一个概念。就像一个人可以是父母，兄弟，表兄弟或者子孙，一个人也可以是一家公司的投资人，一家公司的债权人/债务人，一家公司的经理或者控制一家公司运营的董事。最重要的是，会计中总是从公司的视角来分析和记录的交易，而记录人是经理的身份（不是所有者）。</p> 
-    </div> 
-   </div> 
-   <div class="sect3"> 
-    <h4 id="基本会计概念4_每笔交易都涉及2方一是经济资源的来源一是经济资源的去向">基本会计概念4： 每笔交易都涉及2方，一是经济资源的来源，一是经济资源的去向</h4> 
-    <div class="paragraph"> 
-     <p>财务世界是一个封闭的系统。也就是说钱不会凭空产生也不会凭空消失。如果一个人或者实体收到了钱，那一定从另一个人或实体来的。任何涉及经济资源的交易都必须有一个来源和一个去向。这是我们第一次了解今天在会计中使用的"借记"和"贷记"系统。</p> 
-    </div> 
-   </div> 
-   <div class="sect3"> 
-    <h4 id="基本会计概念5_企业公司的经营所得归企业主">基本会计概念5： 企业（公司）的经营所得归企业主。</h4> 
-    <div class="paragraph"> 
-     <p>正如基本会计概念2所说的那样，从会计的视角看公司实际上不是任何东西的所有者。它可能具有合法的"所有权"或者控制权，当从根本上讲它是所有者为管理其事务而设立的会计实体。因此，当一家公司盈利时，它是所有者的利益而不是公司的。记住，如果把公司能卖的全部卖了，售卖所得首先用来偿还债务，余下的都归公司的所有者，公司什么也没剩下。</p> 
-    </div> 
-    <div class="imageblock text-center"> 
-     <div class="content"> 
-      <img src="https://www.reploop.org/blog/2022/03/images/words-accounting.jpg" alt="词云" width="50%"> 
-     </div> 
-    </div> 
-   </div> 
-   <div class="sect3"> 
-    <h4 id="总结_3">总结</h4> 
-    <div class="paragraph"> 
-     <p>在第三部分，我们理解了几个会计基本概念，这些概念不仅仅是"借记"与"贷记"的基础，同时也是整个会计系统的基础。我们了解了：</p> 
-    </div> 
-    <div class="ulist"> 
-     <ul> 
-      <li> <p>企业或者公司是一个实体</p> </li> 
-      <li> <p>企业（公司）是有别于企业主的一个独立实体</p> </li> 
-      <li> <p>人可以有多种身份且可以用不同的身份工作</p> </li> 
-      <li> <p>每个金融交易都涉及2方（一个来源一个去向）</p> </li> 
-      <li> <p>公司经营所得利润归公司的所有者</p> </li> 
-     </ul> 
-    </div> 
-   </div> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="第4部分14世纪的人们是如何应用借记和贷记的">第4部分：14世纪的人们是如何应用借记和贷记的？</h3> 
-   <div class="imageblock text-center"> 
-    <div class="content"> 
-     <img src="https://www.reploop.org/blog/2022/03/images/venice.jpg" alt="威尼斯" width="60%"> 
-    </div> 
-    <div class="title">
-     Figure 4. 威尼斯
-    </div> 
-   </div> 
-   <div class="paragraph"> 
-    <p>正如Luca所说的，他所记录的会计系统被威尼斯商人广泛使用。这些人似乎是15世纪的企业家。我们假设一名叫做安东尼奥的威尼斯企业家，在Luca1494年完成他著名的书之前，请Luca为他的新企业（公司）记录财务账目。</p> 
-   </div> 
-   <div class="exampleblock"> 
-    <div class="content"> 
-     <div class="paragraph"> 
-      <p>注：为了故事方便，我们使用美元和英语会计术语</p> 
-     </div> 
-    </div> 
-   </div> 
-   <div class="paragraph"> 
-    <p>故事开始…​…​</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>安东尼奥发现了一个贩卖意大利橄榄到埃及的机会，并且觉得能大发一笔。因此，安东尼奥（作为新公司的总经理）接触了一个意大利橄榄供应商，说服他提供价值100000美元的橄榄，并且等到他从埃及回来的时候再付款。安东尼奥没有提起他将要赚到的钱，因为橄榄供应商只关心卖橄榄出去。</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>这样，Luca有了第一笔交易，用借记和贷记的拉丁原意记录如下：</p> 
-   </div> 
-   <div class="ulist"> 
-    <ul> 
-     <li> <p>经济资源的<strong>来源</strong>是意大利橄榄供应商，公司现在欠他100000美元：记为贷记（Cr）应付账款。</p> </li> 
-     <li> <p>经济资源转移的<strong>去向</strong>是公司收到的橄榄的库存：记为借记（Dr）库存</p> </li> 
-    </ul> 
-   </div> 
-   <div class="paragraph"> 
-    <p>利用表1中的方法，我们做如下记录：</p> 
-   </div> 
-   <div class="listingblock"> 
-    <div class="content"> 
-     <pre>资产：库存（增加）               $100,000 Dr
-负债：应付账款给橄榄供应商（增加）  $100,000 Cr</pre> 
-    </div> 
-   </div> 
-   <div class="paragraph"> 
-    <p>很快，安东尼奥就带他去看他刚花50000美元买的船。其中的30000是安东尼奥自己的钱，另外20000从银行贷款。安东尼奥非常兴奋，因为他终于有办法把想法变为现实并且通过贩卖橄榄来赚取他梦寐以求的财富。<strong>Luca意识到当安东尼奥不停的说他做了什么的时候，其实是说他作为总经理的公司做了什么。</strong>Luca知道公司已经产生了第二笔交易，再次从公司的视角记录如下：</p> 
-   </div> 
-   <div class="ulist"> 
-    <ul> 
-     <li> <p>一个经济资源的<strong>来源</strong>是银行，公司从银行贷款20000美元：贷记（CR）银行贷款</p> </li> 
-     <li> <p>另一个经济资源的<strong>来源</strong>是公司的所有者安东尼奥自己出的30000美元。公司将他看作一个独立的实体：贷记（Cr）初始资金</p> </li> 
-     <li> <p>经济资源的<strong>去向</strong>是从银行和所有者那筹来的总计50000美元购买的船：借记（Dr）船</p> </li> 
-    </ul> 
-   </div> 
-   <div class="paragraph"> 
-    <p>应用表1的方案，我们做如下记录：</p> 
-   </div> 
-   <div class="listingblock"> 
-    <div class="content"> 
-     <pre>资产：船（增加）                    $50,000 Dr
-负债：银行贷款（增加）               $20,000 Cr
-所有者权益：初始资金（增加）          $30,000 Cr</pre> 
-    </div> 
-   </div> 
-   <div class="paragraph"> 
-    <p>Luca很高兴，因为这2次交易中（1）总的贷记金额等于总的借记金额并且（2）遵循了"复式记账"系统的基本概念。</p> 
-   </div> 
-   <div class="sect3"> 
-    <h4 id="总结_4">总结</h4> 
-    <div class="paragraph"> 
-     <p>借助支撑"复式记账"系统的概念以及经济资源的来源和去向的概念，我们尝试去了解Luca在记录这个虚构的15世纪企业的账本条目时的思考。</p> 
-    </div> 
-   </div> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="第5部分是否有应用借记与贷记的其他方法">第5部分：是否有应用借记与贷记的其他方法？</h3> 
-   <div class="paragraph"> 
-    <p>今天我们看Luca的笔记并且从中发现了一个新的模式。显然Luca能用经济资源的来源和去向的概念记录所有的交易。 看起来就是…​…​</p> 
-   </div> 
-   <div class="imageblock"> 
-    <div class="content"> 
-     <img src="https://www.reploop.org/blog/2022/03/images/source-and-destination-of-value.jpg" alt="资金的来源和去向总额相等" width="50%"> 
-    </div> 
-    <div class="title">
-     Figure 5. 资金的来源和去向总额相等
-    </div> 
-   </div> 
-   <div class="paragraph"> 
-    <p>…​…​先继续讲故事。</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>成功完成他的"销售之旅"后，安东尼奥很快回到了城里。安东尼奥说他（作为经理）以200000美元卖掉了所有的橄榄，这趟旅程仅花费了30000美元，其中还包括了付给银行的1000美元利息。他说他用销售收入付了这些费用，他还把欠橄榄供应商的钱还了。他还说他为了庆祝这次成功的销售之旅，用1000美元的销售收入给家里买了家具。我们马上意识到公司的第3次交易产生了，涉及4个主要部分：</p> 
-   </div> 
-   <div class="ulist"> 
-    <ul> 
-     <li> <p>第1部分：销售橄榄所得的200000美元现金</p> </li> 
-     <li> <p>第2部分：支付橄榄供应商的未结账款</p> </li> 
-     <li> <p>第3部分：用30000美元销售收入来支付旅途费用和银行利息</p> </li> 
-     <li> <p>第4部分：安东尼奥（作为企业主）支取并使用了10000美元</p> </li> 
-    </ul> 
-   </div> 
-   <div class="paragraph"> 
-    <p>接下来我们代替Luca记录这些交易，用经济资源的来源和去向的方法决定交易是"借记"还是"贷记"，并将其结果与根据上面表1中所列规则得出的结果进行比较。</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>下面是我们得出的结果：</p> 
-   </div> 
-   <table class="tableblock frame-all grid-all stretch"> 
-    <caption class="title">
-     Table 3. 交易记录
-    </caption> 
-    <colgroup> 
-     <col style="width: 20%;"> 
-     <col style="width: 20%;"> 
-     <col style="width: 20%;"> 
-     <col style="width: 20%;"> 
-     <col style="width: 20%;"> 
-    </colgroup> 
-    <thead> 
-     <tr> 
-      <th class="tableblock halign-left valign-top">公司的动作</th> 
-      <th class="tableblock halign-left valign-top">来源还是去向？</th> 
-      <th class="tableblock halign-left valign-top">贷记/借记</th> 
-      <th class="tableblock halign-left valign-top">交易额</th> 
-      <th class="tableblock halign-left valign-top">账户类型</th> 
-     </tr> 
-    </thead> 
-    <tbody> 
-     <tr> 
-      <td class="tableblock halign-left valign-top" colspan="5"><p class="tableblock">交易第1部分</p></td> 
-     </tr> 
-     <tr> 
-      <td class="tableblock halign-left valign-top"><p class="tableblock">公司卖了价值200000美元的商品</p></td> 
-      <td class="tableblock halign-left valign-top"><p class="tableblock">这笔进入公司的资金<strong>来源</strong>是销售橄榄给消费者所得收入</p></td> 
-      <td class="tableblock halign-left valign-top"><p class="tableblock">贷记</p></td> 
-      <td class="tableblock halign-left valign-top"><p class="tableblock">200000</p></td> 
-      <td class="tableblock halign-left valign-top"><p class="tableblock">收入（收入-增加）= 贷记</p></td> 
-     </tr> 
-     <tr> 
-      <td class="tableblock halign-left valign-top"><p class="tableblock">公司收到销售橄榄所得的200000美元现金</p></td> 
-      <td class="tableblock halign-left valign-top"><p class="tableblock">销售收入的<strong>去向</strong>是现金资产</p></td> 
-      <td class="tableblock halign-left valign-top"><p class="tableblock">借记</p></td> 
-      <td class="tableblock halign-left valign-top"><p class="tableblock">200000</p></td> 
-      <td class="tableblock halign-left valign-top"><p class="tableblock">资产（资产-增加）=借记</p></td> 
-     </tr> 
-     <tr> 
-      <td class="tableblock halign-left valign-top" colspan="5"><p class="tableblock">交易第2部分</p></td> 
-     </tr> 
-     <tr> 
-      <td class="tableblock halign-left valign-top"><p class="tableblock">公司用销售收入支付橄榄供应商</p></td> 
-      <td class="tableblock halign-left valign-top"><p class="tableblock">用于支付供应商的资金<strong>来源</strong>是现金资产</p></td> 
-      <td class="tableblock halign-left valign-top"><p class="tableblock">贷记</p></td> 
-      <td class="tableblock halign-left valign-top"><p class="tableblock">100000</p></td> 
-      <td class="tableblock halign-left valign-top"><p class="tableblock">资产（资产-减少）=贷记</p></td> 
-     </tr> 
-     <tr> 
-      <td class="tableblock halign-left valign-top"><p class="tableblock">公司支付了橄榄供应商的未结清账款</p></td> 
-      <td class="tableblock halign-left valign-top"><p class="tableblock">资金的<strong>去向</strong>是欠供应商的债务</p></td> 
-      <td class="tableblock halign-left valign-top"><p class="tableblock">借记</p></td> 
-      <td class="tableblock halign-left valign-top"><p class="tableblock">100000</p></td> 
-      <td class="tableblock halign-left valign-top"><p class="tableblock">负债（负债-减少）=借记</p></td> 
-     </tr> 
-     <tr> 
-      <td class="tableblock halign-left valign-top" colspan="5"><p class="tableblock">交易第3部分</p></td> 
-     </tr> 
-     <tr> 
-      <td class="tableblock halign-left valign-top"><p class="tableblock">公司用销售收入支付旅途费用和银行利息</p></td> 
-      <td class="tableblock halign-left valign-top"><p class="tableblock">资金<strong>来源</strong>是现金资产</p></td> 
-      <td class="tableblock halign-left valign-top"><p class="tableblock">贷记</p></td> 
-      <td class="tableblock halign-left valign-top"><p class="tableblock">30000</p></td> 
-      <td class="tableblock halign-left valign-top"><p class="tableblock">资产（资产-减少）=贷记</p></td> 
-     </tr> 
-     <tr> 
-      <td class="tableblock halign-left valign-top"><p class="tableblock">公司支付银行利息</p></td> 
-      <td class="tableblock halign-left valign-top"><p class="tableblock">资金的一部分<strong>去向</strong>是银行利息</p></td> 
-      <td class="tableblock halign-left valign-top"><p class="tableblock">借记</p></td> 
-      <td class="tableblock halign-left valign-top"><p class="tableblock">1000</p></td> 
-      <td class="tableblock halign-left valign-top"><p class="tableblock">支出（支出-增加）=借记</p></td> 
-     </tr> 
-     <tr> 
-      <td class="tableblock halign-left valign-top"><p class="tableblock">公司支付旅途费用</p></td> 
-      <td class="tableblock halign-left valign-top"><p class="tableblock">资金的另一部分<strong>去向</strong>是旅途费用</p></td> 
-      <td class="tableblock halign-left valign-top"><p class="tableblock">借记</p></td> 
-      <td class="tableblock halign-left valign-top"><p class="tableblock">29000</p></td> 
-      <td class="tableblock halign-left valign-top"><p class="tableblock">支出（支出-增加）=借记</p></td> 
-     </tr> 
-     <tr> 
-      <td class="tableblock halign-left valign-top" colspan="5"><p class="tableblock">交易第4部分</p></td> 
-     </tr> 
-     <tr> 
-      <td class="tableblock halign-left valign-top"><p class="tableblock">公司提取10000美元现金</p></td> 
-      <td class="tableblock halign-left valign-top"><p class="tableblock">资金的<strong>来源</strong>是现金资产</p></td> 
-      <td class="tableblock halign-left valign-top"><p class="tableblock">贷记</p></td> 
-      <td class="tableblock halign-left valign-top"><p class="tableblock">10000</p></td> 
-      <td class="tableblock halign-left valign-top"><p class="tableblock">资产（资产-减少）=贷记</p></td> 
-     </tr> 
-     <tr> 
-      <td class="tableblock halign-left valign-top"><p class="tableblock">安东尼奥（作为企业主）个人使用了公司的这部分钱</p></td> 
-      <td class="tableblock halign-left valign-top"><p class="tableblock">资金的<strong>去向</strong>是企业主</p></td> 
-      <td class="tableblock halign-left valign-top"><p class="tableblock">借记</p></td> 
-      <td class="tableblock halign-left valign-top"><p class="tableblock">10000</p></td> 
-      <td class="tableblock halign-left valign-top"><p class="tableblock">权益（权益-减少）=借记</p></td> 
-     </tr> 
-     <tr> 
-      <td class="tableblock halign-left valign-top" colspan="5"><p class="tableblock">交易记录结束</p></td> 
-     </tr> 
-    </tbody> 
-   </table> 
-   <div class="paragraph"> 
-    <p>所有的账户类型都涉及到了，并且我们用"来源与去向"的方法得出了与用表1的方法一样的结果，除此之外，这样还有实际意义，而且它们与Luca的原始拉丁含义是保持一致的。</p> 
-   </div> 
-   <div class="sect3"> 
-    <h4 id="总结_5">总结</h4> 
-    <div class="paragraph"> 
-     <p>在第5部分，我们探索了通过经济资源的来源和去向的角度解释所有交易的想法。仅用2个主要的问题，我们就能够应用一个不同的而且更有实际意义的方法来确定公司账本中的一笔交易是借记还是贷记。我们试图将这种方法与Luca Pacioli对借记和贷记术语的可能含义联系起来。因此，除了学习表1的方法并将其中的逻辑应用于你的借记于贷记之外，你还可以应用从Luca的工作的第一原则发展而来的另一种方法，即任何交易中转移的经济资源的来源记为贷记，其相应的去向记为借记。</p> 
-    </div> 
-   </div> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="补充资源">补充资源</h2> 
- <div class="sectionbody"> 
-  <div class="ulist"> 
-   <ul> 
-    <li> <p>"Tao of Financial Information"的第21章，http://taofinancial.blogspot.com/</p> </li> 
-    <li> <p>关于记账和会计的文章</p> </li> 
-   </ul> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="结论借记与贷记">结论：借记与贷记</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>本次培训课程的主要收获是：</p> 
-  </div> 
-  <div class="ulist"> 
-   <ul> 
-    <li> <p>理解借记和贷记术语的由来</p> </li> 
-    <li> <p>理解他们叫做借记和贷记的原因</p> </li> 
-    <li> <p>识别和理解借记与贷记中的基本会计概念</p> </li> 
-    <li> <p>了解14世纪时人们是如何应用借记与贷记的</p> </li> 
-    <li> <p>找到另外一种在交易中应用借记和贷记的有意义的方法</p> </li> 
-   </ul> 
-  </div> 
-  <div class="paragraph"> 
-   <p>我们在本文开始的时候就着手全面理解关于借记和贷记的基本会计概念。我们知道我们可以通过简单的应用表1中的方法就可以成为一个成功的会计员，但是有些人想要理解"为什么"是这样。通过回到他们产生的时间，查看其本来的意思，我们能够应用一个新的方法决定交易中借记和贷记。</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>本文译自https://www.basicaccountingconcepts.education/basic-accounting-concepts-2-debits-and-credits, 拷贝地址到浏览器或者<strong><a href="https://www.basicaccountingconcepts.education/basic-accounting-concepts-2-debits-and-credits/">点此</a></strong>阅读原文。</p> 
   </div> 
  </div> 
 </div></p>

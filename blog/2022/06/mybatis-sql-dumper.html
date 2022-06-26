@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+<head>
+    <meta charset="utf-8"/>
+    <title>MyBatis Mapper中的SQL生成</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="乔治">
+    <meta name="keywords"
+          content="Ognl,SQL,MyBatis,优先级,表达式求值,实体关系图,实体关系图">
+    <meta name="generator" content="JBake v2.7.0.8">
+    <meta property=og:locale content=zh_CN>
+    <meta property="og:title"
+          content="MyBatis Mapper中的SQL生成"/>
+    <meta property="og:url" content="https://www.reploop.org/blog/2022/06/mybatis-sql-dumper.html"/>
+    <meta property="og:type" content="article"/>
+    <meta property="og:image" content="../../../img/favicon.svg"/>
+    <!-- Le styles -->
+    <link href="../../../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../../../css/asciidoctor.css" rel="stylesheet">
+    <link href="../../../css/base.css" rel="stylesheet">
+    <link href="../../../css/prettify.css" rel="stylesheet">
+
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+    <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+
+    <!-- Fav and touch icons -->
+    <!--<link rel="apple-touch-icon-precomposed" sizes="144x144" href="../assets/ico/apple-touch-icon-144-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="../assets/ico/apple-touch-icon-114-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="../assets/ico/apple-touch-icon-72-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" href="../assets/ico/apple-touch-icon-57-precomposed.png">-->
+    <link rel="shortcut icon" href="../../../img/favicon.svg">
+        <link rel="canonical" href="https://www.reploop.org/blog/2022/06/mybatis-sql-dumper.html"/>
+    <script data-ad-client="ca-pub-2350040335860411" async
+            src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+</head>
+<body onload="prettyPrint()">
+    <div id="wrap">	<!-- Fixed navbar -->
+    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../../../">REPLoop</a>
+        </div>
+        <div class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li><a href="../../../index.html">博客</a></li>
+            <li><a href="../../../archive.html">归档</a></li>
+            <li><a href="../../../tags/index.html">标签</a></li>
+            <li><a href="../../../about.html">关于</a></li>
+            <li><a href="../../../feed.xml">订阅</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </div>
+    <div class="container">
+    <div class="page-header">
+        <h1>MyBatis Mapper中的SQL生成</h1>
+    </div>
+
+<p>
+    <a href="/about.html"><strong>乔治</strong></a>于2022年06月24日
+            <span class="badge badge-dark">Ognl</span>
+            <span class="badge badge-dark">SQL</span>
+            <span class="badge badge-dark">MyBatis</span>
+            <span class="badge badge-dark">优先级</span>
+            <span class="badge badge-dark">表达式求值</span>
+            <span class="badge badge-dark">实体关系图</span>
+            <span class="badge badge-dark">实体关系图</span>
+</p>
+<p><div id="preamble"> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>MyBatis作为和Hibernate相比来说是一个轻量并且非常灵活的ORM框架，见过的Java项目中大部分都是使用MyBatis。MyBatis在运行时是支持日志输出SQL语句的，进而可以通过SQL做一些分析。如果要在编译时期做一些就像Java语言的静态分析之类的事情，通过解析XML的文件也是一个办法。本文通过项目<strong><a href="https://github.com/reploop/mybatis-sql-dump">mybatis-sql-dump</a></strong>来介绍一下如何从XML中生成SQL语句。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>现在数据库设计越来越的不遵守范式，数据库之间的主键和外键约束关系都不会落到数据库中，而是在应用程序中。因此在数据库中大部分情况下下看到的就是一些简单而独立的表，表之间的关系都弱化了，只有客户端SQL语句执行的时候才知道涉及的表之间的约束关系。通过联合查询的SQL来推断表之间的约束关系是本文的第2个目的。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="mybatis工作机制">MyBatis工作机制</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>MyBatis通过解析XML，通过<code>namespace</code>将XML文件和Java接口联系起来。然后将XML中的SQL语句解析为<code>MappedStatement</code>，并通过其id属性值和Java接口中的方法名对应起来，随后用生成代理的方式为接口中的每个方法行程代理，方法被调用的时候再通过方法名反向映射到XML中的SQL语句并执行。</p> 
+  </div> 
+  <div class="listingblock"> 
+   <div class="content"> 
+    <pre class="highlight"><code class="language-xml" data-lang="xml">&lt;?xml version="1.0" encoding="UTF-8" ?&gt;
+&lt;!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" &gt;
+&lt;mapper namespace="org.reploop.mapper.EntityMapper"&gt;    <i class="conum" data-value="1"></i><b>(1)</b>
+    &lt;select id="selectAll" resultMap="BaseResultMap"&gt;   <i class="conum" data-value="2"></i><b>(2)</b>
+        select *
+        from tb_entity
+    &lt;/select&gt;
+&lt;/mapper&gt;</code></pre> 
+   </div> 
+  </div> 
+  <div class="listingblock"> 
+   <div class="content"> 
+    <pre class="highlight"><code class="language-java" data-lang="java">package org.reploop.mapper;
+class Entity {
+    // Properties
+}
+public interface EntityMapper {
+    List&lt;Entity&gt; selectAll();   <i class="conum" data-value="2"></i><b>(2)</b>
+}</code></pre> 
+   </div> 
+  </div> 
+  <div class="colist arabic"> 
+   <table> 
+    <tbody>
+     <tr> 
+      <td><i class="conum" data-value="1"></i><b>1</b></td> 
+      <td>namespace就是Java中的Mapper接口</td> 
+     </tr> 
+     <tr> 
+      <td><i class="conum" data-value="2"></i><b>2</b></td> 
+      <td>XML中id对应Java接口中的方法</td> 
+     </tr> 
+    </tbody>
+   </table> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="生成sql">生成SQL</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>SQL语句是在解析生成<code>MappedStatement</code>的过程中解析并生成SqlSource，然后通过其方法：</p> 
+  </div> 
+  <div class="listingblock"> 
+   <div class="content"> 
+    <pre class="highlight"><code class="language-java" data-lang="java">BoundSql getBoundSql(Object parameterObject);</code></pre> 
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>能得到一个BoundSql实例，最后<code>BoundSql.getSql()</code>就得到了SQL语句。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>如果我们在XML里面写的就是单纯的SQL语句，那么到这里就结束了。实际上MyBatis还通过Ognl支持通过表达式求值的方式来根据入参来动态的调整SQL语句的输出。</p> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="sqlsource">SqlSource</h3> 
+   <div class="paragraph"> 
+    <p>SqlSource实质上是一个树形结构，体现了XML的嵌套结果的解析结果，然后执行<code>getBoundSql</code>的时候可以看作是层序遍历这个树，并且通过入参作为输入，对Ognl表达式进行求值(或者绑定变量)后的结果就是SQL语句了。</p> 
+   </div> 
+   <div class="paragraph"> 
+    <p>这个下面这个select语句中：</p> 
+   </div> 
+   <div class="listingblock"> 
+    <div class="content"> 
+     <pre class="highlight"><code class="language-xml" data-lang="xml">&lt;select&gt;
+select * from ${tableName} where deleted = 0 <i class="conum" data-value="1"></i><b>(1)</b>
+&lt;if test="userId != null"&gt; <i class="conum" data-value="2"></i><b>(2)</b>
+    and user_id = #{userId,jdbcType=INTEGER}
+&lt;/if&gt;
+&lt;/select&gt;</code></pre> 
+    </div> 
+   </div> 
+   <div class="colist arabic"> 
+    <table> 
+     <tbody>
+      <tr> 
+       <td><i class="conum" data-value="1"></i><b>1</b></td> 
+       <td>${tableName}这个变量在SQL语句生成阶段就会替换为入参中ableName这个变量的值；</td> 
+      </tr> 
+      <tr> 
+       <td><i class="conum" data-value="2"></i><b>2</b></td> 
+       <td>这个test内容是一个ognl表达式，只有入参中userId不为null的情况下，也就是表达式求值为真的情况下where子句中的第2个条件才会生效</td> 
+      </tr> 
+     </tbody>
+    </table> 
+   </div> 
+   <div class="paragraph"> 
+    <p>因此我们要生成完整的SQL语句，就需要解析这个表达式，收集表达式中需要的变量，以及为了能够让表达式求值结果为真，给变量合适的值。这样我们就需要解析Ognl表达式，并且走一遍表达式求值，从而推断出合适的变量值。</p> 
+   </div> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="ognl表达式">Ognl表达式</h3> 
+   <div class="paragraph"> 
+    <p>MyBatis集成了Ognl表达式的解析，解析完之后同样也是一个表达式语法树(AST)，而且是带有操作符的语法树。Ognl表达式中的操作大部分情况下最多是2个操作数，所以这个语法树也可以是一颗二叉树。</p> 
+   </div> 
+   <div class="imageblock"> 
+    <div class="content"> 
+     <img src="https://www.reploop.org/blog/2022/06/images/exp-tree.svg" alt="表达式树"> 
+    </div> 
+   </div> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="表达式求值">表达式求值</h3> 
+   <div class="paragraph"> 
+    <p>拿到表达式树之后，我们可用深度优先遍历(Depth-First Search)的方式遍历这棵树，并在遍历的过程中收集变量，并根据其操作觉得该变量的值，使得表达式求值结果为真。</p> 
+   </div> 
+   <div class="paragraph"> 
+    <p>其实深度优先遍历的输出就是操作树的<strong>后缀表达式</strong>，而后缀表达式的求值则使用双栈(Stack)，一个操作符栈，一个操作数栈遍历一遍就可以完成求值。一般的大学数据结构课程肯定是学过的。</p> 
+   </div> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="实体关系图er_diagram">实体关系图(ER-Diagram)</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>得到合法SQL之后就可以利用SQL解析器<strong><a href="https://github.com/JSQLParser/JSqlParser">JSqlParser</a></strong>分析，并通过JOIN语法来推断数据库表之间的主键和外键约束关系，之后通过<strong>graphviz</strong>来生成可视化的图片。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="结论">结论</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>本文本是想通过现成的MyBatis框架本身就解析XML文件，而不是从0开始写一个解析符合MyBatis的规范的XML解析器，这个过程有一个不太完美的地方，就是如果XML中依赖了项目中的类，比如MyBatis的ParameterType，ResultMap或则typeHandler是个业务自定义的实现类，那么这个过程是需要把这些类都加入到classpath中去的，这样才能正确运行。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>我们可以通过定制classloader的方式来解决，不过前提是XML的Mapper所在的项目需要提前编译好，这样才能通过定制classloader的方式指定搜索路径，来支持类的加载。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="参考">参考</h2> 
+ <div class="sectionbody"> 
+  <div class="ulist"> 
+   <ul> 
+    <li> <p>JSqlParser, <a href="https://github.com/JSQLParser/JSqlParser">JSqlParser</a></p> </li> 
+    <li> <p>MyBatis Spring Adapter, <a href="https://github.com/mybatis/spring" class="bare">https://github.com/mybatis/spring</a></p> </li> 
+    <li> <p>Expression Evaluation, <a href="https://cs.lmu.edu/~ray/notes/expressionevaluation/" class="bare">https://cs.lmu.edu/~ray/notes/expressionevaluation/</a></p> </li> 
+   </ul> 
+  </div> 
+ </div> 
+</div></p>
+
+<hr/>
+<div id="disqus_thread"></div>
+<script>
+
+    /**
+     *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+     *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
+    var disqus_config = function () {
+        this.page.url = "https://www.reploop.org/blog/2022/06/mybatis-sql-dumper.html";  // Replace PAGE_URL with your page's canonical URL variable
+        this.page.identifier = "https://www.reploop.org/blog/2022/06/mybatis-sql-dumper.html"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+    };
+    (function () { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://reploop.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by
+        Disqus.</a></noscript>
+		</div>
+		<div id="push"></div>
+    </div>
+    
+    <div id="footer">
+      <div class="container">
+        <p class="muted credit">&copy; 2020 | Mixed with <a href="http://getbootstrap.com/">Bootstrap v3.1.1</a> | Baked with <a href="http://jbake.org">JBake v2.7.0.8</a></p>
+      </div>
+    </div>
+    
+    <!-- Le javascript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="../../../js/jquery-1.11.1.min.js"></script>
+    <script src="../../../js/bootstrap.min.js"></script>
+    <script src="../../../js/prettify.js"></script>
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  messageStyle: "none",
+  tex2jax: {
+    inlineMath: [["\\(", "\\)"]],
+    displayMath: [["\\[", "\\]"]],
+    ignoreClass: "nostem|nolatexmath"
+  },
+  asciimath2jax: {
+    delimiters: [["\\$", "\\$"]],
+    ignoreClass: "nostem|noasciimath"
+  },
+  TeX: { equationNumbers: { autoNumber: "none" } }
+})
+MathJax.Hub.Register.StartupHook("AsciiMath Jax Ready", function () {
+  MathJax.InputJax.AsciiMath.postfilterHooks.Add(function (data, node) {
+    if ((node = data.script.parentNode) && (node = node.parentNode) && node.classList.contains('stemblock')) {
+      data.math.root.display = "block"
+    }
+    return data
+  })
+})
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_HTMLorMML"></script>
+  </body>
+</html>
