@@ -230,6 +230,87 @@ select * from ${tableName} where deleted = 0 <i class="conum" data-value="1"></i
   </div> 
  </div> 
 </div></p>
+  		<a href="blog/2022/05/it.html"><h1>服务开发的几个原则</h1></a>
+  		<p>
+			<a href="/about.html"><strong>乔治</strong></a>于2022年05月17日
+					<span class="badge badge-dark">微服务</span>
+					<span class="badge badge-dark">持续集成</span>
+					<span class="badge badge-dark">持续部署</span>
+					<span class="badge badge-dark">构建</span>
+					<span class="badge badge-dark">研发环境</span>
+					<span class="badge badge-dark">分布式配置中心</span>
+		</p>
+  		<p><div id="preamble"> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>开发服务类系统大体上分为以下几个步骤：<code>编码|配置|打包|构建|部署</code>。这个过程中涉及环境，代码，配置，构建、打包产出物，到最后的运行环境。</p> 
+  </div> 
+  <div class="imageblock"> 
+   <div class="content"> 
+    <img src="https://www.reploop.org/blog/2022/05/images/pipeline-persist.svg" alt="开发流程"> 
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>这里面的环境是一个静态配置，一般来说就是本地（local），开发（dev），测试（test），预发（staging）和生产环境（prod），更多的是用来标识与选择环境。可参考<a href="https://www.reploop.org/blog/2022/04/rd-env.html">研发环境的设计思路</a>了解更多。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>每个步骤的结构都独立持久化到对应的存储中，作为后面步骤中的输入，像极了管道(Pipeline)的工作方式。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="几个原则">几个原则</h2> 
+ <div class="sectionbody"> 
+  <div class="olist arabic"> 
+   <ol class="arabic"> 
+    <li> <p>代码和配置分离</p> 
+     <div class="ulist"> 
+      <ul> 
+       <li> <p>代码只关注业务逻辑，不用操心部署环境以及静态配置</p> </li> 
+      </ul> 
+     </div> </li> 
+    <li> <p>环境需要的配置交给分布式配置中心来管理</p> 
+     <div class="ulist"> 
+      <ul> 
+       <li> <p>配置集中管理</p> </li> 
+      </ul> 
+     </div> </li> 
+    <li> <p>代码编译打包为目标环境的机器码</p> 
+     <div class="ulist"> 
+      <ul> 
+       <li> <p>所需要的配置最小化，比如环境的选择，Profile的指定等</p> </li> 
+      </ul> 
+     </div> </li> 
+    <li> <p>构建服务将根据目标环境构建可部署的包</p> 
+     <div class="ulist"> 
+      <ul> 
+       <li> <p>将上一步中基本打包结果构建为容器化的镜像</p> </li> 
+      </ul> 
+     </div> </li> 
+    <li> <p>部署服务交给专门的CD部署系统来统一规划</p> 
+     <div class="ulist"> 
+      <ul> 
+       <li> <p>发布与回滚都基于镜像来操作</p> </li> 
+      </ul> 
+     </div> </li> 
+    <li> <p>运行时通过分布式配置服务加载环境配置</p> 
+     <div class="ulist"> 
+      <ul> 
+       <li> <p>配置中心来回避配置散落到代码中，因为配置比代码变化更频繁</p> </li> 
+      </ul> 
+     </div> </li> 
+   </ol> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="结论">结论</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>研发划分的粒度越细，需要的职责也多，相应的人也会多一些。</p> 
+  </div> 
+ </div> 
+</div></p>
   		<a href="blog/2022/04/rd-env.html"><h1>多人协作研发环境的设计思路</h1></a>
   		<p>
 			<a href="/about.html"><strong>乔治</strong></a>于2022年04月24日
@@ -460,232 +541,6 @@ select * from ${tableName} where deleted = 0 <i class="conum" data-value="1"></i
    <ul> 
     <li> <p>Sharma Rajesh, <a href="https://engineering.mercari.com/en/blog/entry/20220218-dynamic-service-routing-using-istio/">Dynamic Service Routing using Istio</a></p> </li> 
     <li> <p>Packet Networking, <a href="http://packet-network.blogspot.com/2011/11/data-encapsulation.html">Data Encapsulation </a></p> </li> 
-   </ul> 
-  </div> 
- </div> 
-</div></p>
-  		<a href="blog/2022/04/maths-in-bussiness.html"><h1>商业核心窥探</h1></a>
-  		<p>
-			<a href="/about.html"><strong>乔治</strong></a>于2022年04月11日
-					<span class="badge badge-dark">公司</span>
-					<span class="badge badge-dark">经营</span>
-					<span class="badge badge-dark">商业</span>
-					<span class="badge badge-dark">效率</span>
-					<span class="badge badge-dark">数据分析</span>
-		</p>
-  		<p><div id="preamble"> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>创业公司的经营视角看业务，经常会遇到很多商业术语，这对理解商业模式非常有帮助。同时跟不同角色的人打交道，更需要理解术语，还需要理解术语之间的关系，才能顺畅的交流。术语本身是就像<strong>世上本没有路，走的人多了也就成了路</strong>一样，是随着特定行业领域发展而总结出来的有一定概括性的描述或概念，用来高效表达与交流的。</p> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="业务核心">业务核心</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>基本上，任何生意的最核心部分就是三个公式：</p> 
-  </div> 
-  <div id="eq1" class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlight"><code class="language-text" data-lang="text">订单数 * 客单价 = 总收入 <i class="conum" data-value="1"></i><b>(1)</b></code></pre> 
-   </div> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlight"><code class="language-text" data-lang="text">变动成本 + 固定成本 = 总成本 <i class="conum" data-value="2"></i><b>(2)</b></code></pre> 
-   </div> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlight"><code class="language-text" data-lang="text">总收入 - 总成本 = 总利润 <i class="conum" data-value="3"></i><b>(3)</b></code></pre> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>这里面有些生意是<strong>直接的</strong>，比如你开一个小卖铺卖煎饼，算账就这么直接算就好了；而有些是<strong>间接的</strong>，比如互联网业务是<strong>羊毛出在猪身上</strong>，主营业务和盈利方式不是那么的直接看出来。像给用户出租车辆的租车公司挣的是保险的钱，而不是租金，而持车公司则是挣两三年之后卖二手车的残值。但是不管怎么样，公司最后都要回到上面3个公式来挣钱。这就要需要先通过<strong>单位经济效益</strong>来确定订单之后在分析。</p> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="单位经济效益">单位经济效益</h2> 
- <div class="sectionbody"> 
-  <div class="quoteblock"> 
-   <blockquote>
-     单位经济效益是，在商业模型中，能够体现收入与成本关系的某个最小运作单元。（公司的整体交易数据都是由所有的单笔交易叠加在一起得来的，所以只研究透单笔交易的逻辑可以排除很多不必要的干扰，更容易看出商业模式的本质，并且找出其中最需要关注的问题点。）想要分析单位经济效益，第一个任务就是判断和选定某个商业模式中的“最小运作单元”。这个单元一般就是产品或服务收费的最小单元，比如“一件快件”、“一盒化妆品”、“一公里车费”、“一小时美甲”等。这个最小单元的选择并不一定是唯一的，但核心宗旨就是选出那个最能体现收入和成本变化联系的最小的单元。当单元选定之后，就是判断围绕这个单元的收入和成本构成了。 
-   </blockquote> 
-   <div class="attribution">
-     — 曲凯
-    <br> <cite>《创投42章经》</cite> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>这个最小单元就是核心公式中的订单的选择了。</p> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="商业术语">商业术语</h2> 
- <div class="sectionbody"> 
-  <div class="dlist"> 
-   <dl> 
-    <dt class="hdlist1">
-     客单价
-    </dt> 
-    <dd> 
-     <p>客人每笔订单均价。还有一种说法就是一个客人每次消费的价格，这时有可能一次消费包含了多笔订单，而将这部分订单总额理解为客单价。比如去一次中免免税城，在不同的柜台买了不同的东西，肯定是多笔订单，但是中免对外说客单价是大几千上万元。</p> 
-    </dd> 
-    <dt class="hdlist1">
-     固定成本
-    </dt> 
-    <dd> 
-     <p>和订单不直接相关的，卖多卖少都一样的那类成本，比如办公室租赁，人员工资，办公设备等。通常固定成本是比较容易知道的。我们可以计算一下<code>固定成本占比 = 固定成本 / 总成本 =（总成本 - 变动成本）/ 总成本</code>。 盈亏平衡点上：总成本等于总收入，已知固定成本的情况下：</p> 
-    </dd> 
-   </dl> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlight"><code class="language-text" data-lang="text">总收入 = 总成本 = 固定成本 / 固定成本占比
-
-固定成本占比 = 固定成本 / 总成本 = （总成本 - 变动成本）/ 总成本 = （总收入 - 变动成本）/ 总收入
-
-边际贡献率 = 固定成本占比 = 固定成本 /（（总收入-变动成本）/ 总收入）</code></pre> 
-   </div> 
-  </div> 
-  <div class="dlist"> 
-   <dl> 
-    <dt class="hdlist1">
-     变动成本
-    </dt> 
-    <dd> 
-     <p>和订单相关的成本，订单成交就有，没有成交就没有的那部分成本，比如商品原材料（假设下单之后才采购），销售提成等。</p> 
-    </dd> 
-    <dt class="hdlist1">
-     毛利率
-    </dt> 
-    <dd> 
-     <p>这个是经常提到的一个指标，通过一个生意的毛利率就大体上能判断出能不能做了，当然了，这需要需要相关行业经验。</p> 
-    </dd> 
-   </dl> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlight"><code class="language-text" data-lang="text">毛利率 =（总收入 - 变动成本）/ 总收入</code></pre> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>一般计算毛利率的时候成本中不包含固定成本，也就是只计算变动成本。现在做生意，没有资本的加持，经验来说小本经营至少需要一个10%的毛利才能赢亏平衡，甚至有利可图。</p> 
-  </div> 
-  <div class="dlist"> 
-   <dl> 
-    <dt class="hdlist1">
-     净利率
-    </dt> 
-   </dl> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlight"><code class="language-text" data-lang="text">净利率 = （总收入 - 总成本）/ 总收入</code></pre> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>这个就是业务的最终目的了，商业逐利。</p> 
-  </div> 
-  <div class="dlist"> 
-   <dl> 
-    <dt class="hdlist1">
-     订单数
-    </dt> 
-    <dd> 
-     <p>把上面<a href="#eq1">公式1</a>中的<strong>订单数</strong>分解一下：</p> 
-    </dd> 
-   </dl> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlight"><code class="language-text" data-lang="text">订单数 = 下单用户数 * 购买次数
-      = 总用户数 * 下单转化率 * 购买次数
-      = (新增用户数 + 存量用户数) * 下单转化率 * 购买次数 <i class="conum" data-value="4"></i><b>(4)</b></code></pre> 
-   </div> 
-  </div> 
-  <div class="dlist"> 
-   <dl> 
-    <dt class="hdlist1">
-     新增用户数
-    </dt> 
-    <dd> 
-     <p>一般是市场或者营销的工作，也有专门的用户增长领域。为了获取新增用户，需要花费一定的成本，<code>这个就是用户获取成本</code>：<strong>获客成本</strong>。新增用户的时候刚开始一个重要的指标是<strong>留存率</strong>。</p> 
-    </dd> 
-    <dt class="hdlist1">
-     存量用户数
-    </dt> 
-    <dd> 
-     <p>对于平台类公司，这个一般是运营主要在做的事情。存量用户是系统内留存下来的，你可以很方便的通过产品、活动或者其他手段触达的用户。存量用户要有一定的<strong>活跃率</strong>，或者转化率。</p> 
-    </dd> 
-    <dt class="hdlist1">
-     流失用户数
-    </dt> 
-    <dd> 
-     <p>用户到达一定量之后，不可避免的有流失，所以新增一定要大于等于流失，听起来才是有发展的。一个用户从新增到流失，就是用户在系统内的"一生"总共的<strong>订单量*客单价=用户终身价值</strong>。用户终身价值一定要大于获客成本，不然的话没有任何可以盈利的可能性。</p> 
-    </dd> 
-    <dt class="hdlist1">
-     每用户收入(ARPU)
-    </dt> 
-   </dl> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlight"><code class="language-text" data-lang="text">每用户收入（ARPU） = （总收入 - 总成本）/ 总用户数</code></pre> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>这个也经常用来评价用户对收益的贡献率。</p> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="效率">效率</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>上面的数据有些是累计总和，累计数据通常是要涉及一个时间或者空间范围的。空这里面就涉及一个基本单位，汇总就是所有基本单位的总和。这个基本单位有可能以时间为单位，也可能是以个体为单位等等。</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>我们可以以时间为单位的总量明确一个时间周期，比如年销售额，月流水等。实际上很多公司干同样的事情，但是谁在最短的时间内做到谁就有竞争优势，直到在竞争中战胜对手。这就是一个效率的问题，给所有的事情或者数据都加上一个时间周期，比如每月，每年等，然后就是<strong>周期内总量/周期=效率</strong>。</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>同时也有些是以空间为单位的，比如酒店的客房数，餐厅的餐桌数，池塘里面的蝌蚪数。结合不同的基本单位，就有了很多衡量效率的术语。比如常见的衡量用户活跃度的<strong>日活</strong>，<strong>月活</strong>等，高频打低频中的<strong>频次</strong>，餐馆中的<strong>翻台率</strong>，酒店中的<strong>坪效率</strong>，HR中的<strong>人效</strong>等等。</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>效率非常重要，效率越高越可能在市场上有竞争力，从而取得经营成功。</p> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="总结">总结</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>无论我们做什么，我们都在按照不同的方式，分工服务上面那3个公式。</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>理解了这些公式，具体经营的过程中就是优化或者改善公式中的变量，有时候还会把单个变量拆分为更具体的变量，然后逐个优化。这样做的最终目的是使劲的提高总收入，降低总成本，使得公司健康发展。</p> 
-  </div> 
-  <div class="imageblock right"> 
-   <div class="content"> <a class="image" href="https://book.douban.com/subject/26278639/"><img src="https://www.reploop.org/blog/2022/04/images/lean-analytics.png" alt="精益数据分析" width="140"></a> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>有时候这些公式也会被割裂开来看，比如表面上看交易不直接的，有可能会说用户量有多大多大，会花大力气的先把用户量拉上去，而暂时忽略看不见的转化率等，未来无限可能。</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>但是过于概括的公式对具体的生意可能就没有指导意义了，更理想的情况是给公式中的变量都乘以一个系数，体现出每个变量在不同生意模式中不同的重要程度。这样就将公式展开细化后有侧重的去开展工作了。这方面推荐<span class="underline"><a href="https://book.douban.com/subject/26278639/">《精益数据分析》</a></span>这本书。</p> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="参考">参考</h2> 
- <div class="sectionbody"> 
-  <div class="ulist"> 
-   <ul> 
-    <li> <p>MBA智库， <a href="https://wiki.mbalib.com/wiki/%E5%9F%BA%E6%9C%AC%E7%AB%9E%E4%BA%89%E6%88%98%E7%95%A5">基本竞争战略</a></p> </li> 
    </ul> 
   </div> 
  </div> 

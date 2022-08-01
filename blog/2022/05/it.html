@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+<head>
+    <meta charset="utf-8"/>
+    <title>服务开发的几个原则</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="乔治">
+    <meta name="keywords"
+          content="微服务,持续集成,持续部署,构建,研发环境,分布式配置中心">
+    <meta name="generator" content="JBake v2.7.0.8">
+    <meta property=og:locale content=zh_CN>
+    <meta property="og:title"
+          content="服务开发的几个原则"/>
+    <meta property="og:url" content="https://www.reploop.org/blog/2022/05/it.html"/>
+    <meta property="og:type" content="article"/>
+    <meta property="og:image" content="../../../img/favicon.svg"/>
+    <!-- Le styles -->
+    <link href="../../../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../../../css/asciidoctor.css" rel="stylesheet">
+    <link href="../../../css/base.css" rel="stylesheet">
+    <link href="../../../css/prettify.css" rel="stylesheet">
+
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+    <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+
+    <!-- Fav and touch icons -->
+    <!--<link rel="apple-touch-icon-precomposed" sizes="144x144" href="../assets/ico/apple-touch-icon-144-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="../assets/ico/apple-touch-icon-114-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="../assets/ico/apple-touch-icon-72-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" href="../assets/ico/apple-touch-icon-57-precomposed.png">-->
+    <link rel="shortcut icon" href="../../../img/favicon.svg">
+        <link rel="canonical" href="https://www.reploop.org/blog/2022/05/it.html"/>
+    <script data-ad-client="ca-pub-2350040335860411" async
+            src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+</head>
+<body onload="prettyPrint()">
+    <div id="wrap">	<!-- Fixed navbar -->
+    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../../../">REPLoop</a>
+        </div>
+        <div class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li><a href="../../../index.html">博客</a></li>
+            <li><a href="../../../archive.html">归档</a></li>
+            <li><a href="../../../tags/index.html">标签</a></li>
+            <li><a href="../../../about.html">关于</a></li>
+            <li><a href="../../../feed.xml">订阅</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </div>
+    <div class="container">
+    <div class="page-header">
+        <h1>服务开发的几个原则</h1>
+    </div>
+
+<p>
+    <a href="/about.html"><strong>乔治</strong></a>于2022年05月17日
+            <span class="badge badge-dark">微服务</span>
+            <span class="badge badge-dark">持续集成</span>
+            <span class="badge badge-dark">持续部署</span>
+            <span class="badge badge-dark">构建</span>
+            <span class="badge badge-dark">研发环境</span>
+            <span class="badge badge-dark">分布式配置中心</span>
+</p>
+<p><div id="preamble"> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>开发服务类系统大体上分为以下几个步骤：<code>编码|配置|打包|构建|部署</code>。这个过程中涉及环境，代码，配置，构建、打包产出物，到最后的运行环境。</p> 
+  </div> 
+  <div class="imageblock"> 
+   <div class="content"> 
+    <img src="https://www.reploop.org/blog/2022/05/images/pipeline-persist.svg" alt="开发流程"> 
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>这里面的环境是一个静态配置，一般来说就是本地（local），开发（dev），测试（test），预发（staging）和生产环境（prod），更多的是用来标识与选择环境。可参考<a href="https://www.reploop.org/blog/2022/04/rd-env.html">研发环境的设计思路</a>了解更多。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>每个步骤的结构都独立持久化到对应的存储中，作为后面步骤中的输入，像极了管道(Pipeline)的工作方式。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="几个原则">几个原则</h2> 
+ <div class="sectionbody"> 
+  <div class="olist arabic"> 
+   <ol class="arabic"> 
+    <li> <p>代码和配置分离</p> 
+     <div class="ulist"> 
+      <ul> 
+       <li> <p>代码只关注业务逻辑，不用操心部署环境以及静态配置</p> </li> 
+      </ul> 
+     </div> </li> 
+    <li> <p>环境需要的配置交给分布式配置中心来管理</p> 
+     <div class="ulist"> 
+      <ul> 
+       <li> <p>配置集中管理</p> </li> 
+      </ul> 
+     </div> </li> 
+    <li> <p>代码编译打包为目标环境的机器码</p> 
+     <div class="ulist"> 
+      <ul> 
+       <li> <p>所需要的配置最小化，比如环境的选择，Profile的指定等</p> </li> 
+      </ul> 
+     </div> </li> 
+    <li> <p>构建服务将根据目标环境构建可部署的包</p> 
+     <div class="ulist"> 
+      <ul> 
+       <li> <p>将上一步中基本打包结果构建为容器化的镜像</p> </li> 
+      </ul> 
+     </div> </li> 
+    <li> <p>部署服务交给专门的CD部署系统来统一规划</p> 
+     <div class="ulist"> 
+      <ul> 
+       <li> <p>发布与回滚都基于镜像来操作</p> </li> 
+      </ul> 
+     </div> </li> 
+    <li> <p>运行时通过分布式配置服务加载环境配置</p> 
+     <div class="ulist"> 
+      <ul> 
+       <li> <p>配置中心来回避配置散落到代码中，因为配置比代码变化更频繁</p> </li> 
+      </ul> 
+     </div> </li> 
+   </ol> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="结论">结论</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>研发划分的粒度越细，需要的职责也多，相应的人也会多一些。</p> 
+  </div> 
+ </div> 
+</div></p>
+
+<hr/>
+<div id="disqus_thread"></div>
+<script>
+
+    /**
+     *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+     *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
+    var disqus_config = function () {
+        this.page.url = "https://www.reploop.org/blog/2022/05/it.html";  // Replace PAGE_URL with your page's canonical URL variable
+        this.page.identifier = "https://www.reploop.org/blog/2022/05/it.html"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+    };
+    (function () { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://reploop.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by
+        Disqus.</a></noscript>
+		</div>
+		<div id="push"></div>
+    </div>
+    
+    <div id="footer">
+      <div class="container">
+        <p class="muted credit">&copy; 2020 | Mixed with <a href="http://getbootstrap.com/">Bootstrap v3.1.1</a> | Baked with <a href="http://jbake.org">JBake v2.7.0.8</a></p>
+      </div>
+    </div>
+    
+    <!-- Le javascript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="../../../js/jquery-1.11.1.min.js"></script>
+    <script src="../../../js/bootstrap.min.js"></script>
+    <script src="../../../js/prettify.js"></script>
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  messageStyle: "none",
+  tex2jax: {
+    inlineMath: [["\\(", "\\)"]],
+    displayMath: [["\\[", "\\]"]],
+    ignoreClass: "nostem|nolatexmath"
+  },
+  asciimath2jax: {
+    delimiters: [["\\$", "\\$"]],
+    ignoreClass: "nostem|noasciimath"
+  },
+  TeX: { equationNumbers: { autoNumber: "none" } }
+})
+MathJax.Hub.Register.StartupHook("AsciiMath Jax Ready", function () {
+  MathJax.InputJax.AsciiMath.postfilterHooks.Add(function (data, node) {
+    if ((node = data.script.parentNode) && (node = node.parentNode) && node.classList.contains('stemblock')) {
+      data.math.root.display = "block"
+    }
+    return data
+  })
+})
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_HTMLorMML"></script>
+  </body>
+</html>

@@ -58,6 +58,347 @@
       </div>
     </div>
     <div class="container">
+  		<a href="blog/2022/02/json-translator-for-formats.html"><h1>JSON解析与对象生成</h1></a>
+  		<p>
+			<a href="/about.html"><strong>乔治</strong></a>于2022年02月10日
+					<span class="badge badge-dark">JSON</span>
+					<span class="badge badge-dark">antlr</span>
+					<span class="badge badge-dark">AST</span>
+					<span class="badge badge-dark">抽象语法树</span>
+					<span class="badge badge-dark">代码生成</span>
+					<span class="badge badge-dark">Thrift</span>
+					<span class="badge badge-dark">Protobuf</span>
+					<span class="badge badge-dark">编程语言</span>
+		</p>
+  		<p><div id="preamble"> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>现如今，基于HTTP/HTTPS的RESTful API的广泛应用，而JSON则是其传输数据的默认格式。 一些公司针对内部团队的API也都用HTTP/HTTPS协议，作为API的调用方，就需要大量的处理JSON解析的工作。除了Javascript之外的语言，都或多或少的要做这个工作。<span class="underline"><a href="https://github.com/reploop/reploop-parser">reploop-parser</a></span>项目一来想实践一下编译原理中从词法，语法，解析器到中间代码生成等等的东西，另外也能自动化处理JSON到对象的映射，减少手动敲机械键盘写代码带来的噪音。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="json解析">JSON解析</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>JSON解析是基于antlr 4.8做的。关于词法，语法，解析器等方面另外写一篇介绍吧。这篇主要介绍JSON转为Bean的部分。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="json的特点">JSON的特点</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>JSON本身表达的就是一个树形结构，和Java的对象层次结构一样的。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>JSON是一个数据，也就是值(Value)，弱类型的。它的基本数据类型是数据本身描述的，并不是通过语言提供的类型系统来申明的。而强类型语言如Java在声明变量的时候必须知道他的数据类型，所以从JSON数据解析为POJO的过程就涉及一个类型推导。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="类型推导">类型推导</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>JSON是一个数据，从<span class="underline"><a href="https://www.json.org/json-en.html">JSON.org</a></span> 能知道它只有以下数据：</p> 
+  </div> 
+  <div class="ulist"> 
+   <ul> 
+    <li> <p>数组</p> </li> 
+    <li> <p>对象(Key-Value)</p> </li> 
+    <li> <p>数字</p> </li> 
+    <li> <p>字符串</p> </li> 
+    <li> <p>常量("true","false","null")</p> </li> 
+   </ul> 
+  </div> 
+  <div class="paragraph"> 
+   <p>用Java的术语来描述一下，其中的<strong>数组</strong>和<strong>对象</strong>可以称之为复杂数据类型(Wrapper Type)，是由真正的基本数据类型(Primitive Type)包括<strong>数字</strong>、<strong>字符串</strong>和<strong>常量</strong>组成的。除了基本数据类型，数组和对象都可以深层次的嵌套所有的数据的，包括其自己，展开来就形成了一个树形结构。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>基于这个数据构成，以及JSON的特点，可以按照如下规则做类型推导：</p> 
+  </div> 
+  <div class="olist arabic"> 
+   <ol class="arabic"> 
+    <li> <p>JSON是一个树形层次结构</p> 
+     <div class="ulist"> 
+      <ul> 
+       <li> <p>根结点名字定义为$。树中的每个节点都是一个属性及其类型，也就是的（name，type）。对于数组，可以用元素的下标作为属性名称，参见图1<a href="#attributes-tree">属性树</a>。其实这样就把整个JSON统一为对象(key-value)结构的树了。</p> </li> 
+       <li> <p>叶子节点是最基本的数据，也就是简单基本类型数据：数字，字符串和常量</p> </li> 
+       <li> <p>除叶子节点之外，树的中间某个节点的所有子节点都是相同的类型</p> </li> 
+      </ul> 
+     </div> </li> 
+    <li> <p>同构容器</p> 
+     <div class="ulist"> 
+      <ul> 
+       <li> <p>静态类型语言的特性，这点和动态类型或者弱类型语言很大不同</p> </li> 
+       <li> <p>数组(或者列表)的元素是相同类型的（按照规范是可以不相同的）</p> </li> 
+       <li> <p>对象类型的所有的key是相同类型的（规范中只允许字符串），所有的value也是相同类型的（按照规范是可以不相同的）</p> </li> 
+      </ul> 
+     </div> </li> 
+    <li> <p>递归深度, 依赖于antlr 4.8</p> 
+     <div class="ulist"> 
+      <ul> 
+       <li> <p>解析JSON树是一个递归的过程。</p> </li> 
+       <li> <p>受Stack空间的限制，递归不能够层次太深。</p> </li> 
+       <li> <p>尾递归优化可以不受这个限制。antlr 4.8没有这个优化。</p> </li> 
+      </ul> 
+     </div> </li> 
+    <li> <p>JSON中的对象(Key-Value)可以映射为Java中的Map或者Object，他们是等价的，从易用性角度酌情使用不同的类型</p> 
+     <div class="ulist"> 
+      <ul> 
+       <li> <p>key是数字或者以数字打头的都对应到Map类型</p> </li> 
+       <li> <p>key符合Java语言命名规范的都对应到Object类型</p> </li> 
+      </ul> 
+     </div> </li> 
+    <li> <p>空值</p> 
+     <div class="ulist"> 
+      <ul> 
+       <li> <p>一些不规范的JSON有些时候<strong>空字符串</strong>其实意味着空值<code>null</code></p> </li> 
+       <li> <p>对象为空<code>{}</code>，元素类型不确定，都推断为Object</p> </li> 
+       <li> <p>数组为空<code>[]</code>，元素类型不确定，推断为Object</p> </li> 
+      </ul> 
+     </div> </li> 
+    <li> <p>常量<code>null</code>值，</p> 
+     <div class="ulist"> 
+      <ul> 
+       <li> <p>单独看常量<code>null</code>没有任何类型线索</p> </li> 
+       <li> <p>如果以上步骤不能确定类型，则对应到Object类型</p> </li> 
+      </ul> 
+     </div> </li> 
+   </ol> 
+  </div> 
+  <div class="paragraph"> 
+   <p>下面这段JSON：</p> 
+  </div> 
+  <div class="listingblock"> 
+   <div class="content"> 
+    <pre class="highlight"><code class="language-json" data-lang="json">{
+  "name": "reploop.org",
+  "views": 1000,
+  "friends": [
+    {"id":23,"gender":"male"},
+    {"id":24,"gender":"unknown"}
+  ],
+  "links": {
+    "name": "reploop.net",
+    "views": 2000,
+    "friends": [],
+    "links": {}
+  }
+}</code></pre> 
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>对应的树是这样的：</p> 
+  </div> 
+  <div id="attributes-tree" class="imageblock"> 
+   <div class="content"> 
+    <img src="https://www.reploop.org/blog/2022/02/images/attributes-tree.svg" alt="属性树"> 
+   </div> 
+   <div class="title">
+    Figure 1. 属性树
+   </div> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="继承结构">继承结构</h3> 
+   <div class="paragraph"> 
+    <p>由于</p> 
+   </div> 
+   <div class="olist arabic"> 
+    <ol class="arabic"> 
+     <li> <p>相同的Object可以在不同的子树中使用（相同的深度）</p> </li> 
+     <li> <p>相同的Object可以在不同的层次中使用（不同的深度）</p> </li> 
+    </ol> 
+   </div> 
+   <div class="paragraph"> 
+    <p>我们应该尽量避免重复定义对象，尽可能的少定义对象。这就涉及2方面的事情：</p> 
+   </div> 
+   <div class="olist arabic"> 
+    <ol class="arabic"> 
+     <li> <p>相同对象的识别</p> 
+      <div class="ulist"> 
+       <ul> 
+        <li> <p>2个对象的属性(对应JSON中的key)的名称，数目以及每个属性的类型都相同的话，我们认为这两个对象相同。</p> </li> 
+       </ul> 
+      </div> </li> 
+     <li> <p>继承关系的识别</p> 
+      <div class="ulist"> 
+       <ul> 
+        <li> <p>继承关系，可以理解为包含关系，也就是子类包含了父类的属性。这个过程可以看作是寻找公共属性的过程，用树的语言来讲，自顶向下的看就是寻找<strong>最大公共子树</strong>。</p> </li> 
+       </ul> 
+      </div> </li> 
+    </ol> 
+   </div> 
+   <div class="paragraph"> 
+    <p>寻找<strong>最大公共子树</strong>看着非常匹配，也有高效的算法实现，但是他处理不了<strong>对象属性缺失</strong>，<strong>数组元素数不等</strong>以及<strong>空值</strong>等不规范的情况。最后还是用<strong>包含关系</strong>的理解，把属性和属性所属的对象组织为<strong>属性x对象</strong>的二维表，属性包含在对象里面记为1，否则记为0。最后问题转化为求二维表中连续为1的元素组成的面积。</p> 
+   </div> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="自包含">自包含</h3> 
+   <div class="paragraph"> 
+    <p>一个类的属性的类型是类本身，体现在JSON数据就是数据可以递归嵌套。</p> 
+   </div> 
+   <div class="listingblock"> 
+    <div class="content"> 
+     <pre>class Code {
+    private Code child;
+    private Integer id;
+}</pre> 
+    </div> 
+   </div> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="命名规范">命名规范</h3> 
+   <div class="paragraph"> 
+    <p>API返回的JSON基本上都是API开发者定义好的，给啥就是啥。 所以如果用JSON里面的key的名字原封不动的生成对象的属性，即使能编译通过，IDE也会报各种警告，这可能会让代码强迫症患者抓狂。</p> 
+   </div> 
+   <div class="paragraph"> 
+    <p>常见的命名规范有驼峰，下划线或者中划线分割名字，除此之外还涉及大小写不规范，不分大小写和单词连接在一起（如<em>helloworld</em>）等问题。这些都可能在一个JSON文档里面混合着出现。。。</p> 
+   </div> 
+   <div class="paragraph"> 
+    <p>所以我们也针对key的名称做了一些统一处理。 方法就是先按照分隔符或者驼峰的大小写变化分词，然后把分词之后的每个词对照着字典在分为有意义的多个英文单词，这时就会有多种分法，比如<em>another</em>可以是1个单词，也可以拆分成两个单词<em>an</em>和<em>other</em>。把所有的得到的单词都组成一个状态机，问题转化为寻找给定字符串的最长前缀同时也是最多单词匹配的。</p> 
+   </div> 
+   <div class="paragraph"> 
+    <p>之后按照想要的命名规范比如驼峰的形式生成属性名，然后用<code>annotation</code>的方式记录原始名字，保证对象的序列化和反序列化能正常工作。</p> 
+   </div> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="jsonpath的支持">JsonPath的支持</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>使用JsonPath是想用JsonPath的方式指定一些属性，然后针对这些属性做特殊的配置，来影响生成的对象。目前的实现里面还不是很规范。完善后补充。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="可配置点">可配置点</h2> 
+ <div class="sectionbody"> 
+  <div class="ulist checklist"> 
+   <ul class="checklist"> 
+    <li> <p><i class="fa fa-square-o"></i> 数值类型是否使用<code>byte</code>或者<code>short</code>， 可以仅仅使用<code>Integer</code>，<code>Long</code> 或者<code>Float</code>，<code>Double</code>。</p> </li> 
+    <li> <p><i class="fa fa-check-square-o"></i> Raw JSON解析。也就是String的值其实是一个JSON字符串，可以进一步的解析对象</p> </li> 
+    <li> <p><i class="fa fa-check-square-o"></i> 支持Jackson注解</p> </li> 
+    <li> <p><i class="fa fa-square-o"></i> 生成Jackson反序列化代码</p> </li> 
+    <li> <p><i class="fa fa-square-o"></i> Lombok支持，builder模式</p> </li> 
+    <li> <p><i class="fa fa-check-square-o"></i> 驼峰变量名重写</p> </li> 
+    <li> <p><i class="fa fa-square-o"></i> 代码路径版本化，不会覆盖上次生成的代码</p> </li> 
+    <li> <p><i class="fa fa-square-o"></i> 字符串与boolean值的转换，比如<code>"true|yes|1"⇒true</code>或者<code>"false|no|0" ⇒ false</code></p> </li> 
+    <li> <p><i class="fa fa-square-o"></i> 整数与boolean值的转换，比如<code>1⇒true</code>或者<code>0⇒false</code></p> </li> 
+   </ul> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="实现方案">实现方案</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>具体到实现的时候，采用先将JSON解析为Protobuf的方式，然后再将Protobuf转为Java。这样就是选择Protobuf为一种中间表达(IR)，就像Java的bytecode一样，这样方便利用Protobuf的多语言支持，将JSON转化为更多目标语言。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="使用方式">使用方式</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>打算通过3种方式来使用，分别是：</p> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="命令行">命令行</h3> 
+   <div class="paragraph"> 
+    <p>参见项目<code>json2bean-standalone</code>，用Maven打包生成一个可执行的jar包，然后通过命令行传输参数执行。</p> 
+   </div> 
+   <div class="paragraph"> 
+    <p>直接运行：</p> 
+   </div> 
+   <div class="listingblock"> 
+    <div class="content"> 
+     <pre class="highlight"><code class="language-bash" data-lang="bash">java -jar json2bean-standalone-0.17-SNAPSHOT.jar</code></pre> 
+    </div> 
+   </div> 
+   <div class="paragraph"> 
+    <p>输出帮助信息：</p> 
+   </div> 
+   <div class="listingblock"> 
+    <div class="content"> 
+     <pre class="highlight"><code class="language-bash" data-lang="bash">usage: json2 &lt;command&gt; [ &lt;args&gt; ] <i class="conum" data-value="1"></i><b>(1)</b>
+
+Commands are:
+    all      Convert JSON to all supported targets in one run. <i class="conum" data-value="2"></i><b>(2)</b>
+    avro     Translate JSON to Apache Avro schema. <i class="conum" data-value="3"></i><b>(3)</b>
+    bean     Convert JSON to Java POJO. <i class="conum" data-value="4"></i><b>(4)</b>
+    go       Translate JSON to golang struct. <i class="conum" data-value="5"></i><b>(5)</b>
+    help     Display help information <i class="conum" data-value="6"></i><b>(6)</b>
+    proto    Translate JSON to Protobuf Schema. <i class="conum" data-value="7"></i><b>(7)</b>
+    thrift   Translate JSON to Thrift IDL. <i class="conum" data-value="8"></i><b>(8)</b>
+
+See 'json2 help &lt;command&gt;' for more information on a specific command.</code></pre> 
+    </div> 
+   </div> 
+   <div class="colist arabic"> 
+    <table> 
+     <tbody>
+      <tr> 
+       <td><i class="conum" data-value="1"></i><b>1</b></td> 
+       <td>json2 可以在命令行设置一个<code>alias json2="java -jar json2bean-standalone-0.17-SNAPSHOT.jar"</code>。 这里面的Java环境和Jar包的路径需要根据自身情况修改一下。</td> 
+      </tr> 
+      <tr> 
+       <td><i class="conum" data-value="2"></i><b>2</b></td> 
+       <td>all命令，一次性生成所有支持的格式，效果相当于分别执行不同的命令。</td> 
+      </tr> 
+      <tr> 
+       <td><i class="conum" data-value="3"></i><b>3</b></td> 
+       <td>avro命令，生成Apache Avro Schema。</td> 
+      </tr> 
+      <tr> 
+       <td><i class="conum" data-value="4"></i><b>4</b></td> 
+       <td>bean命令，生成POJO。</td> 
+      </tr> 
+      <tr> 
+       <td><i class="conum" data-value="5"></i><b>5</b></td> 
+       <td>go命令，生成Golang struct。</td> 
+      </tr> 
+      <tr> 
+       <td><i class="conum" data-value="6"></i><b>6</b></td> 
+       <td>help命令，默认打印帮助信息。</td> 
+      </tr> 
+      <tr> 
+       <td><i class="conum" data-value="7"></i><b>7</b></td> 
+       <td>proto命令，生成Protobuf Schema。</td> 
+      </tr> 
+      <tr> 
+       <td><i class="conum" data-value="8"></i><b>8</b></td> 
+       <td>thrift命令，生成Thrift IDL。</td> 
+      </tr> 
+     </tbody>
+    </table> 
+   </div> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="maven插件">Maven插件</h3> 
+   <div class="paragraph"> 
+    <p>筹划中。。。</p> 
+   </div> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="intellij_idea插件">Intellij IDEA插件</h3> 
+   <div class="paragraph"> 
+    <p>筹划中。。。</p> 
+   </div> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="参考">参考</h2> 
+ <div class="sectionbody"> 
+  <div class="ulist"> 
+   <ul> 
+    <li> <p><a href="https://github.com/m-zajac/json2go.git" class="bare">https://github.com/m-zajac/json2go.git</a></p> </li> 
+   </ul> 
+  </div> 
+ </div> 
+</div></p>
   		<a href="blog/2021/11/languages-i-learned-those-years.html"><h1>这些年学过/用过的编程语言</h1></a>
   		<p>
 			<a href="/about.html"><strong>乔治</strong></a>于2021年11月19日
@@ -447,301 +788,6 @@ sudo ps -ef;</code></pre>
    <ul> 
     <li> <p>The SO_REUSEPORT socket option, <a href="https://lwn.net/Articles/542629/" class="bare">https://lwn.net/Articles/542629/</a></p> </li> 
     <li> <p>reploop-topology, <a href="https://github.com/reploop/reploop-topology" class="bare">https://github.com/reploop/reploop-topology</a></p> </li> 
-   </ul> 
-  </div> 
- </div> 
-</div></p>
-  		<a href="blog/2021/09/maven-deps.html"><h1>Maven依赖管理理解</h1></a>
-  		<p>
-			<a href="/about.html"><strong>乔治</strong></a>于2021年09月24日
-					<span class="badge badge-dark">maven</span>
-					<span class="badge badge-dark">dependency</span>
-					<span class="badge badge-dark">bom</span>
-		</p>
-  		<p><div id="preamble"> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>根据<span class="underline"><a href="https://www.jrebel.com/resources/java-developer-productivity-report-2021">JRebel 2021 Java Developer Productivity Report</a></span> ，Java项目构建工具中第一名的Maven占了67%，第二名的Gradle是20%。所以理解和掌握Maven是非常必要的。</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>现在稍微大一点的Java项目都会涉及到bom和module，然后经过在pom.xml中的parent和dependency节点的组合之后，很方便的管理了。 不过也很容易造成模块或者依赖类库版本的冲突。而且这种问题一般编译期间不容易发现，到了运行期间就会出这种依赖的问题。遇到依赖的类库不符合预期的时候，我们一般就会问2个问题：</p> 
-  </div> 
-  <div class="ulist"> 
-   <ul> 
-    <li> <p>怎么引入的这个类库？</p> </li> 
-    <li> <p>为什么选择了这个版本？</p> </li> 
-   </ul> 
-  </div> 
-  <div class="paragraph"> 
-   <p>为了回答这两个问题，我们先从介绍Maven开始。</p> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="bom">BOM</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>BOM(Bill Of Materials)实质上就是一个特别的POM，在这个POM中集中的定义项目的依赖和管理和更新他们版本。这个就把管理和更新依赖及其版本的职责集中到一处统一管理、测试以及发布，其他项目只要依赖这个POM就省去了每个人都要考虑使用那个依赖的那个版本的问题。</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>BOM一般有两种使用方式，</p> 
-  </div> 
-  <div class="ulist"> 
-   <ul> 
-    <li> <p>一种是直接通过pom.xml中的parent节点继承，一个项目只能有一个parent，这种常见的是一个组织内部自定义的BOM。</p> </li> 
-   </ul> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlight"><code class="language-xml" data-lang="xml">&lt;parent&gt;
-    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
-    &lt;artifactId&gt;spring-boot-dependencies&lt;/artifactId&gt;
-    &lt;version&gt;2.5.4&lt;/version&gt;
-    &lt;relativePath/&gt;
-&lt;/parent&gt;</code></pre> 
-   </div> 
-  </div> 
-  <div class="ulist"> 
-   <ul> 
-    <li> <p>另一种方式是在pom.xml中的dependency management中使用import pom的方式引入。 这个没有数量的限制，常见的第三方类库都可以通过这种方式管理。</p> </li> 
-   </ul> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlight"><code class="language-xml" data-lang="xml">&lt;dependencyManagement&gt;
-    &lt;dependency&gt;
-        &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
-        &lt;artifactId&gt;spring-boot-dependencies&lt;/artifactId&gt;
-        &lt;version&gt;2.5.4&lt;/version&gt;
-        &lt;type&gt;pom&lt;/type&gt; <i class="conum" data-value="1"></i><b>(1)</b>
-        &lt;scope&gt;import&lt;/scope&gt; <i class="conum" data-value="2"></i><b>(2)</b>
-    &lt;/dependency&gt;
-&lt;/dependencyManagement&gt;</code></pre> 
-   </div> 
-  </div> 
-  <div class="colist arabic"> 
-   <table> 
-    <tbody>
-     <tr> 
-      <td><i class="conum" data-value="1"></i><b>1</b></td> 
-      <td>type指定为pom</td> 
-     </tr> 
-     <tr> 
-      <td><i class="conum" data-value="2"></i><b>2</b></td> 
-      <td>scope指定为import</td> 
-     </tr> 
-    </tbody>
-   </table> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="继承parent">继承(Parent)</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>pom.xml中声明parent节点之后，就是当前项目pom会继承指定的parent节点中的项目。 所谓的继承，也没啥特别的，其实就是一个把父项目中内容拷贝合并到子项目中的意思。只不过在拷贝合并的过程中，子项目中的元素会覆盖(overwrite)父项目中的相同元素。 而且一个项目只能有一个parent项目，这是不是和Java语言中的类的单继承机制很像？</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>所以maven编译的时候就是直接递归的把当前项目的所有父项目的pom.xml内容依次拷贝到子项目的pom.xml文件中，同时在这个拷贝合并的过程中应用上面的覆盖原则。 之后就生成了一个effective pom，效果相当于执行如下命令：</p> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlight"><code class="language-shell script" data-lang="shell script">mvn help:effective-pom</code></pre> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>事实上，Maven还允许精细化控制这个拷贝合并的继承机制，更多细节参见Maven<strong><a href="https://maven.apache.org/pom.html#Plugins">POM Reference</a></strong></p> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="传递依赖transitive_dependencies">传递依赖(Transitive Dependencies)</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>传递依赖是说当前项目能够自动的把它依赖的类库的依赖引入过来。这样就省去了当前项目重复的逐个申明依赖的类库。</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>假设有A项目申明了依赖B，而项目B申明了依赖C，D和E：</p> 
-  </div> 
-  <div class="imageblock"> 
-   <div class="content"> 
-    <img src="https://www.reploop.org/blog/2021/09/images/deps.svg" alt="A只申明了依赖B"> 
-   </div> 
-   <div class="title">
-    Figure 1. A只申明了依赖B
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>应用依赖传递之后，项目A实际上是依赖的B，C，D和E。效果等同下图：</p> 
-  </div> 
-  <div class="imageblock"> 
-   <div class="content"> 
-    <img src="https://www.reploop.org/blog/2021/09/images/deps-resolved.svg" alt="A实际上依赖了B，C，D，E"> 
-   </div> 
-   <div class="title">
-    Figure 2. A实际上依赖了B，C，D，E
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>这里面还涉及一个依赖的scope的问题，会影响依赖的传递，先不细说了，也不影响理解依赖的传递。</p> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="依赖管理dependency_management">依赖管理(Dependency Management)</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>BOM中dependencyManagement元素就是集中定义依赖及其版本的地方，这样使用这个BOM的项目就不需要在单独定义版本了。而且dependencyManagement元素中的依赖只有用到了才起作用，也就是出现在dependencies节点中的时候，这时候就不用指定依赖的版本号了。</p> 
-  </div> 
-  <div class="quoteblock"> 
-   <blockquote>
-     Dependency management - this allows project authors to directly specify the versions of artifacts to be used when they are encountered in transitive dependencies or in dependencies where no version has been specified. In the example in the preceding section a dependency was directly added to A even though it is not directly used by A. Instead, A can include D as a dependency in its dependencyManagement section and directly control which version of D is used when, or if, it is ever referenced. 
-   </blockquote> 
-   <div class="attribution">
-     — Maven
-    <br> <cite>https://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html</cite> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>dependencyManagement元素中定义的依赖及其版本是能够直接控制传递依赖和没有指定版本的依赖的版本的。但是如果是当前项目的pom.xml的dependencies节点中直接申明的带版本的依赖，则不受dependencyManagement中定义的版本控制。</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>假如项目A中直接依赖了B，通过B间接依赖的2.0版本的C，如下图：</p> 
-  </div> 
-  <div class="imageblock"> 
-   <div class="content"> 
-    <img src="https://www.reploop.org/blog/2021/09/images/deps-version.svg" alt="A项目的传递依赖C(2.0)"> 
-   </div> 
-   <div class="title">
-    Figure 3. A项目的传递依赖C(2.0)
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>这时候如果 dependencyManagement元素中直接定义了1.0版本的依赖C，那最终A项目依赖的C是1.0版本的：</p> 
-  </div> 
-  <div class="imageblock"> 
-   <div class="content"> 
-    <img src="https://www.reploop.org/blog/2021/09/images/deps-version-resolved.svg" alt="A项目的实际依赖C(1.0)"> 
-   </div> 
-   <div class="title">
-    Figure 4. A项目的实际依赖C(1.0)
-   </div> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="依赖协调dependency_mediation">依赖协调(Dependency Mediation)</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>我们知道一个依赖可以通一个三元组(groupId:artifactId:version)来确定, 其中的groupId:artifactId组合用来区分不同的依赖，同一个依赖则是用version来确定用哪一个。</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>这里面的version没有具体的规范，就是一个字符串, 所以Maven不知道同一个依赖的不同版本哪个是新的，那个是旧的。因此有多个版本的时候不是选用最新的版本，而是选当前项目的依赖中最近的声明版本(nearest definition)。</p> 
-  </div> 
-  <div class="quoteblock"> 
-   <blockquote>
-     Dependency mediation - this determines what version of an artifact will be chosen when multiple versions are encountered as dependencies. Maven picks the "nearest definition". That is, it uses the version of the closest dependency to your project in the tree of dependencies. You can always guarantee a version by declaring it explicitly in your project’s POM. Note that if two dependency versions are at the same depth in the dependency tree, the first declaration wins. 
-   </blockquote> 
-   <div class="attribution">
-     — Maven
-    <br> <cite>https://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html</cite> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>把当前项目的依赖组织成一棵树, 姑且称之为依赖树，寻找最近申明的依赖的过程就是广度优先(BFS)遍历这棵树，遇到遍历过的依赖就剪枝，删除包含遍历过的节点以及其子树。这样就是在依赖树中寻找到当前项目的最短路径的依赖，而相同层级的话，也优先使用了最先遇到的。这里面也隐含了依赖申明顺序的问题，稍后说明。</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>假设项目A的依赖关系如下图，对于D这个依赖来讲，应用nearest definition原则，Maven最终会选用的版本是D(2.0)。</p> 
-  </div> 
-  <div class="imageblock"> 
-   <div class="content"> 
-    <img src="https://www.reploop.org/blog/2021/09/images/deps-version-tree.svg" alt="项目A的依赖树"> 
-   </div> 
-   <div class="title">
-    Figure 5. 项目A的依赖树
-   </div> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="依赖优先级">依赖优先级</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>整个依赖管理中的优先级从高到低依次如下：</p> 
-  </div> 
-  <div class="olist arabic"> 
-   <ol class="arabic"> 
-    <li> <p>项目的dependencies中直接声明的依赖及其版本，一般同一个项目中不会申明相同依赖的不同版本，如果出现的话，优先使用先申明的依赖；</p> </li> 
-    <li> <p>parent项目的dependencies节点中申明的依赖及其版本(参考上面的继承)；</p> </li> 
-    <li> <p>import pom中申明的依赖及其版本，import pom的顺序很关键，如有依赖有版本冲突，按照声明的顺序依次使用；</p> </li> 
-    <li> <p>当前项目的间接传递依赖及其版本。</p> </li> 
-   </ol> 
-  </div> 
-  <div class="paragraph"> 
-   <p>总结下来就是不同优先级的按照从高到低的优先级，相同优先级的按照他们的申明顺序从上到下(pom.xml文件解析顺序，也就是依赖申明顺序)。</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>按照这个优先级，如果你发现有依赖的版本不符合预期，则可以通过这个优先级顺序在合适的地方直接申明想要的依赖就可以了。常见的我们就会直接在当前项目的pom.xml中直接申明一下需要使用的版本就可以了。</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>这个优先级以及顺序，也是构建依赖树的优先级和顺序。</p> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="常用排查命令">常用排查命令</h2> 
- <div class="sectionbody"> 
-  <div class="sect2"> 
-   <h3 id="查看依赖树">查看依赖树</h3> 
-   <div class="paragraph"> 
-    <p>查看依赖树是非常常用的，这里除了默认的文本输出，还可以使用outputType参数来指定格式如graphml,dot等，接着就可以可视化的展示依赖树了。</p> 
-   </div> 
-   <div class="listingblock"> 
-    <div class="content"> 
-     <pre class="highlight"><code class="language-shell script" data-lang="shell script">mvn dependency:tree -DoutputType=graphml -DoutputFile=dependency.graphml</code></pre> 
-    </div> 
-   </div> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="查看依赖使用情况">查看依赖使用情况</h3> 
-   <div class="paragraph"> 
-    <p>分析依赖使用与否的情况，貌似不太准确，参考就可以了。</p> 
-   </div> 
-   <div class="listingblock"> 
-    <div class="content"> 
-     <pre class="highlight"><code class="language-shell script" data-lang="shell script">mvn dependency:analyze</code></pre> 
-    </div> 
-   </div> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="结论">结论</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>整个Maven依赖管理以当前项目为中心分为2部分，当前项目以上部分适用继承合并pom.xml，当前项目以下的依赖部分适用传递依赖与最短申明距离的依赖协调机制。</p> 
-  </div> 
-  <div class="imageblock"> 
-   <div class="content"> 
-    <img src="https://www.reploop.org/blog/2021/09/images/deps-tree.svg" alt="项目树"> 
-   </div> 
-   <div class="title">
-    Figure 6. Maven项目树
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>通过以上分析，就能回答前面提出的2个问题，并且解决版本冲突的问题。</p> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="参考">参考</h2> 
- <div class="sectionbody"> 
-  <div class="ulist"> 
-   <ul> 
-    <li> <p>JRebel 2021 Java Developer Productivity Report, <a href="https://www.jrebel.com/resources/java-developer-productivity-report-2021" class="bare">https://www.jrebel.com/resources/java-developer-productivity-report-2021</a></p> </li> 
-    <li> <p>Introduction to the Dependency Mechanism, <a href="https://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html" class="bare">https://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html</a></p> </li> 
-    <li> <p>Spring with Maven BOM, <a href="https://www.baeldung.com/spring-maven-bom" class="bare">https://www.baeldung.com/spring-maven-bom</a></p> </li> 
    </ul> 
   </div> 
  </div> 

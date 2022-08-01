@@ -58,6 +58,129 @@
       </div>
     </div>
     <div class="container">
+  		<a href="blog/2020/05/primary-school-mathematics-in-work.html"><h1>小学数学在工作中应用</h1></a>
+  		<p>
+			<a href="/about.html"><strong>乔治</strong></a>于2020年05月04日
+					<span class="badge badge-dark">Java</span>
+					<span class="badge badge-dark">GC</span>
+					<span class="badge badge-dark">网络</span>
+					<span class="badge badge-dark">优化</span>
+					<span class="badge badge-dark">多线程</span>
+					<span class="badge badge-dark">连接池</span>
+					<span class="badge badge-dark">超时</span>
+		</p>
+  		<p><div id="preamble"> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>作为一个Java程序员，干Web相关的开发，除去具体的业务，实质上干的就是通讯的工作，通过网络在不同机器之间来回搬字节（byte）。这么一比较，Java Web程序员的工作某些部分其实和大街小巷里面穿梭的快递员有几分相似。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>回到正路，日常工作中经常会碰到一些数字，需要给出合理的数值。这些数字可能是垃圾回收（GC）的频率，内存（Heap）的大小，线程池（Thread Pool）的大小，对象池（Object Pool）的大小，网络超时（Timeout）时间，压缩阀值等等。都是些应用层的东西，再往下深入到操作系统，协议层面的东西不知道小学数学还适用不适用了。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="gc的频率">GC的频率</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>GC的频率与内存的大小息息相关，如果一个JVM的应用不正常，首要查看的可能就是GC状态。GC，尤其是FGC频繁一定是JVM目前不在正常状态，但是反过来不见的是成立的，这还要取决于你对频繁的理解。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>GC调优的过程中会频繁的遇到下面三个数据，并且这些数据都可以通过 gc log分析计算出来：</p> 
+  </div> 
+  <div class="olist arabic"> 
+   <ol class="arabic"> 
+    <li> <p>内存分配速度(allocate rate)</p> </li> 
+    <li> <p>新老晋升速度(promote rate)</p> </li> 
+    <li> <p>内存回收速度(reclaim rate)</p> </li> 
+   </ol> 
+  </div> 
+  <div class="paragraph"> 
+   <p>一般来说调优就是为了减少应用的停顿时间(stop-the-world time), 在一般应用内存也就是最多几个G的的情况下，可以间接的通过降低GC频率来做到。 这时候我们加入时间参数<strong>t</strong>， 所谓调优就是使得<code>allocate rate * t &lt; reclaim rate * t</code>，只要时间确定的情况下，就可以通过计算来确定新生代和老年代的大小使得他们满足这个不等式就可以粗略的达到以时间<strong>t</strong>为间隔发生GC，也就达到了预期的GC频率。</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>对于老年代来说 promote rate可以粗略的认为是他的allocate rate。 所以一次调优的开始就是问你自己你想让应用多久发生一次GC？</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="线程池的大小">线程池的大小</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>已经写过<a href="https://www.reploop.org/blog/2020/05/how-to-size-thread-pool.html">如何设置线程池的大小</a>，可以移步过去看看。这里面主要考虑的是CPU的计算时间和等待时间这两个因素，就是找到合理的线程数来让你的应用的CPU使用情况能符合计算时间和等待时间这两个因素。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="对象池的大小">对象池的大小</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>说到对象池，最常见的就是数据库的连接池了。因为他保持了真实的连接资源，那么连接池就不能任意的大，而且要根据请求的峰值来动态的扩容来满足性能指标，根据低谷数量来回收连接来释放资源。而且这两个过程要尽量保持平滑，从而避免给服务端比如数据库造成不好的影响。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="网络读超时read_timeout时间">网络读超时（Read Timeout）时间</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>从开始读数据到读到第一个字节的最长时间，超过这个时间，客户端就会报一个Read timeout异常。</p> 
+  </div> 
+  <div class="quoteblock"> 
+   <blockquote>
+     Specifically, if the server fails to send a byte &lt;timeout&gt; seconds after the last byte, a read timeout error will be raised. 
+   </blockquote> 
+   <div class="attribution">
+     — Stephen C
+    <br> <cite>http://stackoverflow.com/questions/3069382/what-is-the-difference-between-connection-and-read-timeout-for-sockets</cite> 
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>这个和应用的处理模式有关系，可以考虑流式的处理，这样就可以尽可能早的开始返回数据。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="网络连接超时connection_timeout">网络连接超时（Connection Timeout）</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>这是建立TCP连接的三次握手完成时间。这里面的涉及的一个众所周知的速度，那就是光速。也就是网络传输速度的上限是信号在光纤中传输的速度-光速。根据<code>距离=速度*时间</code>，那么3次握手的网络连接时间至少是<strong>3*距离/速度(c=299792458m/s)</strong>。那么从北京的机房连接到纽约的机房大约1万公里，那么网络连接时间至少是：<code>3 * 10000km / c = 100ms</code>。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="请求超时request_timeout">请求超时（Request Timeout）</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>上到应用层的请求，那么一次请求所需要的时间至少等于 Connection Timeout + Read Timeout + Data Transferring Time。 这里涉及请求本身的数据传输量，这部分时间也可以根据网速来计算出来。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="压缩阀值">压缩阀值</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>数据该不该压缩也是进场要做的一个决策。这个决策就是压缩所花费的时间小于数据压缩后缩小部分的所需的传输时间，也就是收益大于成本。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="结论">结论</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>这些场景工作中多多少少都有机会碰到，只要思路对上了，剩下的就是小学数学中的加减乘除就可以得出结论了。 这里面也提到了非常多的时间，这部分可以参考<span class="underline"><a href="https://colin-scott.github.io/personal_website/research/interactive_latency.html">Jeff Dean’s latency numbers</a></span>。</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="参考">参考</h2> 
+ <div class="sectionbody"> 
+  <div class="ulist"> 
+   <ul> 
+    <li> <p>Jeff Dean’s latency numbers plotted over time - <a href="https://colin-scott.github.io/personal_website/research/interactive_latency.html" class="bare">https://colin-scott.github.io/personal_website/research/interactive_latency.html</a></p> </li> 
+   </ul> 
+  </div> 
+ </div> 
+</div></p>
   		<a href="blog/2020/05/how-to-size-thread-pool.html"><h1>如何设置线程池的大小？</h1></a>
   		<p>
 			<a href="/about.html"><strong>乔治</strong></a>于2020年05月04日
@@ -270,104 +393,6 @@
   </div> 
   <div class="paragraph"> 
    <p>暂时写这么多，后面遇到新的在补充。</p> 
-  </div> 
- </div> 
-</div></p>
-  		<a href="blog/2020/04/nginx-location-matching-rules.html"><h1>nginx配置文件中的location匹配规则</h1></a>
-  		<p>
-			<a href="/about.html"><strong>乔治</strong></a>于2020年04月04日
-					<span class="badge badge-dark">nginx</span>
-					<span class="badge badge-dark">配置文件</span>
-					<span class="badge badge-dark">优先级</span>
-					<span class="badge badge-dark">优化</span>
-					<span class="badge badge-dark">location</span>
-		</p>
-  		<p><div id="preamble"> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>在反向代理的场景下，nginx用的人很多。在使用nginx的过程中，除了常规的反向代理配置，还经常临时性的要封个请求，加个限速，跳转一下等是常有的事情。这些都和location的配置规则相关。</p> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="location语法">location语法</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>location支持5种语法，分别为：</p> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre>1. location =   /uri {}   #完整字符串匹配，优先级最高，发现匹配就停止
-2. location ^~  /uri {}   #字符串前缀匹配，发现匹配就停止。这个不是正则匹配
-3. location     /uri {}   #字符串前缀匹配，取最具体的那个匹配（the most specific match），可理解为最长匹配。这里即使是找到了匹配，也会继续执行后面的正则匹配。
-4. location ~   /uri {}   #正则匹配,大小写敏感。按在配置文件中定义的顺序执行，发现匹配就停止（The first regular expression to match the query will stop the search））
-5. location ~*  /uri {}   #同规则4(~)，区别就是正则匹配时大小写不敏感</pre> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>“发现匹配就停止”的意思是匹配过程终止了，已经得到了匹配结果并提前返回了，不会在执行后面的匹配了。</p> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="执行顺序">执行顺序</h2> 
- <div class="sectionbody"> 
-  <div class="ulist"> 
-   <ul> 
-    <li> <p>执行完整字符串匹配。从1)开始搜索，如果1）找到匹配，则停止搜索；</p> </li> 
-    <li> <p>执行字符串前缀匹配。执行2），3），目的是找到最具体的那个匹配。此过程不会停止整个匹配过程，完成后会继续执行正则匹配。唯一的例外是，如果location的操作是^~，只要发现匹配就停止搜索；</p> </li> 
-    <li> <p>执行正则匹配。4），5），按照配置文件中出现的顺序挨个匹配，如果发现匹配则停止搜索；</p> </li> 
-    <li> <p>相同规则内执行顺序是按照规则在配置文件中出现的顺序从上到下顺序执行的。</p> </li> 
-   </ul> 
-  </div> 
-  <div class="paragraph"> 
-   <p>一句话概括一下就是先执行完整字符串匹配，找到匹配就结束，没有找到匹配，就继续执行前缀和正则匹配，最后就是如果找到正则匹配，就用正则匹配结果，如果没有找到，就用前缀匹配的结果。当然，有一个例外。</p> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="匹配结果">匹配结果</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>根据<strong>执行顺序</strong>节的解释，我们可以确定匹配结果的优先级是：<strong>完整字符串匹配</strong> &gt; <strong>^~前缀匹配</strong> &gt; <strong>正则匹配</strong> &gt; <strong>字符串前缀匹配</strong>。</p> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="location优化建议">location优化建议</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>根据不同匹配的不同规则，</p> 
-  </div> 
-  <div class="ulist"> 
-   <ul> 
-    <li> <p>在确定的情况下优先使用完整字符串匹配（=），</p> </li> 
-    <li> <p>接下来优先使用（^~）。</p> </li> 
-    <li> <p>接下来就是正则匹配的location要合理排序，最常用，访问最多的要排到前面。</p> </li> 
-    <li> <p>最后是少写不带操作符的字符串前缀匹配。也就是location语法中的3.原因是a)这个过程是在正则匹配之前执行的，为了找到最具体的匹配，应该是需要全部执行;b)它的结果优先级没有正则匹配的高，如果后来发现了正则匹配，此过程就没有意义了。</p> </li> 
-   </ul> 
-  </div> 
-  <div class="paragraph"> 
-   <p>同时应该注意的是正则匹配（4，5）是按照配置文件中出现的顺序挨个匹配，取第一个匹配的结果。如果顺序安排不当，会有覆盖的结果。比如：</p> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlight"><code class="language-bash" data-lang="bash">location ~ /uri {}           <i class="conum" data-value="1"></i><b>(1)</b>
-location ~ /uri/\d{1,}/ {}   <i class="conum" data-value="2"></i><b>(2)</b></code></pre> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>这个配置文件，如果遇到<strong>/uri/12345/</strong>这个请求的时候，最后的匹配结果是uri &lt;1&gt;，而不是后者 &lt;2&gt;。</p> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="参考">参考</h2> 
- <div class="sectionbody"> 
-  <div class="ulist"> 
-   <ul> 
-    <li> <p>nginx.org - <a href="http://wiki.nginx.org/HttpCoreModule#location" class="bare">http://wiki.nginx.org/HttpCoreModule#location</a></p> </li> 
-   </ul> 
   </div> 
  </div> 
 </div></p>
